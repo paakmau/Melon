@@ -1,3 +1,3 @@
-foreach(mylibfolder MelonCore)
-  add_subdirectory(${mylibfolder})
+foreach(LIB_DIR MelonCore)
+  add_subdirectory(${LIB_DIR})
 endforeach()
