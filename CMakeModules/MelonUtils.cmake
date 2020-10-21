@@ -16,7 +16,7 @@ macro(setup_library)
   endif()
 
   if(TARGET_LIBRARIES)
-    target_link_libraries(${TARGET_NAME} ${TARGET_LIBRARIES})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${TARGET_LIBRARIES})
   endif()
   if(TARGET_PRIVATE_LIBRARIES)
     target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_PRIVATE_LIBRARIES})
