@@ -70,6 +70,7 @@ void TaskManager::queueTask(const std::shared_ptr<TaskHandle>& task) {
 
 std::shared_ptr<TaskHandle> TaskManager::getNextTask() {
     std::unique_lock lock(_taskQueueMutex);
+    // To avoid spurious wakeup
     while (_taskQueue.empty() && !_stop) _taskQueueConditionVariable.wait(lock);
     if (_stop) return nullptr;
     std::shared_ptr<TaskHandle> task = _taskQueue.front();
