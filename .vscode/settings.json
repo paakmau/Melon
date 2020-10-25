@@ -1,6 +1,5 @@
 {
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "cmakeFormat.exePath": "/Users/hebo/Library/Python/3.8/bin/cmake-format",
     "files.associations": {
         "functional": "cpp",
         "deque": "cpp",
@@ -79,6 +78,7 @@
         "__functional_base_03": "cpp",
         "__memory": "cpp",
         "memory_resource": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "unordered_set": "cpp"
     }
 }
