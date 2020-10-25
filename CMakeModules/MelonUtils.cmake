@@ -1,6 +1,7 @@
 macro(setup_library)
 
-  file(GLOB TARGET_HEADER_FILES $<BUILD_INTERFACE:"${PROJECT_SOURCE_DIR}/${TARGET_NAME}/*.h">)
+  file(GLOB TARGET_HEADER_FILES
+       $<BUILD_INTERFACE:"${PROJECT_SOURCE_DIR}/${TARGET_NAME}/*.h">)
 
   add_library(${TARGET_NAME} ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
 
@@ -11,7 +12,7 @@ macro(setup_library)
     target_include_directories(${TARGET_NAME} PUBLIC ${TARGET_INCLUDE_DIRS})
   endif()
   if(TARGET_PRIVATE_INCLUDE_DIRS)
-    target_include_directories(MelonGraphics
+    target_include_directories(${TARGET_NAME}
                                PRIVATE ${TARGET_PRIVATE_INCLUDE_DIRS})
   endif()
 
