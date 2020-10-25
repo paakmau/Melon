@@ -17,15 +17,15 @@ struct Translation {
     int z;
 };
 
-class ChunkTaskSystem : public Melon::SystemBase {
+class ChunkTaskSystem : public MelonCore::SystemBase {
    public:
-    class FootChunkTask : public Melon::ChunkTask {
+    class FootChunkTask : public MelonCore::ChunkTask {
        public:
-        virtual void execute(const Melon::ChunkAccessor& chunkAccessor) override {
-            Melon::Entity* entities = chunkAccessor.entityArray();
+        virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor) override {
+            MelonCore::Entity* entities = chunkAccessor.entityArray();
             Foot* feet = chunkAccessor.componentArray<Foot>(_footComponentId);
             for (int i = 0; i < chunkAccessor.entityCount(); i++) {
-                Melon::Entity entity = entities[i];
+                MelonCore::Entity entity = entities[i];
                 Foot& foot = feet[i];
                 int speed = foot.speed;
                 foot.speed += 1;
@@ -36,7 +36,7 @@ class ChunkTaskSystem : public Melon::SystemBase {
     };
 
     void onEnter() override {
-        std::vector<Melon::Entity> entities;
+        std::vector<MelonCore::Entity> entities;
         for (int i = 0; i < 1024; i++)
             entities.emplace_back(entityManager()->createEntity<Foot>());
         for (int i = 0; i * 3 < entities.size(); i++)
@@ -50,7 +50,7 @@ class ChunkTaskSystem : public Melon::SystemBase {
     }
 
     void onUpdate() override {
-        printf("Delta time : %f\n", Melon::Time::instance()->deltaTime());
+        printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
         predecessor() = schedule(std::make_shared<FootChunkTask>(_footComponentId), entityManager()->createEntityFilter<Foot>(), predecessor());
     }
 
@@ -60,7 +60,7 @@ class ChunkTaskSystem : public Melon::SystemBase {
 };
 
 int main() {
-    Melon::Instance instance;
+    MelonCore::Instance instance;
     instance.registerSystem<ChunkTaskSystem>();
     instance.startGame();
     return 0;

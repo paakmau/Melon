@@ -7,17 +7,17 @@
 #include <cstdio>
 #include <memory>
 
-class HelloWorldSystem : public Melon::SystemBase {
+class HelloWorldSystem : public MelonCore::SystemBase {
    public:
     HelloWorldSystem(int numA) : _numA(numA), _numB(0), _numSum(_numA + _numB) {}
 
     void onEnter() override {}
 
     void onUpdate() override {
-        std::printf("Delta time : %f, %d + %d = %d\n", Melon::Time::instance()->deltaTime(), _numA, _numB, _numSum);
-        std::shared_ptr<Melon::TaskHandle> a = Melon::TaskManager::instance()->schedule([this]() { _numA++; }, {predecessor()});
-        std::shared_ptr<Melon::TaskHandle> b = Melon::TaskManager::instance()->schedule([this]() { _numB++; }, {predecessor()});
-        predecessor() = Melon::TaskManager::instance()->schedule([this]() { _numSum = _numA + _numB; }, {a, b});
+        std::printf("Delta time : %f, %d + %d = %d\n", MelonCore::Time::instance()->deltaTime(), _numA, _numB, _numSum);
+        std::shared_ptr<MelonCore::TaskHandle> a = MelonCore::TaskManager::instance()->schedule([this]() { _numA++; }, {predecessor()});
+        std::shared_ptr<MelonCore::TaskHandle> b = MelonCore::TaskManager::instance()->schedule([this]() { _numB++; }, {predecessor()});
+        predecessor() = MelonCore::TaskManager::instance()->schedule([this]() { _numSum = _numA + _numB; }, {a, b});
     }
 
     void onExit() override {}
@@ -28,7 +28,7 @@ class HelloWorldSystem : public Melon::SystemBase {
 };
 
 int main() {
-    Melon::Instance instance;
+    MelonCore::Instance instance;
     instance.registerSystem<HelloWorldSystem>(1);
     instance.startGame();
     return 0;
