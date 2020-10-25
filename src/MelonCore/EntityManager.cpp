@@ -3,7 +3,7 @@
 
 #include <typeindex>
 
-namespace Melon {
+namespace MelonCore {
 
 EntityCommandBuffer::EntityCommandBuffer(EntityManager* entityManager) : _entityManager(entityManager) {}
 
@@ -96,4 +96,4 @@ void EntityManager::executeEntityCommandBuffers() {
         buffer.execute();
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

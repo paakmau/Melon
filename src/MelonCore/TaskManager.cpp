@@ -2,7 +2,7 @@
 #include <MelonCore/TaskManager.h>
 #include <MelonCore/TaskWorker.h>
 
-namespace Melon {
+namespace MelonCore {
 
 TaskManager* TaskManager::instance() {
     static TaskManager sInstance;
@@ -78,4 +78,4 @@ std::shared_ptr<TaskHandle> TaskManager::getNextTask() {
     return task;
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

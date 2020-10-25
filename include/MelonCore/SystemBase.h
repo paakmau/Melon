@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace Melon {
+namespace MelonCore {
 
 class ChunkTask;
 class EntityFilter;
@@ -38,4 +38,4 @@ class SystemBase {
     friend class World;
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

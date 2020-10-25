@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Melon {
+namespace MelonCore {
 
 template <typename T>
 class ObjectPool;
@@ -124,4 +124,4 @@ inline void* Combination::componentAddress(Chunk* const& chunk, const unsigned i
     return static_cast<void*>(reinterpret_cast<std::byte*>(chunk) + _chunkLayout.componentOffsets[componentIndex] + _chunkLayout.componentSizes[componentIndex] * entityIndexInChunk);
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

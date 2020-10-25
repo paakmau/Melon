@@ -5,7 +5,7 @@
 #include <cstring>
 #include <functional>
 
-namespace Melon {
+namespace MelonCore {
 
 Combination::Combination(
     const std::vector<unsigned int>& componentIds,
@@ -124,4 +124,4 @@ void Combination::recycleChunk() {
     _countInCurrentChunk = _chunkCapacity;
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

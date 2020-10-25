@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-namespace Melon {
+namespace MelonCore {
 
 class Time {
    public:
@@ -20,4 +20,4 @@ class Time {
     friend class Instance;
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

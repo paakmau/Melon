@@ -1,6 +1,6 @@
 #include <MelonCore/Time.h>
 
-namespace Melon {
+namespace MelonCore {
 
 Time* Time::instance() {
     static Time sInstance;
@@ -22,4 +22,4 @@ void Time::update() {
     _previousTimePoint = now;
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

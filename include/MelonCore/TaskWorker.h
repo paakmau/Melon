@@ -2,7 +2,7 @@
 
 #include <thread>
 
-namespace Melon {
+namespace MelonCore {
 
 class TaskWorker {
    public:
@@ -16,4 +16,4 @@ class TaskWorker {
     bool _stop{};
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

@@ -4,7 +4,7 @@
 #include <new>
 #include <vector>
 
-namespace Melon {
+namespace MelonCore {
 
 template <typename T>
 class ObjectPool {
@@ -68,4 +68,4 @@ void ObjectPool<T>::createBuffer() {
         _pool.push_back(p);
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace Melon {
+namespace MelonCore {
 
 Instance::Instance() {
     _entityManager = std::make_unique<EntityManager>();
@@ -26,4 +26,4 @@ void Instance::mainLoop() {
     }
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

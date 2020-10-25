@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Melon {
+namespace MelonCore {
 
 class Archetype;
 
@@ -8,4 +8,4 @@ struct Entity {
     const unsigned int id;
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

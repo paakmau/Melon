@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace Melon {
+namespace MelonCore {
 
 class ChunkAccessor;
 
@@ -12,4 +12,4 @@ class ChunkTask {
     virtual void execute(const ChunkAccessor& chunkAccessor) = 0;
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

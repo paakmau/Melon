@@ -2,10 +2,10 @@
 
 #include <vector>
 
-namespace Melon {
+namespace MelonCore {
 
 struct Archetype {
     const unsigned int id;
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

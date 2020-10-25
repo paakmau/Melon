@@ -3,10 +3,10 @@
 #include <vector>
 #include <bitset>
 
-namespace Melon {
+namespace MelonCore {
 
 struct EntityFilter {
     std::bitset<1024> componentMask;
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

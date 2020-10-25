@@ -4,7 +4,7 @@
 #include <MelonCore/TaskHandle.h>
 #include <MelonCore/TaskManager.h>
 
-namespace Melon {
+namespace MelonCore {
 
 SystemBase::SystemBase() {}
 
@@ -43,4 +43,4 @@ void SystemBase::exit() {
     onExit();
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

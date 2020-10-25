@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 
-namespace Melon {
+namespace MelonCore {
 
 TaskWorker::TaskWorker() {
     _thread = std::thread(&TaskWorker::threadEntryPoint, this);
@@ -30,4 +30,4 @@ void TaskWorker::join() {
     _thread.join();
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

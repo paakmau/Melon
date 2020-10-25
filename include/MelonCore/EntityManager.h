@@ -17,7 +17,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Melon {
+namespace MelonCore {
 
 class EntityManager;
 
@@ -296,4 +296,4 @@ void EntityManager::setComponentImmediately(const Entity& entity, const T& compo
     _archetypeCombinations[archetypeId]->setComponent(_entityIndicesInCombination[entity.id], componentId, static_cast<const void*>(&component));
 }
 
-}  // namespace Melon
+}  // namespace MelonCore

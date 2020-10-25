@@ -5,7 +5,7 @@
 #include <queue>
 #include <vector>
 
-namespace Melon {
+namespace MelonCore {
 
 class TaskHandle;
 class TaskWorker;
@@ -43,4 +43,4 @@ class TaskManager {
     friend class TaskWorker;
 };
 
-}  // namespace Melon
+}  // namespace MelonCore

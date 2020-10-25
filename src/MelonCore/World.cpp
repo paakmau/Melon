@@ -3,7 +3,7 @@
 #include <MelonCore/World.h>
 #include <MelonCore/TaskManager.h>
 
-namespace Melon {
+namespace MelonCore {
 
 World::World(EntityManager* entityManager) : _entityManager(entityManager) {
     _entityCommandBufferExecutor = [entityManager]() {
@@ -35,4 +35,4 @@ void World::exit() {
         system->exit();
 }
 
-}  // namespace Melon
+}  // namespace MelonCore
