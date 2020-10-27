@@ -53,7 +53,7 @@ unsigned int Combination::addEntity(const Entity& entity) {
     return entityIndexInCombination;
 }
 
-unsigned int Combination::copyEntity(const unsigned int& entityIndexInSrcCombination, Combination* const& srcCombination) {
+unsigned int Combination::copyEntity(const unsigned int& entityIndexInSrcCombination, Combination* srcCombination) {
     Chunk* dstChunk = _chunks.back();
     unsigned int entityIndexInDstChunk = _countInCurrentChunk++;
     unsigned int entityIndexInDstCombination = _count++;

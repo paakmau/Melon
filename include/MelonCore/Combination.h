@@ -28,7 +28,7 @@ class ChunkAccessor {
     const unsigned int& entityCount() const { return _entityCount; }
 
    private:
-    ChunkAccessor(std::byte* const& chunk, const ChunkLayout& chunkLayout, const unsigned int& entityCount);
+    ChunkAccessor(std::byte* chunk, const ChunkLayout& chunkLayout, const unsigned int& entityCount);
     std::byte* const _chunk;
     const ChunkLayout& _chunkLayout;
     const unsigned int _entityCount;
@@ -50,7 +50,7 @@ class Combination {
         ObjectPool<Chunk>* chunkPool);
 
     unsigned int addEntity(const Entity& entity);
-    unsigned int copyEntity(const unsigned int& entityIndexInSrcCombination, Combination* const& srdCombination);
+    unsigned int copyEntity(const unsigned int& entityIndexInSrcCombination, Combination* srdCombination);
     Entity removeEntity(const unsigned int& entityIndex);
     void setComponent(const unsigned int& entityIndex, const unsigned int& componentId, const void* component);
 
@@ -66,9 +66,9 @@ class Combination {
     void recycleChunk();
 
     Entity* entityAddress(const unsigned int& entityIndex) const;
-    Entity* entityAddress(Chunk* const& chunk, const unsigned int& entityIndexInChunk) const;
+    Entity* entityAddress(Chunk* chunk, const unsigned int& entityIndexInChunk) const;
     void* componentAddress(const unsigned int& componentId, const unsigned int& entityIndex) const;
-    void* componentAddress(Chunk* const& chunk, const unsigned int& componentIndex, const unsigned int& entityIndexInChunk) const;
+    void* componentAddress(Chunk* chunk, const unsigned int& componentIndex, const unsigned int& entityIndexInChunk) const;
 
     ChunkLayout _chunkLayout;
 
@@ -89,12 +89,12 @@ inline Entity* ChunkAccessor::entityArray() const {
     return reinterpret_cast<Entity*>(reinterpret_cast<std::byte*>(_chunk) + _chunkLayout.entityOffset);
 }
 
-inline ChunkAccessor::ChunkAccessor(std::byte* const& chunk, const ChunkLayout& chunkLayout, const unsigned int& entityCount) : _chunk(chunk), _chunkLayout(chunkLayout), _entityCount(entityCount) {}
+inline ChunkAccessor::ChunkAccessor(std::byte* chunk, const ChunkLayout& chunkLayout, const unsigned int& entityCount) : _chunk(chunk), _chunkLayout(chunkLayout), _entityCount(entityCount) {}
 
 inline std::vector<ChunkAccessor> Combination::chunkAccessors() const {
     std::vector<ChunkAccessor> accessors;
     accessors.reserve(_chunks.size());
-    for (Chunk* const& chunk : _chunks)
+    for (Chunk* chunk : _chunks)
         accessors.emplace_back(ChunkAccessor(reinterpret_cast<std::byte*>(chunk), _chunkLayout, chunk != _chunks.back() ? _chunkCapacity : _countInCurrentChunk));
     return accessors;
 }
@@ -109,7 +109,7 @@ inline Entity* Combination::entityAddress(const unsigned int& entityIndex) const
     return entityAddress(chunk, entityIndexInChunk);
 }
 
-inline Entity* Combination::entityAddress(Chunk* const& chunk, const unsigned int& entityIndexInChunk) const {
+inline Entity* Combination::entityAddress(Chunk* chunk, const unsigned int& entityIndexInChunk) const {
     return reinterpret_cast<Entity*>(reinterpret_cast<std::byte*>(chunk) + _chunkLayout.entityOffset + sizeof(Entity) * entityIndexInChunk);
 }
 
@@ -120,7 +120,7 @@ inline void* Combination::componentAddress(const unsigned int& componentId, cons
     return componentAddress(chunk, componentIndex, entityIndexInChunk);
 }
 
-inline void* Combination::componentAddress(Chunk* const& chunk, const unsigned int& componentIndex, const unsigned int& entityIndexInChunk) const {
+inline void* Combination::componentAddress(Chunk* chunk, const unsigned int& componentIndex, const unsigned int& entityIndexInChunk) const {
     return static_cast<void*>(reinterpret_cast<std::byte*>(chunk) + _chunkLayout.componentOffsets[componentIndex] + _chunkLayout.componentSizes[componentIndex] * entityIndexInChunk);
 }
 
