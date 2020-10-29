@@ -11,7 +11,7 @@ class Time {
     const float& deltaTime() const;
 
    private:
-    void init();
+    void initialize();
     void update();
 
     std::chrono::steady_clock::time_point _previousTimePoint;

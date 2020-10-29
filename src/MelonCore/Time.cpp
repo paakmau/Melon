@@ -11,7 +11,7 @@ const float& Time::deltaTime() const {
     return _deltaTime;
 }
 
-void Time::init() {
+void Time::initialize() {
     _previousTimePoint = std::chrono::steady_clock::now();
 }
 

@@ -19,7 +19,7 @@ void Instance::startGame() {
 }
 
 void Instance::mainLoop() {
-    Time::instance()->init();
+    Time::instance()->initialize();
     while (true) {
         Time::instance()->update();
         _defaultWorld->update();
