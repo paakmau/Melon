@@ -13,7 +13,7 @@ TaskWorker::TaskWorker() {
 }
 
 void TaskWorker::threadEntryPoint() {
-    while (!_stop) {
+    while (!_stopped) {
         std::shared_ptr<TaskHandle> task = TaskManager::instance()->getNextTask();
         if (task) {
             task->execute();
@@ -22,8 +22,8 @@ void TaskWorker::threadEntryPoint() {
     }
 }
 
-void TaskWorker::stop() {
-    _stop = true;
+void TaskWorker::notify_stopped() {
+    _stopped = true;
 }
 
 void TaskWorker::join() {

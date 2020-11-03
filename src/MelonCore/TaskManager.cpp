@@ -54,9 +54,9 @@ TaskManager::TaskManager() {
 }
 
 TaskManager::~TaskManager() {
-    _stop = true;
+    _stopped = true;
     for (const std::unique_ptr<TaskWorker>& worker : _workers)
-        worker->stop();
+        worker->notify_stopped();
     _taskQueueConditionVariable.notify_all();
     for (const std::unique_ptr<TaskWorker>& worker : _workers)
         worker->join();
@@ -71,8 +71,8 @@ void TaskManager::queueTask(const std::shared_ptr<TaskHandle>& task) {
 std::shared_ptr<TaskHandle> TaskManager::getNextTask() {
     std::unique_lock lock(_taskQueueMutex);
     // To avoid spurious wakeup
-    while (_taskQueue.empty() && !_stop) _taskQueueConditionVariable.wait(lock);
-    if (_stop) return nullptr;
+    while (_taskQueue.empty() && !_stopped) _taskQueueConditionVariable.wait(lock);
+    if (_stopped) return nullptr;
     std::shared_ptr<TaskHandle> task = _taskQueue.front();
     _taskQueue.pop();
     return task;

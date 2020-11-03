@@ -31,7 +31,7 @@ class TaskManager {
     void queueTask(const std::shared_ptr<TaskHandle>& taskHandle);
     std::shared_ptr<TaskHandle> getNextTask();
 
-    bool _stop{};
+    bool _stopped{};
     std::queue<std::shared_ptr<TaskHandle>> _waitingTaskQueue;
     std::queue<std::pair<std::shared_ptr<TaskHandle>, std::vector<std::shared_ptr<TaskHandle>>>> _waitingTaskAndPredecessorsQueue;
     std::queue<std::shared_ptr<TaskHandle>> _taskQueue;
