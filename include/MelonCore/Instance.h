@@ -1,7 +1,7 @@
 #pragma once
 
-#include <MelonCore/World.h>
 #include <MelonCore/EntityManager.h>
+#include <MelonCore/World.h>
 
 #include <memory>
 
@@ -12,21 +12,23 @@ class World;
 
 class Instance {
    public:
-    Instance();
-
-    // EntityManager* entityManager() const { return _entityManager.get(); }
-    // World* systemManager() const { return _defaultWorld.get(); }
-
     template <typename T, typename... Args>
     void registerSystem(Args&&... args);
 
-    void startGame();
+    void start();
+    void quit();
+
+    static Instance* instance();
 
    private:
+    Instance();
+
     void mainLoop();
 
     std::unique_ptr<EntityManager> _entityManager;
     std::unique_ptr<World> _defaultWorld;
+
+    bool _shouldQuit{};
 };
 
 template <typename T, typename... Args>

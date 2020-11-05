@@ -18,7 +18,7 @@ struct Translation {
 };
 
 class ChunkTaskSystem : public MelonCore::SystemBase {
-   public:
+   protected:
     class FootChunkTask : public MelonCore::ChunkTask {
        public:
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor) override {
@@ -52,16 +52,19 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
     void onUpdate() override {
         printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
         predecessor() = schedule(std::make_shared<FootChunkTask>(_footComponentId), entityManager()->createEntityFilter<Foot>(), predecessor());
+        if (_counter++ > 1000)
+            MelonCore::Instance::instance()->quit();
     }
 
     void onExit() override {}
 
+   private:
     unsigned int _footComponentId;
+    unsigned int _counter{};
 };
 
 int main() {
-    MelonCore::Instance instance;
-    instance.registerSystem<ChunkTaskSystem>();
-    instance.startGame();
+    MelonCore::Instance::instance()->registerSystem<ChunkTaskSystem>();
+    MelonCore::Instance::instance()->start();
     return 0;
 }

@@ -11,6 +11,7 @@ class HelloWorldSystem : public MelonCore::SystemBase {
    public:
     HelloWorldSystem(int numA) : _numA(numA), _numB(0), _numSum(_numA + _numB) {}
 
+   protected:
     void onEnter() override {}
 
     void onUpdate() override {
@@ -18,18 +19,20 @@ class HelloWorldSystem : public MelonCore::SystemBase {
         std::shared_ptr<MelonCore::TaskHandle> a = MelonCore::TaskManager::instance()->schedule([this]() { _numA++; }, {predecessor()});
         std::shared_ptr<MelonCore::TaskHandle> b = MelonCore::TaskManager::instance()->schedule([this]() { _numB++; }, {predecessor()});
         predecessor() = MelonCore::TaskManager::instance()->schedule([this]() { _numSum = _numA + _numB; }, {a, b});
+        if (_numSum >= 100)
+            MelonCore::Instance::instance()->quit();
     }
 
     void onExit() override {}
 
+   private:
     int _numA;
     int _numB;
     int _numSum;
 };
 
 int main() {
-    MelonCore::Instance instance;
-    instance.registerSystem<HelloWorldSystem>(1);
-    instance.startGame();
+    MelonCore::Instance::instance()->registerSystem<HelloWorldSystem>(1);
+    MelonCore::Instance::instance()->start();
     return 0;
 }
