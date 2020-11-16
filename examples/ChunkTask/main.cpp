@@ -1,5 +1,6 @@
 #include <MelonCore/ChunkTask.h>
 #include <MelonCore/Entity.h>
+#include <MelonCore/EntityFilter.h>
 #include <MelonCore/Instance.h>
 #include <MelonCore/SystemBase.h>
 #include <MelonCore/Time.h>
@@ -43,13 +44,15 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
             entityManager()->setComponent(entities[i], Foot{i % 10});
             entityManager()->setComponent(entities[i], MelonCore::Translation{glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
+
+        _entityFilter = entityManager()->createEntityFilter<Foot, MelonCore::Translation>();
         _footComponentId = entityManager()->componentId<Foot>();
         _translationComponentId = entityManager()->componentId<MelonCore::Translation>();
     }
 
     void onUpdate() override {
         printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
-        predecessor() = schedule(std::make_shared<FootChunkTask>(_footComponentId, _translationComponentId), entityManager()->createEntityFilter<Foot, MelonCore::Translation>(), predecessor());
+        predecessor() = schedule(std::make_shared<FootChunkTask>(_footComponentId, _translationComponentId), _entityFilter, predecessor());
         if (_counter++ > 1000)
             MelonCore::Instance::instance()->quit();
     }
@@ -57,6 +60,7 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
     void onExit() override {}
 
    private:
+    MelonCore::EntityFilter _entityFilter;
     unsigned int _footComponentId;
     unsigned int _translationComponentId;
     unsigned int _counter{};
