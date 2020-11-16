@@ -3,6 +3,7 @@
 #include <MelonCore/Instance.h>
 #include <MelonCore/SystemBase.h>
 #include <MelonCore/Time.h>
+#include <MelonCore/Translation.h>
 
 #include <cstdio>
 #include <vector>
@@ -11,28 +12,24 @@ struct Foot {
     int speed;
 };
 
-struct Translation {
-    int x;
-    int y;
-    int z;
-};
-
 class ChunkTaskSystem : public MelonCore::SystemBase {
    protected:
     class FootChunkTask : public MelonCore::ChunkTask {
        public:
+        FootChunkTask(unsigned int footComponentId, unsigned int translationComponentId) : _footComponentId(footComponentId), _translationComponentId(translationComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor) override {
             MelonCore::Entity* entities = chunkAccessor.entityArray();
             Foot* feet = chunkAccessor.componentArray<Foot>(_footComponentId);
+            MelonCore::Translation* translations = chunkAccessor.componentArray<MelonCore::Translation>(_translationComponentId);
             for (int i = 0; i < chunkAccessor.entityCount(); i++) {
                 MelonCore::Entity entity = entities[i];
                 Foot& foot = feet[i];
-                int speed = foot.speed;
-                foot.speed += 1;
+                translations[i].value += glm::vec3(0, 0, foot.speed);
             }
         }
-        FootChunkTask(unsigned int footComponentId) : _footComponentId(footComponentId) {}
+
         unsigned int _footComponentId;
+        unsigned int _translationComponentId;
     };
 
     void onEnter() override {
@@ -40,18 +37,19 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
         for (int i = 0; i < 1024; i++)
             entities.emplace_back(entityManager()->createEntity<Foot>());
         for (int i = 0; i * 3 < entities.size(); i++)
-            entityManager()->addComponent(entities[i], Translation{});
+            entityManager()->addComponent(entities[i], MelonCore::Translation{});
 
         for (int i = 0; i * 3 < entities.size(); i++) {
             entityManager()->setComponent(entities[i], Foot{i % 10});
-            entityManager()->setComponent(entities[i], Translation{i % 10 + 10, i % 10 + 20, i % 10 + 30});
+            entityManager()->setComponent(entities[i], MelonCore::Translation{glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
         _footComponentId = entityManager()->componentId<Foot>();
+        _translationComponentId = entityManager()->componentId<MelonCore::Translation>();
     }
 
     void onUpdate() override {
         printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
-        predecessor() = schedule(std::make_shared<FootChunkTask>(_footComponentId), entityManager()->createEntityFilter<Foot>(), predecessor());
+        predecessor() = schedule(std::make_shared<FootChunkTask>(_footComponentId, _translationComponentId), entityManager()->createEntityFilter<Foot, MelonCore::Translation>(), predecessor());
         if (_counter++ > 1000)
             MelonCore::Instance::instance()->quit();
     }
@@ -60,6 +58,7 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
 
    private:
     unsigned int _footComponentId;
+    unsigned int _translationComponentId;
     unsigned int _counter{};
 };
 
