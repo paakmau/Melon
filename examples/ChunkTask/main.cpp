@@ -18,7 +18,7 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
     class FootChunkTask : public MelonCore::ChunkTask {
        public:
         FootChunkTask(unsigned int footComponentId, unsigned int translationComponentId) : _footComponentId(footComponentId), _translationComponentId(translationComponentId) {}
-        virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor) override {
+        virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
             MelonCore::Entity* entities = chunkAccessor.entityArray();
             Foot* feet = chunkAccessor.componentArray<Foot>(_footComponentId);
             MelonCore::Translation* translations = chunkAccessor.componentArray<MelonCore::Translation>(_translationComponentId);
