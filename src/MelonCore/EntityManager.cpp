@@ -41,6 +41,7 @@ std::vector<ChunkAccessor> EntityManager::filterEntities(const EntityFilter& ent
     std::vector<ChunkAccessor> accessors;
     for (const std::pair<std::bitset<1024>, Archetype>& entry : _archetypeMap) {
         if ((entityFilter.componentMask | entry.first) == entry.first) {
+            if (_archetypeCombinations[entry.second.id]->count() == 0) continue;
             const std::vector<ChunkAccessor> accessorsInCombination = _archetypeCombinations[entry.second.id]->chunkAccessors();
             for (const ChunkAccessor& accessor : accessorsInCombination)
                 accessors.push_back(accessor);
