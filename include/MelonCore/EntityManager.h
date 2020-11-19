@@ -85,15 +85,6 @@ class EntityManager {
     template <typename T>
     void setComponentImmediately(const Entity& entity, const T& component);
 
-    // template <typename... T>
-    // void forEach(std::function<void(T...)> procedure);
-    // template <typename... T>
-    // void forEach(std::function<void(const Entity&, T...)> procedure);
-    // template <typename... T>
-    // void forEach(std::function<void(EntityCommandBuffer& buffer, const Entity&, T...)> procedure);
-    // template <typename... T>
-    // void forEach(std::function<void(EntityCommandBuffer& buffer, T...)> procedure);
-
     void executeEntityCommandBuffers();
 
     std::unordered_map<std::type_index, unsigned int> _componentIdMap;
