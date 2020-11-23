@@ -41,7 +41,7 @@ std::vector<ChunkAccessor> EntityManager::filterEntities(const EntityFilter& ent
     std::vector<ChunkAccessor> accessors;
     for (const std::pair<std::bitset<1024>, Archetype>& entry : _archetypeMap) {
         if ((entityFilter.componentMask | entry.first) == entry.first) {
-            if (_archetypeCombinations[entry.second.id]->count() == 0) continue;
+            if (_archetypeCombinations[entry.second.id]->entityCount() == 0) continue;
             const std::vector<ChunkAccessor> accessorsInCombination = _archetypeCombinations[entry.second.id]->chunkAccessors();
             for (const ChunkAccessor& accessor : accessorsInCombination)
                 accessors.push_back(accessor);
@@ -49,6 +49,20 @@ std::vector<ChunkAccessor> EntityManager::filterEntities(const EntityFilter& ent
     }
     return accessors;
 }
+
+unsigned int EntityManager::chunkCount(const EntityFilter& entityFilter) const {
+    unsigned int count = 0;
+    for (const std::unique_ptr<Combination>& combination : _archetypeCombinations)
+        count += combination->chunkCount();
+    return count;
+};
+
+unsigned int EntityManager::entityCount(const EntityFilter& entityFilter) const {
+    unsigned int count = 0;
+    for (const std::unique_ptr<Combination>& combination : _archetypeCombinations)
+        count += combination->entityCount();
+    return count;
+};
 
 unsigned int EntityManager::registerComponent(const std::type_index& typeIndex) {
     if (_componentIdMap.contains(typeIndex)) return _componentIdMap.at(typeIndex);

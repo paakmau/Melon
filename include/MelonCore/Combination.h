@@ -56,10 +56,10 @@ class Combination {
 
     std::vector<ChunkAccessor> chunkAccessors() const;
 
-    unsigned int chunkCount() const;
-    bool hasComponent(const unsigned int& componentId) const;
+    unsigned int chunkCount() const { return _chunks.size(); }
+    bool hasComponent(const unsigned int& componentId) const { return _chunkLayout.componentIndexMap.contains(componentId); }
 
-    const unsigned int& count() const { return _count; }
+    const unsigned int& entityCount() const { return _entityCount; }
 
    private:
     void requestChunk();
@@ -75,9 +75,9 @@ class Combination {
     ObjectPool<Chunk>* const _chunkPool;
     std::vector<Chunk*> _chunks;
 
-    unsigned int _count{};
+    unsigned int _entityCount{};
     unsigned int _chunkCapacity;
-    unsigned int _countInCurrentChunk;
+    unsigned int _entityCountInCurrentChunk;
 };
 
 template <typename T>
@@ -95,13 +95,9 @@ inline std::vector<ChunkAccessor> Combination::chunkAccessors() const {
     std::vector<ChunkAccessor> accessors;
     accessors.reserve(_chunks.size());
     for (Chunk* chunk : _chunks)
-        accessors.emplace_back(ChunkAccessor(reinterpret_cast<std::byte*>(chunk), _chunkLayout, chunk != _chunks.back() ? _chunkCapacity : _countInCurrentChunk));
+        accessors.emplace_back(ChunkAccessor(reinterpret_cast<std::byte*>(chunk), _chunkLayout, chunk != _chunks.back() ? _chunkCapacity : _entityCountInCurrentChunk));
     return accessors;
 }
-
-inline unsigned int Combination::chunkCount() const { return _chunks.size(); }
-
-inline bool Combination::hasComponent(const unsigned int& componentId) const { return _chunkLayout.componentIndexMap.contains(componentId); }
 
 inline Entity* Combination::entityAddress(const unsigned int& entityIndex) const {
     Chunk* chunk = _chunks[entityIndex / _chunkCapacity];

@@ -68,6 +68,9 @@ class EntityManager {
     const EntityFilter createEntityFilter();
     std::vector<ChunkAccessor> filterEntities(const EntityFilter& entityFilter);
 
+    unsigned int chunkCount(const EntityFilter& entityFilter) const;
+    unsigned int entityCount(const EntityFilter& entityFilter) const;
+
    private:
     template <typename T>
     unsigned int registerComponent();
