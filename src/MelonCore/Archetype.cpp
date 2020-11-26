@@ -43,23 +43,22 @@ Archetype::Archetype(
 }
 
 void Archetype::addEntity(const Entity& entity, EntityLocation& location) {
-    const unsigned int combinationIndex = createCombination();
+    Combination* const combination = createCombination();
     unsigned int entityIndexInCombination;
     bool chunkCountAdded;
-    _combinations[combinationIndex]->addEntity(entity, entityIndexInCombination, chunkCountAdded);
+    combination->addEntity(entity, entityIndexInCombination, chunkCountAdded);
     _entityCount++;
     if (chunkCountAdded) _chunkCount++;
     location = EntityLocation{
         _id,
-        combinationIndex,
+        combination->index(),
         entityIndexInCombination};
 }
 
 void Archetype::moveEntityAddingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& componentId, const void* component, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
-    Combination* srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
+    Combination* const srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
     const std::vector<unsigned int>& sharedComponentIndices = srcCombination->sharedComponentIndices();
-    const unsigned int dstCombinationIndex = createCombination(sharedComponentIndices);
-    Combination* dstCombination = _combinations[dstCombinationIndex].get();
+    Combination* const dstCombination = createCombination(sharedComponentIndices);
 
     unsigned int entityIndexInDstCombination;
     bool dstChunkCountAdded, srcChunkCountMinused;
@@ -70,14 +69,13 @@ void Archetype::moveEntityAddingComponent(const EntityLocation& srcEntityLocatio
         srcArchetype->_chunkCount--;
     _entityCount++;
     srcArchetype->_entityCount--;
-    dstLocation = EntityLocation{_id, dstCombinationIndex, entityIndexInDstCombination};
+    dstLocation = EntityLocation{_id, dstCombination->index(), entityIndexInDstCombination};
 }
 
 void Archetype::moveEntityRemovingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
-    Combination* srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
+    Combination* const srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
     const std::vector<unsigned int>& sharedComponentIndices = srcCombination->sharedComponentIndices();
-    const unsigned int dstCombinationIndex = createCombination(sharedComponentIndices);
-    Combination* dstCombination = _combinations[dstCombinationIndex].get();
+    Combination* dstCombination = createCombination(sharedComponentIndices);
 
     unsigned int entityIndexInDstCombination;
     bool dstChunkCountAdded, srcChunkCountMinused;
@@ -88,11 +86,11 @@ void Archetype::moveEntityRemovingComponent(const EntityLocation& srcEntityLocat
         srcArchetype->_chunkCount--;
     _entityCount++;
     srcArchetype->_entityCount--;
-    dstLocation = EntityLocation{_id, dstCombinationIndex, entityIndexInDstCombination};
+    dstLocation = EntityLocation{_id, dstCombination->index(), entityIndexInDstCombination};
 }
 
 void Archetype::moveEntityAddingSharedComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& sharedComponentId, const unsigned int& sharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
-    Combination* srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
+    Combination* const srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
     const std::vector<unsigned int>& srcSharedComponentIds = srcArchetype->_sharedComponentIds;
     const std::vector<unsigned int>& srcSharedComponentIndices = srcCombination->sharedComponentIndices();
 
@@ -105,8 +103,7 @@ void Archetype::moveEntityAddingSharedComponent(const EntityLocation& srcEntityL
         else
             dstSharedComponentIndices[j] = sharedComponentId, i--;
 
-    const unsigned int dstCombinationIndex = createCombination(dstSharedComponentIndices);
-    Combination* dstCombination = _combinations[dstCombinationIndex].get();
+    Combination* const dstCombination = createCombination(dstSharedComponentIndices);
 
     unsigned int entityIndexInDstCombination;
     bool dstChunkCountAdded, srcChunkCountMinused;
@@ -117,11 +114,11 @@ void Archetype::moveEntityAddingSharedComponent(const EntityLocation& srcEntityL
         srcArchetype->_chunkCount--;
     _entityCount++;
     srcArchetype->_entityCount--;
-    dstLocation = EntityLocation{_id, dstCombinationIndex, entityIndexInDstCombination};
+    dstLocation = EntityLocation{_id, dstCombination->index(), entityIndexInDstCombination};
 }
 
 void Archetype::moveEntityRemovingSharedComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
-    Combination* srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
+    Combination* const srcCombination = srcArchetype->_combinations[srcEntityLocation.combinationIndex].get();
     const std::vector<unsigned int>& srcSharedComponentIds = srcArchetype->_sharedComponentIds;
     const std::vector<unsigned int>& srcSharedComponentIndices = srcCombination->sharedComponentIndices();
 
@@ -136,8 +133,7 @@ void Archetype::moveEntityRemovingSharedComponent(const EntityLocation& srcEntit
             j--;
         }
 
-    const unsigned int dstCombinationIndex = createCombination(dstSharedComponentIndices);
-    Combination* dstCombination = _combinations[dstCombinationIndex].get();
+    Combination* const dstCombination = createCombination(dstSharedComponentIndices);
 
     unsigned int entityIndexInDstCombination;
     bool dstChunkCountAdded, srcChunkCountMinused;
@@ -148,7 +144,7 @@ void Archetype::moveEntityRemovingSharedComponent(const EntityLocation& srcEntit
         srcArchetype->_chunkCount--;
     _entityCount++;
     srcArchetype->_entityCount--;
-    dstLocation = EntityLocation{_id, dstCombinationIndex, entityIndexInDstCombination};
+    dstLocation = EntityLocation{_id, dstCombination->index(), entityIndexInDstCombination};
 }
 
 void Archetype::removeEntity(const EntityLocation& location, std::vector<unsigned int>& sharedComponentIndices, Entity& swappedEntity) {
@@ -164,7 +160,7 @@ void Archetype::setComponent(const EntityLocation& location, const unsigned int&
 }
 
 void Archetype::setSharedComponent(const EntityLocation& location, const unsigned int& sharedComponentId, const unsigned int& sharedComponentIndex, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
-    Combination* srcCombination = _combinations[location.combinationIndex].get();
+    Combination* const srcCombination = _combinations[location.combinationIndex].get();
     std::vector<unsigned int> dstSharedComponentIndices = srcCombination->sharedComponentIndices();
     for (unsigned int i = 0; i < _sharedComponentIds.size(); i++)
         if (_sharedComponentIds[i] == sharedComponentId) {
@@ -173,8 +169,7 @@ void Archetype::setSharedComponent(const EntityLocation& location, const unsigne
             break;
         }
 
-    const unsigned int dstCombinationIndex = createCombination(dstSharedComponentIndices);
-    Combination* dstCombination = _combinations[dstCombinationIndex].get();
+    Combination* const dstCombination = createCombination(dstSharedComponentIndices);
 
     unsigned int entityIndexInDstCombination;
     bool dstChunkCountAdded, srcChunkCountMinused;
@@ -183,7 +178,7 @@ void Archetype::setSharedComponent(const EntityLocation& location, const unsigne
         _chunkCount++;
     if (srcChunkCountMinused)
         _chunkCount--;
-    dstLocation = EntityLocation{_id, dstCombinationIndex, entityIndexInDstCombination};
+    dstLocation = EntityLocation{_id, dstCombination->index(), entityIndexInDstCombination};
 }
 
 void Archetype::filterEntities(const EntityFilter& entityFilter, const ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const {

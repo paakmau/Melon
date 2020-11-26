@@ -16,7 +16,7 @@ namespace MelonCore {
 
 class Combination {
    public:
-    Combination(const ChunkLayout& chunkLayout, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, ObjectPool<Chunk>* chunkPool);
+    Combination(const unsigned int& index, const ChunkLayout& chunkLayout, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, ObjectPool<Chunk>* chunkPool);
 
     void addEntity(const Entity& entity, unsigned int& entityIndexInCombination, bool& chunkCountAdded);
     // Move an Entity when adding one component
@@ -31,6 +31,8 @@ class Combination {
     unsigned int chunkCount() const { return _chunks.size(); }
     bool hasComponent(const unsigned int& componentId) const { return _chunkLayout.componentIndexMap.contains(componentId); }
 
+    const unsigned int& index() const { return _index; }
+
     const std::vector<unsigned int>& sharedComponentIndices() const { return _sharedComponentIndices; }
     const unsigned int& entityCount() const { return _entityCount; }
 
@@ -42,6 +44,8 @@ class Combination {
     Entity* entityAddress(Chunk* chunk, const unsigned int& entityIndexInChunk) const;
     void* componentAddress(const unsigned int& componentId, const unsigned int& entityIndex) const;
     void* componentAddress(Chunk* chunk, const unsigned int& componentIndex, const unsigned int& entityIndexInChunk) const;
+
+    const unsigned int _index;
 
     const ChunkLayout& _chunkLayout;
 

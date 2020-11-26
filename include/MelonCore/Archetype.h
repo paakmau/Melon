@@ -74,8 +74,8 @@ class Archetype {
     unsigned int sharedComponentCount() const { return _mask.sharedComponentCount(); }
 
    private:
-    unsigned int createCombination();
-    unsigned int createCombination(const std::vector<unsigned int>& sharedComponentIndices);
+    Combination* createCombination();
+    Combination* createCombination(const std::vector<unsigned int>& sharedComponentIndices);
     void destroyCombination(const unsigned int& combinationIndex, const std::vector<unsigned int>& sharedComponentIndices);
 
     const unsigned int _id;
@@ -100,28 +100,28 @@ class Archetype {
     friend class EntityManager;
 };
 
-inline unsigned int Archetype::createCombination() {
+inline Combination* Archetype::createCombination() {
     return createCombination(std::vector<unsigned int>(sharedComponentCount(), ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>::kNullPointerIndex));
 }
 
-inline unsigned int Archetype::createCombination(const std::vector<unsigned int>& sharedComponentIndices) {
+inline Combination* Archetype::createCombination(const std::vector<unsigned int>& sharedComponentIndices) {
     if (_combinationIndexMap.contains(sharedComponentIndices))
-        return _combinationIndexMap[sharedComponentIndices];
+        return _combinations[_combinationIndexMap[sharedComponentIndices]].get();
     unsigned int combinationIndex;
     if (_freeCombinationIndices.empty()) {
         combinationIndex = _combinations.size();
-        _combinations.emplace_back(std::make_unique<Combination>(_chunkLayout, _sharedComponentIds, sharedComponentIndices, _chunkPool));
+        _combinations.emplace_back(std::make_unique<Combination>(combinationIndex, _chunkLayout, _sharedComponentIds, sharedComponentIndices, _chunkPool));
     } else {
         combinationIndex = _freeCombinationIndices.back(), _freeCombinationIndices.pop_back();
-        _combinations[combinationIndex] = std::make_unique<Combination>(_chunkLayout, _sharedComponentIds, sharedComponentIndices, _chunkPool);
+        _combinations[combinationIndex] = std::make_unique<Combination>(combinationIndex, _chunkLayout, _sharedComponentIds, sharedComponentIndices, _chunkPool);
     }
     _combinationIndexMap.emplace(sharedComponentIndices, combinationIndex);
     // TODO: A new Combination should not have a Chunk
     _chunkCount++;
-    return combinationIndex;
+    return _combinations[combinationIndex].get();
 }
 
-// TODO: 考虑什么时候销毁Combination
+// TODO: Consider when to destroy a Combination
 inline void Archetype::destroyCombination(const unsigned int& combinationIndex, const std::vector<unsigned int>& sharedComponentIndices) {
     _combinations[combinationIndex].reset();
     _combinationIndexMap.erase(sharedComponentIndices);

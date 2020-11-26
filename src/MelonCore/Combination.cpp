@@ -6,7 +6,7 @@
 
 namespace MelonCore {
 
-Combination::Combination(const ChunkLayout& chunkLayout, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, ObjectPool<Chunk>* chunkPool) : _chunkLayout(chunkLayout), _sharedComponentIds(sharedComponentIds), _sharedComponentIndices(sharedComponentIndices), _chunkPool(chunkPool), _entityCountInCurrentChunk(0) {
+Combination::Combination(const unsigned int& index, const ChunkLayout& chunkLayout, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, ObjectPool<Chunk>* chunkPool) : _index(index), _chunkLayout(chunkLayout), _sharedComponentIds(sharedComponentIds), _sharedComponentIndices(sharedComponentIndices), _chunkPool(chunkPool), _entityCountInCurrentChunk(0) {
     // TODO: We should not request a Chunk here
     requestChunk();
 }
