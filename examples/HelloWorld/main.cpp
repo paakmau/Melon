@@ -9,30 +9,30 @@
 
 class HelloWorldSystem : public MelonCore::SystemBase {
    public:
-    HelloWorldSystem(int numA) : _numA(numA), _numB(0), _numSum(_numA + _numB) {}
+    HelloWorldSystem(const unsigned int& a, const unsigned int& b) : _a(a), _b(b), _sum(a + b) {}
 
    protected:
     void onEnter() override {}
 
     void onUpdate() override {
-        std::printf("Delta time : %f, %d + %d = %d\n", MelonCore::Time::instance()->deltaTime(), _numA, _numB, _numSum);
-        std::shared_ptr<MelonCore::TaskHandle> a = MelonCore::TaskManager::instance()->schedule([this]() { _numA++; }, {predecessor()});
-        std::shared_ptr<MelonCore::TaskHandle> b = MelonCore::TaskManager::instance()->schedule([this]() { _numB++; }, {predecessor()});
-        predecessor() = MelonCore::TaskManager::instance()->schedule([this]() { _numSum = _numA + _numB; }, {a, b});
-        if (_numSum >= 100)
+        std::printf("Delta time : %f, %u + %u = %u\n", MelonCore::Time::instance()->deltaTime(), _a, _b, _sum);
+        std::shared_ptr<MelonCore::TaskHandle> a = MelonCore::TaskManager::instance()->schedule([this]() { _a++; }, {predecessor()});
+        std::shared_ptr<MelonCore::TaskHandle> b = MelonCore::TaskManager::instance()->schedule([this]() { _b++; }, {predecessor()});
+        predecessor() = MelonCore::TaskManager::instance()->schedule([this]() { _sum = _a + _b; }, {a, b});
+        if (_sum >= 100)
             MelonCore::Instance::instance()->quit();
     }
 
     void onExit() override {}
 
    private:
-    int _numA;
-    int _numB;
-    int _numSum;
+    unsigned int _a;
+    unsigned int _b;
+    unsigned int _sum;
 };
 
 int main() {
-    MelonCore::Instance::instance()->registerSystem<HelloWorldSystem>(1);
+    MelonCore::Instance::instance()->registerSystem<HelloWorldSystem>(1U, 2U);
     MelonCore::Instance::instance()->start();
     return 0;
 }

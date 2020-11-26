@@ -13,7 +13,7 @@
 #include <utility>
 
 struct Group {
-    int id;
+    unsigned int id;
 
     bool operator==(const Group& other) const {
         return id == other.id;
@@ -23,12 +23,12 @@ struct Group {
 template <>
 struct std::hash<Group> {
     std::size_t operator()(const Group& group) {
-        return std::hash<int>()(group.id);
+        return std::hash<unsigned int>()(group.id);
     }
 };
 
 struct Person {
-    int value;
+    unsigned int value;
 };
 
 class GroupSystem : public MelonCore::SystemBase {
@@ -40,29 +40,29 @@ class GroupSystem : public MelonCore::SystemBase {
             MelonCore::Entity* entities = chunkAccessor.entityArray();
             Person* people = chunkAccessor.componentArray<Person>(_personComponentId);
             const Group* group = chunkAccessor.sharedComponent<Group>(_groupSharedComponentId);
-            for (int i = 0; i < chunkAccessor.entityCount(); i++) {
+            for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
                 Person& person = people[i];
                 person.value += i + entities[i].id;
             }
         }
 
-        unsigned int _personComponentId;
-        unsigned int _groupSharedComponentId;
+        const unsigned int& _personComponentId;
+        const unsigned int& _groupSharedComponentId;
     };
 
     void onEnter() override {
         std::array<MelonCore::Entity, 1024> entities;
-        for (int i = 0; i < entities.size(); i++)
+        for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(MelonCore::TypeMark<Person>(), MelonCore::TypeMark<Group>());
 
         // TODO: 还有一些bug
-        for (int i = 0; i < entities.size(); i += 3)
+        for (unsigned int i = 0; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{0});
 
-        for (int i = 1; i < entities.size(); i += 3)
+        for (unsigned int i = 1; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{1});
 
-        for (int i = 2; i < entities.size(); i += 3)
+        for (unsigned int i = 2; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{2});
 
         _entityFilter = entityManager()->createEntityFilter(MelonCore::TypeMark<Person>(), MelonCore::TypeMark<Group>());
