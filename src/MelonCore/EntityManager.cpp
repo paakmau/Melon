@@ -1,4 +1,3 @@
-#include <MelonCore/Entity.h>
 #include <MelonCore/EntityManager.h>
 
 #include <typeindex>

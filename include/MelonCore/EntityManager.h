@@ -4,6 +4,7 @@
 #include <MelonCore/ChunkAccessor.h>
 #include <MelonCore/Combination.h>
 #include <MelonCore/Entity.h>
+#include <MelonCore/EntityFilter.h>
 #include <MelonCore/ObjectPool.h>
 #include <MelonCore/ObjectStore.h>
 
