@@ -11,7 +11,7 @@
 #include <memory>
 
 struct Foot {
-    int speed;
+    unsigned int speed;
 };
 
 class FootSystem : public MelonCore::SystemBase {
@@ -42,7 +42,7 @@ class FootSystem : public MelonCore::SystemBase {
             entityManager()->addComponent(entities[i], MelonCore::Translation{});
 
         for (unsigned int i = 0; i * 3 < entities.size(); i++) {
-            entityManager()->setComponent(entities[i], Foot{i % 10});
+            entityManager()->setComponent(entities[i], Foot{i % 10U});
             entityManager()->setComponent(entities[i], MelonCore::Translation{glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
 
