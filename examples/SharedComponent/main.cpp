@@ -55,7 +55,6 @@ class GroupSystem : public MelonCore::SystemBase {
         for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(MelonCore::TypeMark<Person>(), MelonCore::TypeMark<Group>());
 
-        // TODO: 还有一些bug
         for (unsigned int i = 0; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{0});
 
