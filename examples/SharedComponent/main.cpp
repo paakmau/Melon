@@ -65,7 +65,7 @@ class GroupSystem : public MelonCore::SystemBase {
         for (unsigned int i = 2; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{2});
 
-        _entityFilter = entityManager()->createEntityFilter(MelonCore::TypeMark<Person>(), MelonCore::TypeMark<Group>());
+        _entityFilter = entityManager()->createEntityFilterBuilder().withComponents<Person>().withSharedComponents<Group>().createEntityFilter();
         _personComponentId = entityManager()->componentId<Person>();
         _groupSharedComponentId = entityManager()->sharedComponentId<Group>();
     }

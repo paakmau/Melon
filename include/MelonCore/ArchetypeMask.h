@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <cstddef>
+#include <vector>
 
 namespace MelonCore {
 
@@ -9,11 +10,21 @@ struct ArchetypeMask {
     static constexpr unsigned int kMaxComponentIdCount = 1024U;
     static constexpr unsigned int kMaxSharedComponentIdCount = 256U;
 
+    typedef std::bitset<ArchetypeMask::kMaxComponentIdCount> ComponentMask;
+    typedef std::bitset<ArchetypeMask::kMaxSharedComponentIdCount> SharedComponentMask;
+
     struct Hash {
         std::size_t operator()(const MelonCore::ArchetypeMask& mask) const {
-            return std::hash<std::bitset<MelonCore::ArchetypeMask::kMaxComponentIdCount>>()(mask.componentMask) ^ std::hash<std::bitset<MelonCore::ArchetypeMask::kMaxSharedComponentIdCount>>()(mask.sharedComponentMask);
+            return std::hash<ComponentMask>()(mask.componentMask) ^ std::hash<SharedComponentMask>()(mask.sharedComponentMask);
         }
     };
+
+    ArchetypeMask(const std::vector<unsigned int>& componentIds, const std::vector<unsigned int>& sharedComponentIds) {
+        for (unsigned int componentId : componentIds)
+            componentMask.set(componentId);
+        for (unsigned int sharedComponentId : sharedComponentIds)
+            sharedComponentMask.set(sharedComponentId);
+    }
 
     bool operator==(const ArchetypeMask& other) const {
         return componentMask == other.componentMask && sharedComponentMask == other.sharedComponentMask;
@@ -22,19 +33,8 @@ struct ArchetypeMask {
     unsigned int componentCount() const { return componentMask.count(); }
     unsigned int sharedComponentCount() const { return sharedComponentMask.count(); }
 
-    std::bitset<kMaxComponentIdCount> componentMask;
-    std::bitset<kMaxSharedComponentIdCount> sharedComponentMask;
+    ComponentMask componentMask;
+    SharedComponentMask sharedComponentMask;
 };
-
-struct EntityFilter {
-    bool satisfied(const ArchetypeMask& mask) const;
-
-    std::bitset<ArchetypeMask::kMaxComponentIdCount> componentMask;
-    std::bitset<ArchetypeMask::kMaxSharedComponentIdCount> sharedComponentMask;
-};
-
-inline bool EntityFilter::satisfied(const ArchetypeMask& mask) const {
-    return (mask.componentMask | componentMask) == mask.componentMask && (mask.sharedComponentMask | sharedComponentMask) == mask.sharedComponentMask;
-}
 
 }  // namespace MelonCore

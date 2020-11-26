@@ -22,6 +22,11 @@ class ObjectStore {
     template <typename T>
     const T* object(const unsigned int& index) const;
 
+    unsigned int objectIndex(const unsigned int& typeId, const void* object);
+
+    template <typename T>
+    unsigned int objectIndex(const unsigned int& typeId, const T& object);
+
    private:
     struct ObjectWrapper {
         unsigned int typeId;
@@ -119,6 +124,37 @@ template <typename T>
 const T* ObjectStore<Count>::object(const unsigned int& index) const {
     if (index == kNullPointerIndex) return nullptr;
     return static_cast<T*>(_store[index]);
+}
+
+template <size_t Count>
+unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const void* object) {
+    if (_typeHashes[typeId] == nullptr) return kNullPointerIndex;
+    ObjectWrapper objectWrapper{
+        typeId, object,
+        _typeHashes[typeId],
+        _typeEqualTos[typeId]};
+    unsigned int index;
+    if (_objectIndexMap.contains(objectWrapper))
+        return _objectIndexMap[objectWrapper];
+    else
+        return kNullPointerIndex;
+}
+
+template <size_t Count>
+template <typename T>
+unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const T& object) {
+    _typeHashes[typeId] = objectWrapperHash<T>;
+    _typeEqualTos[typeId] = objectWrapperEqualTo<T>;
+    _typeDeleters[typeId] = objectDeleter<T>;
+    ObjectWrapper objectWrapper{
+        typeId, static_cast<const void*>(&object),
+        _typeHashes[typeId],
+        _typeEqualTos[typeId]};
+    unsigned int index;
+    if (_objectIndexMap.contains(objectWrapper))
+        return _objectIndexMap[objectWrapper];
+    else
+        return kNullPointerIndex;
 }
 
 template <size_t Count>

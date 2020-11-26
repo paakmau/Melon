@@ -46,7 +46,7 @@ class FootSystem : public MelonCore::SystemBase {
             entityManager()->setComponent(entities[i], MelonCore::Translation{glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
 
-        _entityFilter = entityManager()->createEntityFilter(MelonCore::TypeMark<Foot, MelonCore::Translation>(), MelonCore::TypeMark<>());
+        _entityFilter = entityManager()->createEntityFilterBuilder().withComponents<Foot, MelonCore::Translation>().createEntityFilter();
         _footComponentId = entityManager()->componentId<Foot>();
         _translationComponentId = entityManager()->componentId<MelonCore::Translation>();
     }
