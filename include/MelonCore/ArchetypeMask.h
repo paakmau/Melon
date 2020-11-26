@@ -10,8 +10,8 @@ struct ArchetypeMask {
     static constexpr unsigned int kMaxComponentIdCount = 1024U;
     static constexpr unsigned int kMaxSharedComponentIdCount = 256U;
 
-    typedef std::bitset<ArchetypeMask::kMaxComponentIdCount> ComponentMask;
-    typedef std::bitset<ArchetypeMask::kMaxSharedComponentIdCount> SharedComponentMask;
+    typedef std::bitset<kMaxComponentIdCount> ComponentMask;
+    typedef std::bitset<kMaxSharedComponentIdCount> SharedComponentMask;
 
     struct Hash {
         std::size_t operator()(const MelonCore::ArchetypeMask& mask) const {
@@ -21,18 +21,13 @@ struct ArchetypeMask {
 
     ArchetypeMask() {}
 
-    ArchetypeMask(const std::vector<unsigned int>& componentIds, const std::vector<unsigned int>& sharedComponentIds) {
-        markComponents(componentIds);
-        markSharedComponents(sharedComponentIds);
-    }
-
     void markComponents(const std::vector<unsigned int>& componentIds) {
-        for (unsigned int componentId : componentIds)
+        for (const unsigned int& componentId : componentIds)
             componentMask.set(componentId);
     }
 
     void markSharedComponents(const std::vector<unsigned int>& sharedComponentIds) {
-        for (unsigned int sharedComponentId : sharedComponentIds)
+        for (const unsigned int& sharedComponentId : sharedComponentIds)
             sharedComponentMask.set(sharedComponentId);
     }
 
