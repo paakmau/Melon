@@ -1,10 +1,10 @@
+#include <MelonCore/Archetype.h>
 #include <MelonCore/ChunkTask.h>
 #include <MelonCore/Entity.h>
 #include <MelonCore/Instance.h>
 #include <MelonCore/SystemBase.h>
 #include <MelonCore/Time.h>
 #include <MelonCore/Translation.h>
-#include <MelonCore/TypeMark.h>
 
 #include <array>
 #include <cstddef>
@@ -51,9 +51,11 @@ class GroupSystem : public MelonCore::SystemBase {
     };
 
     void onEnter() override {
+        MelonCore::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<Person>().markSharedComponents<Group>().createArchetype();
+
         std::array<MelonCore::Entity, 1024> entities;
         for (unsigned int i = 0; i < entities.size(); i++)
-            entities[i] = entityManager()->createEntity(MelonCore::TypeMark<Person>(), MelonCore::TypeMark<Group>());
+            entities[i] = entityManager()->createEntity(archetype);
 
         for (unsigned int i = 0; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{0});
@@ -64,7 +66,7 @@ class GroupSystem : public MelonCore::SystemBase {
         for (unsigned int i = 2; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{2});
 
-        _entityFilter = entityManager()->createEntityFilterBuilder().withComponents<Person>().withSharedComponents<Group>().createEntityFilter();
+        _entityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Person>().requireSharedComponents<Group>().createEntityFilter();
         _personComponentId = entityManager()->componentId<Person>();
         _groupSharedComponentId = entityManager()->sharedComponentId<Group>();
     }

@@ -19,9 +19,19 @@ struct ArchetypeMask {
         }
     };
 
+    ArchetypeMask() {}
+
     ArchetypeMask(const std::vector<unsigned int>& componentIds, const std::vector<unsigned int>& sharedComponentIds) {
+        markComponents(componentIds);
+        markSharedComponents(sharedComponentIds);
+    }
+
+    void markComponents(const std::vector<unsigned int>& componentIds) {
         for (unsigned int componentId : componentIds)
             componentMask.set(componentId);
+    }
+
+    void markSharedComponents(const std::vector<unsigned int>& sharedComponentIds) {
         for (unsigned int sharedComponentId : sharedComponentIds)
             sharedComponentMask.set(sharedComponentId);
     }

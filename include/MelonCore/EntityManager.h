@@ -6,7 +6,6 @@
 #include <MelonCore/Entity.h>
 #include <MelonCore/ObjectPool.h>
 #include <MelonCore/ObjectStore.h>
-#include <MelonCore/TypeMark.h>
 
 #include <algorithm>
 #include <array>
@@ -26,24 +25,45 @@ namespace MelonCore {
 
 class EntityManager;
 
+class ArchetypeBuilder {
+   public:
+    template <typename... Ts>
+    ArchetypeBuilder& markComponents();
+    template <typename... Ts>
+    ArchetypeBuilder& markSharedComponents();
+
+    Archetype* createArchetype();
+
+   private:
+    ArchetypeBuilder(EntityManager* entityManager) : _entityManager(entityManager) {}
+    std::vector<unsigned int> _componentIds;
+    std::vector<std::size_t> _componentSizes;
+    std::vector<std::size_t> _componentAligns;
+    std::vector<unsigned int> _sharedComponentIds;
+    ArchetypeMask _mask;
+    EntityManager* _entityManager;
+
+    friend class EntityManager;
+};
+
 class EntityFilterBuilder {
    public:
     template <typename... Ts>
-    EntityFilterBuilder& withComponents();
+    EntityFilterBuilder& requireComponents();
     template <typename... Ts>
-    EntityFilterBuilder& withoutComponents();
+    EntityFilterBuilder& rejectComponents();
 
     template <typename... Ts>
-    EntityFilterBuilder& withSharedComponents();
+    EntityFilterBuilder& requireSharedComponents();
     template <typename... Ts>
-    EntityFilterBuilder& withoutSharedComponents();
+    EntityFilterBuilder& rejectSharedComponents();
 
     template <typename T>
     EntityFilterBuilder& requireSharedComponent(const T& sharedComponent);
     template <typename T>
     EntityFilterBuilder& rejectSharedComponent(const T& sharedComponent);
 
-    EntityFilter createEntityFilter() const { return _entityFilter; };
+    EntityFilter createEntityFilter();
 
    private:
     EntityFilterBuilder(EntityManager* entityManager) : _entityManager(entityManager) {}
@@ -57,8 +77,6 @@ class EntityCommandBuffer {
    public:
     EntityCommandBuffer(EntityManager* entityManager);
 
-    template <typename... Ts, typename... Us>
-    const Entity createEntity(TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentTypeMark);
     const Entity createEntity(Archetype* archetype);
     void destroyEntity(const Entity& entity);
     template <typename T>
@@ -88,11 +106,8 @@ class EntityManager {
     EntityManager();
     EntityManager(const EntityManager&) = delete;
 
-    template <typename... Ts, typename... Us>
-    Archetype* createArchetype(TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentMark);
+    ArchetypeBuilder createArchetypeBuilder() { return ArchetypeBuilder(this); }
 
-    template <typename... Ts, typename... Us>
-    Entity createEntity(TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentTypeMark);
     Entity createEntity(Archetype* archetype);
     void destroyEntity(const Entity& entity);
     template <typename T>
@@ -130,8 +145,6 @@ class EntityManager {
     unsigned int registerSharedComponent(const std::type_index& typeIndex);
     Archetype* createArchetype(ArchetypeMask&& mask, std::vector<unsigned int>&& componentIds, std::vector<std::size_t>&& componentSizes, std::vector<std::size_t>&& componentAligns, std::vector<unsigned int>&& sharedComponentIds);
     const Entity assignEntity();
-    template <typename... Ts, typename... Us>
-    void createEntityImmediately(const Entity& entity, TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentTypeMark);
     void createEntityImmediately(const Entity& entity, Archetype* archetype);
     void destroyEntityImmediately(const Entity& entityId);
     template <typename T>
@@ -169,13 +182,38 @@ class EntityManager {
     EntityCommandBuffer _mainEntityCommandBuffer;
     std::vector<EntityCommandBuffer> _taskEntityCommandBuffers;
 
+    friend class ArchetypeBuilder;
     friend class EntityCommandBuffer;
     friend class World;
     friend class SystemBase;
 };
 
 template <typename... Ts>
-EntityFilterBuilder& EntityFilterBuilder::withComponents() {
+ArchetypeBuilder& ArchetypeBuilder::markComponents() {
+    const std::vector<unsigned int> componentIds{_entityManager->componentId<Ts>()...};
+    const std::vector<std::size_t> componentSizes{sizeof(Ts)...};
+    const std::vector<std::size_t> componentAligns{alignof(Ts)...};
+    _componentIds.insert(_componentIds.end(), componentIds.begin(), componentIds.end());
+    _componentSizes.insert(_componentSizes.end(), componentSizes.begin(), componentSizes.end());
+    _componentAligns.insert(_componentAligns.end(), componentAligns.begin(), componentAligns.end());
+    _mask.markComponents(componentIds);
+    return *this;
+}
+
+template <typename... Ts>
+ArchetypeBuilder& ArchetypeBuilder::markSharedComponents() {
+    const std::vector<unsigned int> sharedComponentIds{_entityManager->sharedComponentId<Ts>()...};
+    _sharedComponentIds.insert(_sharedComponentIds.end(), sharedComponentIds.begin(), sharedComponentIds.end());
+    _mask.markSharedComponents(sharedComponentIds);
+    return *this;
+}
+
+inline Archetype* ArchetypeBuilder::createArchetype() {
+    return _entityManager->createArchetype(std::move(_mask), std::move(_componentIds), std::move(_componentSizes), std::move(_componentAligns), std::move(_sharedComponentIds));
+}
+
+template <typename... Ts>
+EntityFilterBuilder& EntityFilterBuilder::requireComponents() {
     const std::vector<unsigned int>& componentIds{_entityManager->componentId<Ts>()...};
     for (const unsigned int& cmptId : componentIds)
         _entityFilter.requiredComponentMask.set(cmptId);
@@ -183,7 +221,7 @@ EntityFilterBuilder& EntityFilterBuilder::withComponents() {
 }
 
 template <typename... Ts>
-EntityFilterBuilder& EntityFilterBuilder::withoutComponents() {
+EntityFilterBuilder& EntityFilterBuilder::rejectComponents() {
     const std::vector<unsigned int>& componentIds{_entityManager->componentId<Ts>()...};
     for (const unsigned int& cmptId : componentIds)
         _entityFilter.rejectedComponentMask.set(cmptId);
@@ -191,7 +229,7 @@ EntityFilterBuilder& EntityFilterBuilder::withoutComponents() {
 }
 
 template <typename... Ts>
-EntityFilterBuilder& EntityFilterBuilder::withSharedComponents() {
+EntityFilterBuilder& EntityFilterBuilder::requireSharedComponents() {
     const std::vector<unsigned int>& sharedComponentIds{_entityManager->sharedComponentId<Ts>()...};
     for (const unsigned int& sharedCmptId : sharedComponentIds)
         _entityFilter.requiredSharedComponentMask.set(sharedCmptId);
@@ -199,7 +237,7 @@ EntityFilterBuilder& EntityFilterBuilder::withSharedComponents() {
 }
 
 template <typename... Ts>
-EntityFilterBuilder& EntityFilterBuilder::withoutSharedComponents() {
+EntityFilterBuilder& EntityFilterBuilder::rejectSharedComponents() {
     const std::vector<unsigned int>& sharedComponentIds{_entityManager->sharedComponentId<Ts>()...};
     for (const unsigned int& sharedCmptId : sharedComponentIds)
         _entityFilter.rejectedSharedComponentMask.set(sharedCmptId);
@@ -211,7 +249,6 @@ EntityFilterBuilder& EntityFilterBuilder::requireSharedComponent(const T& shared
     const unsigned int sharedComponentId = _entityManager->sharedComponentId<T>();
     const unsigned int sharedComponentIndex = _entityManager->sharedComponentIndex(sharedComponent);
     _entityFilter.requiredSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
-    std::sort(_entityFilter.requiredSharedComponentIdAndIndices.begin(), _entityFilter.requiredSharedComponentIdAndIndices.end());
 }
 
 template <typename T>
@@ -219,16 +256,11 @@ EntityFilterBuilder& EntityFilterBuilder::rejectSharedComponent(const T& sharedC
     const unsigned int sharedComponentId = _entityManager->sharedComponentId<T>();
     const unsigned int sharedComponentIndex = _entityManager->sharedComponentIndex(sharedComponent);
     _entityFilter.rejectedSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
-    std::sort(_entityFilter.rejectedSharedComponentIdAndIndices.begin(), _entityFilter.rejectedSharedComponentIdAndIndices.end());
 }
 
-template <typename... Ts, typename... Us>
-const Entity EntityCommandBuffer::createEntity(TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentTypeMark) {
-    const Entity entity = _entityManager->assignEntity();
-    _procedures.emplace_back([this, entity, componentTypeMark, sharedComponentTypeMark]() {
-        _entityManager->createEntityImmediately(entity, componentTypeMark, sharedComponentTypeMark);
-    });
-    return entity;
+inline EntityFilter EntityFilterBuilder::createEntityFilter() {
+    std::sort(_entityFilter.requiredSharedComponentIdAndIndices.begin(), _entityFilter.requiredSharedComponentIdAndIndices.end());
+    return std::move(_entityFilter);
 }
 
 template <typename T>
@@ -271,22 +303,6 @@ void EntityCommandBuffer::setSharedComponent(const Entity& entity, const T& shar
     _procedures.emplace_back([this, entity, sharedComponent]() {
         _entityManager->setSharedComponentImmediately(entity, sharedComponent);
     });
-}
-
-template <typename... Ts, typename... Us>
-Archetype* EntityManager::createArchetype(TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentMark) {
-    std::vector<unsigned int> componentIds{registerComponent<Ts>()...};
-    std::vector<unsigned int> sharedComponentIds{registerSharedComponent<Us>()...};
-    ArchetypeMask mask{componentIds, sharedComponentIds};
-    if (_archetypeMap.contains(mask))
-        return _archetypeMap.at(mask);
-    return createArchetype(std::move(mask), std::move(componentIds), {sizeof(Ts)...}, {alignof(Ts)...}, std::move(sharedComponentIds));
-}
-
-template <typename... Ts, typename... Us>
-Entity EntityManager::createEntity(TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentMark) {
-    Archetype* const archetype = createArchetype(componentTypeMark, sharedComponentMark);
-    return createEntity(archetype);
 }
 
 template <typename T>
@@ -343,12 +359,6 @@ unsigned int EntityManager::registerComponent() {
 template <typename T>
 unsigned int EntityManager::registerSharedComponent() {
     return registerSharedComponent(typeid(T));
-}
-
-template <typename... Ts, typename... Us>
-void EntityManager::createEntityImmediately(const Entity& entity, TypeMark<Ts...> componentTypeMark, TypeMark<Us...> sharedComponentTypeMark) {
-    Archetype* const archetype = createArchetype(componentTypeMark, sharedComponentTypeMark);
-    createEntityImmediately(entity, archetype);
 }
 
 template <typename T>
