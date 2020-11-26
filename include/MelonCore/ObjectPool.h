@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <new>
+#include <type_traits>
 #include <vector>
 
 namespace MelonCore {
@@ -12,7 +13,7 @@ class ObjectPool {
     static constexpr unsigned int kCountPerBuffer = 128;
 
     ObjectPool();
-    ObjectPool(const ObjectPool& other) = delete;
+    ObjectPool(const ObjectPool&) = delete;
     ObjectPool(ObjectPool&& other);
     // ObejctPool can't be destroy util all objects are recycled
     ~ObjectPool();
@@ -63,7 +64,7 @@ void ObjectPool<T>::recycle(T* object) {
 
 template <typename T>
 void ObjectPool<T>::createBuffer() {
-    T* p = _buffer.emplace_back(static_cast<T*>(new std::aligned_storage_t<sizeof(T), alignof(T)>[kCountPerBuffer]));
+    T* p = _buffer.emplace_back(reinterpret_cast<T*>(new std::aligned_storage_t<sizeof(T), alignof(T)>[kCountPerBuffer]));
     for (unsigned int i = 0; i < kCountPerBuffer; i++, p++)
         _pool.push_back(p);
 }

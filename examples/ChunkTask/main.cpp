@@ -1,19 +1,20 @@
 #include <MelonCore/ChunkTask.h>
 #include <MelonCore/Entity.h>
-#include <MelonCore/EntityFilter.h>
 #include <MelonCore/Instance.h>
 #include <MelonCore/SystemBase.h>
 #include <MelonCore/Time.h>
 #include <MelonCore/Translation.h>
+#include <MelonCore/TypeMark.h>
 
+#include <array>
 #include <cstdio>
-#include <vector>
+#include <memory>
 
 struct Foot {
     int speed;
 };
 
-class ChunkTaskSystem : public MelonCore::SystemBase {
+class FootSystem : public MelonCore::SystemBase {
    protected:
     class FootChunkTask : public MelonCore::ChunkTask {
        public:
@@ -34,9 +35,9 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
     };
 
     void onEnter() override {
-        std::vector<MelonCore::Entity> entities;
-        for (int i = 0; i < 1024; i++)
-            entities.emplace_back(entityManager()->createEntity<Foot>());
+        std::array<MelonCore::Entity, 1024> entities;
+        for (int i = 0; i < entities.size(); i++)
+            entities[i] = entityManager()->createEntity(MelonCore::TypeMark<Foot>(), MelonCore::TypeMark<>());
         for (int i = 0; i * 3 < entities.size(); i++)
             entityManager()->addComponent(entities[i], MelonCore::Translation{});
 
@@ -45,7 +46,7 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
             entityManager()->setComponent(entities[i], MelonCore::Translation{glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
 
-        _entityFilter = entityManager()->createEntityFilter<Foot, MelonCore::Translation>();
+        _entityFilter = entityManager()->createEntityFilter(MelonCore::TypeMark<Foot, MelonCore::Translation>(), MelonCore::TypeMark<>());
         _footComponentId = entityManager()->componentId<Foot>();
         _translationComponentId = entityManager()->componentId<MelonCore::Translation>();
     }
@@ -67,7 +68,7 @@ class ChunkTaskSystem : public MelonCore::SystemBase {
 };
 
 int main() {
-    MelonCore::Instance::instance()->registerSystem<ChunkTaskSystem>();
+    MelonCore::Instance::instance()->registerSystem<FootSystem>();
     MelonCore::Instance::instance()->start();
     return 0;
 }

@@ -1,5 +1,4 @@
 #include <MelonCore/Combination.h>
-#include <MelonCore/ObjectPool.h>
 
 #include <algorithm>
 #include <cstring>
@@ -7,83 +6,70 @@
 
 namespace MelonCore {
 
-Combination::Combination(
-    const std::vector<unsigned int>& componentIds,
-    const std::vector<std::size_t>& componentSizes,
-    const std::vector<std::size_t>& componentAligns,
-    ObjectPool<Chunk>* chunkPool)
-    : _chunkPool(chunkPool),
-      _entityCountInCurrentChunk(0) {
-    _chunkLayout.componentSizes = componentSizes;
-    std::size_t totalSize = sizeof(Entity);
-    for (const std::size_t& size : _chunkLayout.componentSizes)
-        totalSize += size;
-    _chunkCapacity = sizeof(Chunk) / totalSize;
-
-    std::vector<std::pair<size_t, unsigned int>> alignAndIndices(componentIds.size() + 1);
-    for (unsigned int i = 0; i < componentAligns.size(); i++)
-        alignAndIndices[i] = {componentAligns[i], i};
-    alignAndIndices.back() = {alignof(Entity), -1};
-    std::sort(alignAndIndices.begin(), alignAndIndices.end(), std::greater<std::pair<unsigned int, unsigned int>>());
-
-    _chunkLayout.componentIndexMap.reserve(componentIds.size());
-    _chunkLayout.componentOffsets.resize(componentIds.size());
-    size_t offset{};
-    for (const std::pair<unsigned int, unsigned int>& alignAndIndex : alignAndIndices) {
-        if (alignAndIndex.second == -1) {
-            _chunkLayout.entityOffset = offset;
-            offset += sizeof(Entity) * _chunkCapacity;
-        } else {
-            _chunkLayout.componentIndexMap.emplace(componentIds[alignAndIndex.second], alignAndIndex.second);
-            _chunkLayout.componentOffsets[alignAndIndex.second] = offset;
-            offset += _chunkLayout.componentSizes[alignAndIndex.second] * _chunkCapacity;
-        }
-    }
-
+Combination::Combination(const ChunkLayout& chunkLayout, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, ObjectPool<Chunk>* chunkPool) : _chunkLayout(chunkLayout), _sharedComponentIds(sharedComponentIds), _sharedComponentIndices(sharedComponentIndices), _chunkPool(chunkPool), _entityCountInCurrentChunk(0) {
+    // TODO: We should not request a Chunk here
     requestChunk();
 }
 
-unsigned int Combination::addEntity(const Entity& entity) {
+void Combination::addEntity(const Entity& entity, unsigned int& entityIndexInCombination, bool& chunkCountAdded) {
     Chunk* chunk = _chunks.back();
     unsigned int entityIndexInChunk = _entityCountInCurrentChunk++;
-    unsigned int entityIndexInCombination = _entityCount++;
     memcpy(entityAddress(chunk, entityIndexInChunk), &entity, sizeof(Entity));
-    if (_entityCountInCurrentChunk == _chunkCapacity)
+    chunkCountAdded = _entityCountInCurrentChunk == _chunkLayout.capacity;
+    if (chunkCountAdded)
         requestChunk();
-    return entityIndexInCombination;
+    entityIndexInCombination = _entityCount++;
 }
 
-unsigned int Combination::copyEntity(const unsigned int& entityIndexInSrcCombination, Combination* srcCombination) {
+void Combination::moveEntityAddingComponent(const unsigned int& entityIndexInSrcCombination, Combination* srcCombination, const unsigned int& componentId, const void* component, unsigned int& entityIndexInDstCombination, bool& dstChunkCountAdded, Entity& swappedEntity, bool& srcChunkCountMinused) {
+    const Entity& srcEntity = *srcCombination->entityAddress(entityIndexInSrcCombination);
+    addEntity(srcEntity, entityIndexInDstCombination, dstChunkCountAdded);
+
     Chunk* dstChunk = _chunks.back();
-    unsigned int entityIndexInDstChunk = _entityCountInCurrentChunk++;
-    unsigned int entityIndexInDstCombination = _entityCount++;
+    unsigned int entityIndexInDstChunk = _entityCountInCurrentChunk;
 
     for (const std::pair<unsigned int, unsigned int>& idAndIndex : _chunkLayout.componentIndexMap) {
-        if (!srcCombination->hasComponent(idAndIndex.first)) continue;
-        const size_t& size = _chunkLayout.componentSizes[idAndIndex.second];
+        if (idAndIndex.first == componentId) continue;
+        const std::size_t& size = _chunkLayout.componentSizes[idAndIndex.second];
         void* dstAddress = componentAddress(dstChunk, idAndIndex.second, entityIndexInDstChunk);
         void* srcAddress = srcCombination->componentAddress(idAndIndex.first, entityIndexInSrcCombination);
         memcpy(dstAddress, srcAddress, size);
     }
 
-    void* dstEntityAddress = entityAddress(dstChunk, entityIndexInDstChunk);
-    void* srcEntityAddress = srcCombination->entityAddress(entityIndexInSrcCombination);
-    memcpy(dstEntityAddress, srcEntityAddress, sizeof(Entity));
+    setComponent(entityIndexInDstCombination, componentId, component);
 
-    return entityIndexInDstCombination;
+    srcCombination->removeEntity(entityIndexInSrcCombination, swappedEntity, srcChunkCountMinused);
 }
 
-Entity Combination::removeEntity(const unsigned int& entityIndex) {
-    Chunk* dstChunk = _chunks[entityIndex / _chunkCapacity];
-    const unsigned int dstEntityIndexInChunk = entityIndex % _chunkCapacity;
+void Combination::moveEntityRemovingComponent(const unsigned int& entityIndexInSrcCombination, Combination* srcCombination, unsigned int& entityIndexInDstCombination, bool& dstChunkCountAdded, Entity& swappedEntity, bool& srcChunkCountMinused) {
+    const Entity& srcEntity = *srcCombination->entityAddress(entityIndexInSrcCombination);
+    addEntity(srcEntity, entityIndexInDstCombination, dstChunkCountAdded);
 
-    if (_entityCountInCurrentChunk == 0) recycleChunk();
+    Chunk* dstChunk = _chunks.back();
+    unsigned int entityIndexInDstChunk = _entityCountInCurrentChunk;
+
+    for (const std::pair<unsigned int, unsigned int>& idAndIndex : _chunkLayout.componentIndexMap) {
+        const std::size_t& size = _chunkLayout.componentSizes[idAndIndex.second];
+        void* dstAddress = componentAddress(dstChunk, idAndIndex.second, entityIndexInDstChunk);
+        void* srcAddress = srcCombination->componentAddress(idAndIndex.first, entityIndexInSrcCombination);
+        memcpy(dstAddress, srcAddress, size);
+    }
+
+    srcCombination->removeEntity(entityIndexInSrcCombination, swappedEntity, srcChunkCountMinused);
+}
+
+void Combination::removeEntity(const unsigned int& entityIndexInCombination, Entity& swappedEntity, bool& chunkCountMinused) {
+    Chunk* dstChunk = _chunks[entityIndexInCombination / _chunkLayout.capacity];
+    const unsigned int dstEntityIndexInChunk = entityIndexInCombination % _chunkLayout.capacity;
+
+    chunkCountMinused = _entityCountInCurrentChunk == 0;
+    if (chunkCountMinused) recycleChunk();
 
     Chunk* srcChunk = _chunks.back();
     const unsigned int srcEntityIndexInChunk = _entityCountInCurrentChunk - 1;
 
     for (const std::pair<unsigned int, unsigned int>& idAndIndex : _chunkLayout.componentIndexMap) {
-        const size_t& size = _chunkLayout.componentSizes[idAndIndex.second];
+        const std::size_t& size = _chunkLayout.componentSizes[idAndIndex.second];
         void* dstAddress = componentAddress(dstChunk, idAndIndex.second, dstEntityIndexInChunk);
         void* srcAddress = componentAddress(srcChunk, idAndIndex.second, srcEntityIndexInChunk);
         if (dstChunk != srcChunk || dstEntityIndexInChunk != srcEntityIndexInChunk)
@@ -100,12 +86,12 @@ Entity Combination::removeEntity(const unsigned int& entityIndex) {
     _entityCountInCurrentChunk--;
     _entityCount--;
 
-    return *static_cast<Entity*>(dstEntityAddress);
+    swappedEntity = *static_cast<Entity*>(dstEntityAddress);
 }
 
-void Combination::setComponent(const unsigned int& entityIndex, const unsigned int& componentId, const void* component) {
-    Chunk* chunk = _chunks[entityIndex / _chunkCapacity];
-    const unsigned int entityIndexInChunk = entityIndex % _chunkCapacity;
+void Combination::setComponent(const unsigned int& entityIndexInCombination, const unsigned int& componentId, const void* component) {
+    Chunk* chunk = _chunks[entityIndexInCombination / _chunkLayout.capacity];
+    const unsigned int entityIndexInChunk = entityIndexInCombination % _chunkLayout.capacity;
     const unsigned int componentIndex = _chunkLayout.componentIndexMap.at(componentId);
     void* address = componentAddress(chunk, componentIndex, entityIndexInChunk);
 
@@ -121,7 +107,7 @@ void Combination::recycleChunk() {
     Chunk* chunk = _chunks.back();
     _chunks.pop_back();
     _chunkPool->recycle(chunk);
-    _entityCountInCurrentChunk = _chunkCapacity;
+    _entityCountInCurrentChunk = _chunkLayout.capacity;
 }
 
 }  // namespace MelonCore

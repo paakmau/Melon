@@ -2,10 +2,7 @@
 
 namespace MelonCore {
 
-class Archetype;
-
-struct Entity {
-    unsigned int id;
-};
+template <typename... Ts>
+struct TypeMark {};
 
 }  // namespace MelonCore

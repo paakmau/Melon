@@ -82,6 +82,9 @@
         "unordered_set": "cpp",
         "forward_list": "cpp",
         "numeric": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "shared_mutex": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp"
     }
 }

@@ -19,7 +19,6 @@ std::shared_ptr<TaskHandle> SystemBase::schedule(const std::shared_ptr<ChunkTask
     unsigned int chunkCounter = 0;
     unsigned int entityCounter = 0;
     for (unsigned int i = 0; i < taskCount; i++) {
-        // TODO:
         taskHandles[i] = TaskManager::instance()->schedule(
             [chunkTask, accessors, chunkCountPerTask, i, chunkCounter, entityCounter]() {
                 for (unsigned int j = i * chunkCountPerTask; j < (i + 1) * chunkCountPerTask && j < accessors->size(); j++)

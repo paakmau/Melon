@@ -7,7 +7,7 @@ namespace MelonCore {
 
 EntityCommandBuffer::EntityCommandBuffer(EntityManager* entityManager) : _entityManager(entityManager) {}
 
-const Entity EntityCommandBuffer::createEntity(const Archetype& archetype) {
+const Entity EntityCommandBuffer::createEntity(Archetype* archetype) {
     const Entity entity = _entityManager->assignEntity();
     _procedures.emplace_back([this, entity, archetype]() {
         _entityManager->createEntityImmediately(entity, archetype);
@@ -29,7 +29,7 @@ void EntityCommandBuffer::execute() {
 
 EntityManager::EntityManager() : _mainEntityCommandBuffer(this) {}
 
-const Entity EntityManager::createEntity(const Archetype& archetype) {
+Entity EntityManager::createEntity(Archetype* archetype) {
     return _mainEntityCommandBuffer.createEntity(archetype);
 }
 
@@ -39,70 +39,74 @@ void EntityManager::destroyEntity(const Entity& entity) {
 
 std::vector<ChunkAccessor> EntityManager::filterEntities(const EntityFilter& entityFilter) {
     std::vector<ChunkAccessor> accessors;
-    for (const std::pair<std::bitset<1024>, Archetype>& entry : _archetypeMap) {
-        if ((entityFilter.componentMask | entry.first) == entry.first) {
-            if (_archetypeCombinations[entry.second.id]->entityCount() == 0) continue;
-            const std::vector<ChunkAccessor> accessorsInCombination = _archetypeCombinations[entry.second.id]->chunkAccessors();
-            for (const ChunkAccessor& accessor : accessorsInCombination)
-                accessors.push_back(accessor);
-        }
-    }
+    for (const std::pair<ArchetypeMask, Archetype*>& entry : _archetypeMap)
+        if (entityFilter.satisfied(entry.first))
+            if (entry.second->entityCount() != 0)
+                entry.second->filterEntities(entityFilter, _sharedComponentStore, accessors);
     return accessors;
 }
 
 unsigned int EntityManager::chunkCount(const EntityFilter& entityFilter) const {
     unsigned int count = 0;
-    for (const std::unique_ptr<Combination>& combination : _archetypeCombinations)
-        count += combination->chunkCount();
+    for (const std::pair<ArchetypeMask, Archetype*>& entry : _archetypeMap)
+        if (entityFilter.satisfied(entry.first))
+            if (entry.second->entityCount() != 0)
+                count += entry.second->chunkCount();
     return count;
 };
 
 unsigned int EntityManager::entityCount(const EntityFilter& entityFilter) const {
     unsigned int count = 0;
-    for (const std::unique_ptr<Combination>& combination : _archetypeCombinations)
-        count += combination->entityCount();
+    for (const std::pair<ArchetypeMask, Archetype*>& entry : _archetypeMap)
+        if (entityFilter.satisfied(entry.first))
+            if (entry.second->entityCount() != 0)
+                count += entry.second->entityCount();
     return count;
 };
 
 unsigned int EntityManager::registerComponent(const std::type_index& typeIndex) {
-    if (_componentIdMap.contains(typeIndex)) return _componentIdMap.at(typeIndex);
+    if (_componentIdMap.contains(typeIndex)) return _componentIdMap[typeIndex];
     return _componentIdMap.emplace(typeIndex, _componentIdMap.size()).first->second;
 }
 
-const Archetype EntityManager::createArchetype(std::vector<unsigned int>&& componentIds, std::bitset<1024>&& componentMask, std::vector<size_t>&& componentSizes, std::vector<size_t>&& componentAligns) {
-    const Archetype archetype = Archetype{_archetypeIdCounter++};
-    _archetypeMap.insert({componentMask, archetype});
-    _archetypeCombinations.emplace_back(std::make_unique<Combination>(
-        componentIds, componentSizes, componentAligns, &_chunkPool));
-    _archetypeComponentIdArrays.emplace_back(std::move(componentIds));
-    _archetypeComponentMasks.emplace_back(std::move(componentMask));
-    _archetypeComponentSizeArrays.emplace_back(std::move(componentSizes));
-    _archetypeComponentAlignArrays.emplace_back(std::move(componentAligns));
-    return archetype;
+unsigned int EntityManager::registerSharedComponent(const std::type_index& typeIndex) {
+    if (_sharedComponentIdMap.contains(typeIndex)) return _sharedComponentIdMap[typeIndex];
+    return _sharedComponentIdMap.emplace(typeIndex, _sharedComponentIdMap.size()).first->second;
+}
+
+Archetype* EntityManager::createArchetype(ArchetypeMask&& mask, std::vector<unsigned int>&& componentIds, std::vector<std::size_t>&& componentSizes, std::vector<std::size_t>&& componentAligns, std::vector<unsigned int>&& sharedComponentIds) {
+    const unsigned int archetypeId = _archetypeIdCounter++;
+    const std::unique_ptr<Archetype>& archetype = _archetypes.emplace_back(std::make_unique<Archetype>(archetypeId, mask, componentIds, componentSizes, componentAligns, sharedComponentIds, &_chunkPool));
+    _archetypeMap.emplace(mask, archetype.get());
+    return archetype.get();
 }
 
 const Entity EntityManager::assignEntity() {
     std::lock_guard lock(_entityIdMutex);
-    if (!_availableEntityIds.empty()) {
-        unsigned int entityId = _availableEntityIds.back();
-        _availableEntityIds.pop();
+    if (!_freeEntityIds.empty()) {
+        unsigned int entityId = _freeEntityIds.back();
+        _freeEntityIds.pop();
         return Entity{entityId};
     }
-    _entityArchetypeIds.push_back(0);
-    _entityIndicesInCombination.push_back(0);
+    _entityLocations.emplace_back(EntityLocation{});
     return Entity{_entityIdCounter++};
 }
 
-void EntityManager::createEntityImmediately(const Entity& entity, const Archetype& archetype) {
-    const unsigned int entityIndexInCombination = _archetypeCombinations.at(archetype.id)->addEntity(entity);
-    _entityIndicesInCombination[entity.id] = entityIndexInCombination;
+void EntityManager::createEntityImmediately(const Entity& entity, Archetype* archetype) {
+    EntityLocation location;
+    archetype->addEntity(entity, location);
+    _entityLocations[entity.id] = location;
 }
 
 void EntityManager::destroyEntityImmediately(const Entity& entity) {
-    const unsigned int archetypeId = _entityArchetypeIds[entity.id];
-    const unsigned int entityIndex = _entityIndicesInCombination[entity.id];
-    const Entity movedEntity = _archetypeCombinations[archetypeId]->removeEntity(entityIndex);
-    _entityIndicesInCombination[movedEntity.id] = entityIndex;
+    const EntityLocation& location = _entityLocations[entity.id];
+    const std::vector<unsigned int>& sharedComponentIds = _archetypes[location.archetypeId]->sharedComponentIds();
+    std::vector<unsigned int> sharedComponentIndices;
+    Entity swappedEntity;
+    _archetypes[location.archetypeId]->removeEntity(location, sharedComponentIndices, swappedEntity);
+    for (unsigned int i = 0; i < sharedComponentIds.size(); i++)
+        _sharedComponentStore.pop(sharedComponentIds[i], sharedComponentIndices[i]);
+    _entityLocations[swappedEntity.id] = location;
 }
 
 void EntityManager::executeEntityCommandBuffers() {
