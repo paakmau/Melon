@@ -29,19 +29,19 @@ class EntityManager;
 class EntityFilterBuilder {
    public:
     template <typename... Ts>
-    EntityFilterBuilder withComponents();
+    EntityFilterBuilder& withComponents();
     template <typename... Ts>
-    EntityFilterBuilder withoutComponents();
+    EntityFilterBuilder& withoutComponents();
 
     template <typename... Ts>
-    EntityFilterBuilder withSharedComponents();
+    EntityFilterBuilder& withSharedComponents();
     template <typename... Ts>
-    EntityFilterBuilder withoutSharedComponents();
+    EntityFilterBuilder& withoutSharedComponents();
 
     template <typename T>
-    EntityFilterBuilder requireSharedComponent(const T& sharedComponent);
+    EntityFilterBuilder& requireSharedComponent(const T& sharedComponent);
     template <typename T>
-    EntityFilterBuilder rejectSharedComponent(const T& sharedComponent);
+    EntityFilterBuilder& rejectSharedComponent(const T& sharedComponent);
 
     EntityFilter createEntityFilter() const { return _entityFilter; };
 
@@ -175,7 +175,7 @@ class EntityManager {
 };
 
 template <typename... Ts>
-EntityFilterBuilder EntityFilterBuilder::withComponents() {
+EntityFilterBuilder& EntityFilterBuilder::withComponents() {
     const std::vector<unsigned int>& componentIds{_entityManager->componentId<Ts>()...};
     for (const unsigned int& cmptId : componentIds)
         _entityFilter.requiredComponentMask.set(cmptId);
@@ -183,7 +183,7 @@ EntityFilterBuilder EntityFilterBuilder::withComponents() {
 }
 
 template <typename... Ts>
-EntityFilterBuilder EntityFilterBuilder::withoutComponents() {
+EntityFilterBuilder& EntityFilterBuilder::withoutComponents() {
     const std::vector<unsigned int>& componentIds{_entityManager->componentId<Ts>()...};
     for (const unsigned int& cmptId : componentIds)
         _entityFilter.rejectedComponentMask.set(cmptId);
@@ -191,7 +191,7 @@ EntityFilterBuilder EntityFilterBuilder::withoutComponents() {
 }
 
 template <typename... Ts>
-EntityFilterBuilder EntityFilterBuilder::withSharedComponents() {
+EntityFilterBuilder& EntityFilterBuilder::withSharedComponents() {
     const std::vector<unsigned int>& sharedComponentIds{_entityManager->sharedComponentId<Ts>()...};
     for (const unsigned int& sharedCmptId : sharedComponentIds)
         _entityFilter.requiredSharedComponentMask.set(sharedCmptId);
@@ -199,7 +199,7 @@ EntityFilterBuilder EntityFilterBuilder::withSharedComponents() {
 }
 
 template <typename... Ts>
-EntityFilterBuilder EntityFilterBuilder::withoutSharedComponents() {
+EntityFilterBuilder& EntityFilterBuilder::withoutSharedComponents() {
     const std::vector<unsigned int>& sharedComponentIds{_entityManager->sharedComponentId<Ts>()...};
     for (const unsigned int& sharedCmptId : sharedComponentIds)
         _entityFilter.rejectedSharedComponentMask.set(sharedCmptId);
@@ -207,7 +207,7 @@ EntityFilterBuilder EntityFilterBuilder::withoutSharedComponents() {
 }
 
 template <typename T>
-EntityFilterBuilder EntityFilterBuilder::requireSharedComponent(const T& sharedComponent) {
+EntityFilterBuilder& EntityFilterBuilder::requireSharedComponent(const T& sharedComponent) {
     const unsigned int sharedComponentId = _entityManager->sharedComponentId<T>();
     const unsigned int sharedComponentIndex = _entityManager->sharedComponentIndex(sharedComponent);
     _entityFilter.requiredSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
@@ -215,7 +215,7 @@ EntityFilterBuilder EntityFilterBuilder::requireSharedComponent(const T& sharedC
 }
 
 template <typename T>
-EntityFilterBuilder EntityFilterBuilder::rejectSharedComponent(const T& sharedComponent) {
+EntityFilterBuilder& EntityFilterBuilder::rejectSharedComponent(const T& sharedComponent) {
     const unsigned int sharedComponentId = _entityManager->sharedComponentId<T>();
     const unsigned int sharedComponentIndex = _entityManager->sharedComponentIndex(sharedComponent);
     _entityFilter.rejectedSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
