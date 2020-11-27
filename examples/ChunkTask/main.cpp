@@ -10,27 +10,28 @@
 #include <cstdio>
 #include <memory>
 
-struct Speed {
-    unsigned int speed;
+struct Speed : public MelonCore::Component {
+    unsigned int value;
 };
 
 class SpeedSystem : public MelonCore::SystemBase {
    protected:
     class SpeedChunkTask : public MelonCore::ChunkTask {
        public:
-        SpeedChunkTask(const unsigned int& footComponentId, const unsigned int& translationComponentId) : _footComponentId(footComponentId), _translationComponentId(translationComponentId) {}
+        SpeedChunkTask(const unsigned int& speedComponentId, const unsigned int& translationComponentId) : _speedComponentId(speedComponentId), _translationComponentId(translationComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
-            MelonCore::Entity* entities = chunkAccessor.entityArray();
-            Speed* feet = chunkAccessor.componentArray<Speed>(_footComponentId);
+            const MelonCore::Entity* entities = chunkAccessor.entityArray();
+            Speed* feet = chunkAccessor.componentArray<Speed>(_speedComponentId);
             MelonCore::Translation* translations = chunkAccessor.componentArray<MelonCore::Translation>(_translationComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
-                MelonCore::Entity entity = entities[i];
-                Speed& foot = feet[i];
-                translations[i].value += glm::vec3(0, 0, foot.speed);
+                const MelonCore::Entity& entity = entities[i];
+                Speed& speed = feet[i];
+                if (speed.value == entity.id)
+                    translations[i].value += glm::vec3(0, 0, speed.value);
             }
         }
 
-        const unsigned int& _footComponentId;
+        const unsigned int& _speedComponentId;
         const unsigned int& _translationComponentId;
     };
 
@@ -40,22 +41,23 @@ class SpeedSystem : public MelonCore::SystemBase {
         std::array<MelonCore::Entity, 1024> entities;
         for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(archetype);
-        for (unsigned int i = 0; i * 3 < entities.size(); i++)
-            entityManager()->addComponent(entities[i], MelonCore::Translation{});
-
         for (unsigned int i = 0; i * 3 < entities.size(); i++) {
-            entityManager()->setComponent(entities[i], Speed{i % 10U});
-            entityManager()->setComponent(entities[i], MelonCore::Translation{glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
+            entityManager()->setComponent(entities[i], Speed{.value = entities[i].id});
+            entityManager()->addComponent(entities[i], MelonCore::Translation{.value = glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
+        }
+        for (unsigned int i = 0; i * 3 < entities.size(); i++) {
+            entityManager()->setComponent(entities[i], Speed{.value = entities[i].id + 10U});
+            entityManager()->addComponent(entities[i], MelonCore::Translation{.value = glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
 
         _entityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Speed, MelonCore::Translation>().createEntityFilter();
-        _footComponentId = entityManager()->componentId<Speed>();
+        _speedComponentId = entityManager()->componentId<Speed>();
         _translationComponentId = entityManager()->componentId<MelonCore::Translation>();
     }
 
     void onUpdate() override {
         printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
-        predecessor() = schedule(std::make_shared<SpeedChunkTask>(_footComponentId, _translationComponentId), _entityFilter, predecessor());
+        predecessor() = schedule(std::make_shared<SpeedChunkTask>(_speedComponentId, _translationComponentId), _entityFilter, predecessor());
         if (_counter++ > 1000)
             MelonCore::Instance::instance()->quit();
     }
@@ -64,7 +66,7 @@ class SpeedSystem : public MelonCore::SystemBase {
 
    private:
     MelonCore::EntityFilter _entityFilter;
-    unsigned int _footComponentId;
+    unsigned int _speedComponentId;
     unsigned int _translationComponentId;
     unsigned int _counter{};
 };

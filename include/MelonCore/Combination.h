@@ -17,6 +17,7 @@ namespace MelonCore {
 class Combination {
    public:
     Combination(const unsigned int& index, const ChunkLayout& chunkLayout, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, ObjectPool<Chunk>* chunkPool);
+    Combination(const Combination&) = delete;
 
     void addEntity(const Entity& entity, unsigned int& entityIndexInCombination, bool& chunkCountAdded);
     // Move an Entity when adding one component

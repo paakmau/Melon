@@ -8,7 +8,7 @@ namespace MelonCore {
 
 class ChunkAccessor {
    public:
-    Entity* entityArray() const;
+    const Entity* entityArray() const;
     template <typename T>
     T* componentArray(const unsigned int& componentId) const;
 
@@ -31,8 +31,8 @@ class ChunkAccessor {
     friend class Combination;
 };
 
-inline Entity* ChunkAccessor::entityArray() const {
-    return reinterpret_cast<Entity*>(reinterpret_cast<std::byte*>(_chunk) + _chunkLayout.entityOffset);
+inline const Entity* ChunkAccessor::entityArray() const {
+    return reinterpret_cast<const Entity*>(reinterpret_cast<std::byte*>(_chunk) + _chunkLayout.entityOffset);
 }
 
 template <typename T>

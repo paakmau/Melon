@@ -59,6 +59,16 @@ class Archetype {
 
     void filterEntities(const EntityFilter& entityFilter, const ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
 
+    bool singleAndManual() const { return _mask.singleAndManual(); }
+    bool fullyManual() const { return _mask.fullyManual(); }
+    bool partiallyManual() const { return _mask.paritiallyManual(); }
+
+    std::vector<unsigned int> notManualComponentIds() const;
+    std::vector<unsigned int> notManualSharedComponentIds() const;
+
+    unsigned int componentCount() const { return _mask.componentCount(); }
+    unsigned int sharedComponentCount() const { return _mask.sharedComponentCount(); }
+
     const unsigned int& id() const { return _id; }
     const ArchetypeMask& mask() const { return _mask; }
 
@@ -70,9 +80,6 @@ class Archetype {
 
     const unsigned int& chunkCount() const { return _chunkCount; }
     const unsigned int& entityCount() const { return _entityCount; }
-
-    unsigned int componentCount() const { return _mask.componentCount(); }
-    unsigned int sharedComponentCount() const { return _mask.sharedComponentCount(); }
 
    private:
     Combination* createCombination();
@@ -100,6 +107,22 @@ class Archetype {
 
     friend class EntityManager;
 };
+
+inline std::vector<unsigned int> Archetype::notManualComponentIds() const {
+    std::vector<unsigned int> componentIds;
+    for (const unsigned int& componentId : _componentIds)
+        if (!_mask.manualComponent(componentId))
+            componentIds.push_back(componentId);
+    return componentIds;
+}
+
+inline std::vector<unsigned int> Archetype::notManualSharedComponentIds() const {
+    std::vector<unsigned int> sharedComponentIds;
+    for (const unsigned int& sharedComponentId : _sharedComponentIds)
+        if (!_mask.manualSharedComponent(sharedComponentId))
+            sharedComponentIds.push_back(sharedComponentId);
+    return sharedComponentIds;
+}
 
 inline Combination* Archetype::createCombination() {
     return createCombination(std::vector<unsigned int>(sharedComponentCount(), ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>::kNullPointerIndex));

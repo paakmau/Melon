@@ -85,6 +85,7 @@
         "regex": "cpp",
         "shared_mutex": "cpp",
         "hash_map": "cpp",
-        "hash_set": "cpp"
+        "hash_set": "cpp",
+        "cassert": "cpp"
     }
 }

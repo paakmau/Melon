@@ -12,22 +12,23 @@
 #include <memory>
 #include <utility>
 
-struct Group {
+struct Group : public MelonCore::SharedComponent {
     unsigned int id;
+    unsigned int value;
 
     bool operator==(const Group& other) const {
-        return id == other.id;
+        return id == other.id && value == other.value;
     }
 };
 
 template <>
 struct std::hash<Group> {
     std::size_t operator()(const Group& group) {
-        return std::hash<unsigned int>()(group.id);
+        return std::hash<unsigned int>()(group.id) ^ std::hash<unsigned int>()(group.value);
     }
 };
 
-struct Person {
+struct Person : public MelonCore::Component {
     unsigned int value;
 };
 
@@ -37,12 +38,11 @@ class GroupSystem : public MelonCore::SystemBase {
        public:
         GroupChunkTask(const unsigned int& personComponentId, const unsigned int& groupSharedComponentId) : _personComponentId(personComponentId), _groupSharedComponentId(groupSharedComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
-            MelonCore::Entity* entities = chunkAccessor.entityArray();
             Person* people = chunkAccessor.componentArray<Person>(_personComponentId);
             const Group* group = chunkAccessor.sharedComponent<Group>(_groupSharedComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
                 Person& person = people[i];
-                person.value += i + entities[i].id;
+                person.value += group->value;
             }
         }
 
@@ -58,13 +58,13 @@ class GroupSystem : public MelonCore::SystemBase {
             entities[i] = entityManager()->createEntity(archetype);
 
         for (unsigned int i = 0; i < entities.size(); i += 3)
-            entityManager()->setSharedComponent(entities[i], Group{0});
+            entityManager()->setSharedComponent(entities[i], Group{.id = 0, .value = 10});
 
         for (unsigned int i = 1; i < entities.size(); i += 3)
-            entityManager()->setSharedComponent(entities[i], Group{1});
+            entityManager()->setSharedComponent(entities[i], Group{.id = 1, .value = 100});
 
         for (unsigned int i = 2; i < entities.size(); i += 3)
-            entityManager()->setSharedComponent(entities[i], Group{2});
+            entityManager()->setSharedComponent(entities[i], Group{.id = 2, .value = 1000});
 
         _entityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Person>().requireSharedComponents<Group>().createEntityFilter();
         _personComponentId = entityManager()->componentId<Person>();
