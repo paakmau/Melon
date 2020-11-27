@@ -431,7 +431,7 @@ void EntityManager::removeComponentImmediately(const Entity& entity) {
     const EntityLocation& srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     // If the archetype is single and manual, it should be destroyed;
-    if (srcArchetype->singleAndManual()) {
+    if (srcArchetype->single() && srcArchetype->fullyManual()) {
         destroyEntityWithoutCheck(entity, srcArchetype, srcLocation);
         return;
     }
@@ -480,7 +480,7 @@ void EntityManager::removeSharedComponentImmediately(const Entity& entity) {
     const EntityLocation& srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     // If the archetype is single and manual, it should be destroyed;
-    if (srcArchetype->singleAndManual()) {
+    if (srcArchetype->single() && srcArchetype->fullyManual()) {
         destroyEntityWithoutCheck(entity, srcArchetype, srcLocation);
         return;
     }

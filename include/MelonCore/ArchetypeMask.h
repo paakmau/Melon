@@ -27,6 +27,10 @@ struct ArchetypeMask {
         componentMask.set(componentId, value);
         if (manual)
             manualComponentMask.set(componentId, value);
+        if (value)
+            count++;
+        else
+            count--;
     }
 
     void markComponents(const std::vector<unsigned int>& componentIds, const std::vector<bool>& manuals) {
@@ -38,6 +42,10 @@ struct ArchetypeMask {
         sharedComponentMask.set(sharedComponentId, value);
         if (manual)
             manualSharedComponentMask.set(sharedComponentId, value);
+        if (value)
+            count++;
+        else
+            count--;
     }
 
     void markSharedComponents(const std::vector<unsigned int>& sharedComponentIds, const std::vector<bool>& manuals) {
@@ -52,15 +60,16 @@ struct ArchetypeMask {
     bool manualComponent(const unsigned int& componentId) const { return manualComponentMask.test(componentId); }
     bool manualSharedComponent(const unsigned int& sharedComponentId) const { return manualSharedComponentMask.test(sharedComponentId); }
 
-    bool none() const { return componentMask.none() && sharedComponentMask.none(); }
+    bool none() const { return count == 0; }
 
-    bool singleAndManual() const { return componentCount() + sharedComponentCount() == 1 && fullyManual(); }
+    bool single() const { return count == 1; }
     bool fullyManual() const { return !none() && componentMask == manualComponentMask && sharedComponentMask == manualSharedComponentMask; }
     bool paritiallyManual() const { return !fullyManual() && (componentMask.any() || sharedComponentMask.any()); }
 
     unsigned int componentCount() const { return componentMask.count(); }
     unsigned int sharedComponentCount() const { return sharedComponentMask.count(); }
 
+    unsigned int count{};
     ComponentMask componentMask;
     ManualComponentMask manualComponentMask;
     SharedComponentMask sharedComponentMask;

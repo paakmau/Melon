@@ -59,7 +59,7 @@ class Archetype {
 
     void filterEntities(const EntityFilter& entityFilter, const ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
 
-    bool singleAndManual() const { return _mask.singleAndManual(); }
+    bool single() const { return _mask.single(); }
     bool fullyManual() const { return _mask.fullyManual(); }
     bool partiallyManual() const { return _mask.paritiallyManual(); }
 
