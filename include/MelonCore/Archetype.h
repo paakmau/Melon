@@ -61,7 +61,7 @@ class Archetype {
 
     bool single() const { return _mask.single(); }
     bool fullyManual() const { return _mask.fullyManual(); }
-    bool partiallyManual() const { return _mask.paritiallyManual(); }
+    bool partiallyManual() const { return _mask.partiallyManual(); }
 
     std::vector<unsigned int> notManualComponentIds() const;
     std::vector<unsigned int> notManualSharedComponentIds() const;

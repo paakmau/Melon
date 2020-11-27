@@ -64,7 +64,7 @@ struct ArchetypeMask {
 
     bool single() const { return count == 1; }
     bool fullyManual() const { return !none() && componentMask == manualComponentMask && sharedComponentMask == manualSharedComponentMask; }
-    bool paritiallyManual() const { return !fullyManual() && (componentMask.any() || sharedComponentMask.any()); }
+    bool partiallyManual() const { return !fullyManual() && (manualComponentMask.any() || manualSharedComponentMask.any()); }
 
     unsigned int componentCount() const { return componentMask.count(); }
     unsigned int sharedComponentCount() const { return sharedComponentMask.count(); }
