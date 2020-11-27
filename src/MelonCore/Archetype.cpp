@@ -47,8 +47,8 @@ void Archetype::addEntity(const Entity& entity, EntityLocation& location) {
     unsigned int entityIndexInCombination;
     bool chunkCountAdded;
     combination->addEntity(entity, entityIndexInCombination, chunkCountAdded);
-    _entityCount++;
     if (chunkCountAdded) _chunkCount++;
+    _entityCount++;
     location = EntityLocation{
         _id,
         combination->index(),
@@ -152,7 +152,8 @@ void Archetype::removeEntity(const EntityLocation& location, std::vector<unsigne
     sharedComponentIndices = _combinations[location.combinationIndex]->sharedComponentIndices();
     bool chunkCountMinused;
     _combinations[location.combinationIndex]->removeEntity(location.entityIndexInCombination, swappedEntity, chunkCountMinused);
-    if (chunkCountMinused) _chunkCount--; // TODO: 木地板
+    if (chunkCountMinused) _chunkCount--;
+    _entityCount--;
 }
 
 void Archetype::setComponent(const EntityLocation& location, const unsigned int& componentId, const void* component) {
