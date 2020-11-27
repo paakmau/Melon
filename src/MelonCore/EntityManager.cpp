@@ -4,7 +4,7 @@
 
 namespace MelonCore {
 
-EntityCommandBuffer::EntityCommandBuffer(EntityManager* entityManager) : _entityManager(entityManager) {}
+EntityCommandBuffer::EntityCommandBuffer(EntityManager* entityManager) noexcept : _entityManager(entityManager) {}
 
 Entity EntityCommandBuffer::createEntity() {
     const Entity entity = _entityManager->assignEntity();
@@ -87,9 +87,9 @@ unsigned int EntityManager::registerSharedComponent(const std::type_index& typeI
 
 Archetype* EntityManager::createArchetype(ArchetypeMask&& mask, std::vector<unsigned int>&& componentIds, std::vector<std::size_t>&& componentSizes, std::vector<std::size_t>&& componentAligns, std::vector<unsigned int>&& sharedComponentIds) {
     const unsigned int archetypeId = _archetypeIdCounter++;
-    const std::unique_ptr<Archetype>& archetype = _archetypes.emplace_back(std::make_unique<Archetype>(archetypeId, mask, componentIds, componentSizes, componentAligns, sharedComponentIds, &_chunkPool));
-    _archetypeMap.emplace(mask, archetype.get());
-    return archetype.get();
+    Archetype* archetype = _archetypes.emplace_back(std::make_unique<Archetype>(archetypeId, mask, componentIds, componentSizes, componentAligns, sharedComponentIds, &_chunkPool)).get();
+    _archetypeMap.emplace(mask, archetype);
+    return archetype;
 }
 
 const Entity EntityManager::assignEntity() {
@@ -208,8 +208,9 @@ void EntityManager::removeSharedComponentWithoutCheck(const Entity& entity, cons
 
 void EntityManager::executeEntityCommandBuffers() {
     _mainEntityCommandBuffer.execute();
-    for (EntityCommandBuffer& buffer : _taskEntityCommandBuffers)
-        buffer.execute();
+    for (const std::unique_ptr<EntityCommandBuffer>& buffer : _taskEntityCommandBuffers)
+        buffer->execute();
+    _taskEntityCommandBuffers.clear();
 }
 
 }  // namespace MelonCore

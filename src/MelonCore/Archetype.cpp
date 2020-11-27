@@ -149,10 +149,10 @@ void Archetype::moveEntityRemovingSharedComponent(const EntityLocation& srcEntit
 
 void Archetype::removeEntity(const EntityLocation& location, std::vector<unsigned int>& sharedComponentIndices, Entity& swappedEntity) {
     // Need to copy SharedComponent indices because Combination may be destroyed
-    sharedComponentIndices = _combinations[location.entityIndexInCombination]->sharedComponentIndices();
+    sharedComponentIndices = _combinations[location.combinationIndex]->sharedComponentIndices();
     bool chunkCountMinused;
-    _combinations[location.entityIndexInCombination]->removeEntity(location.entityIndexInCombination, swappedEntity, chunkCountMinused);
-    if (chunkCountMinused) _chunkCount--;
+    _combinations[location.combinationIndex]->removeEntity(location.entityIndexInCombination, swappedEntity, chunkCountMinused);
+    if (chunkCountMinused) _chunkCount--; // TODO: 木地板
 }
 
 void Archetype::setComponent(const EntityLocation& location, const unsigned int& componentId, const void* component) {

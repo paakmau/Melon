@@ -14,6 +14,7 @@
 #include <array>
 #include <bitset>
 #include <cstdlib>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -79,7 +80,7 @@ class EntityFilterBuilder {
 
 class EntityCommandBuffer {
    public:
-    EntityCommandBuffer(EntityManager* entityManager);
+    EntityCommandBuffer(EntityManager* entityManager) noexcept;
 
     Entity createEntity();
     Entity createEntity(Archetype* archetype);
@@ -113,7 +114,7 @@ class EntityManager {
 
     ArchetypeBuilder createArchetypeBuilder() { return ArchetypeBuilder(this); }
 
-    EntityCommandBuffer* createEntityCommandBuffer() { return &_taskEntityCommandBuffers.emplace_back(this); }
+    EntityCommandBuffer* createEntityCommandBuffer() { return _taskEntityCommandBuffers.emplace_back(std::make_unique<EntityCommandBuffer>(this)).get(); }
 
     Entity createEntity();
     Entity createEntity(Archetype* archetype);
@@ -194,7 +195,7 @@ class EntityManager {
     std::vector<EntityLocation> _entityLocations;
 
     EntityCommandBuffer _mainEntityCommandBuffer;
-    std::vector<EntityCommandBuffer> _taskEntityCommandBuffers;
+    std::vector<std::unique_ptr<EntityCommandBuffer>> _taskEntityCommandBuffers;
 
     friend class ArchetypeBuilder;
     friend class EntityCommandBuffer;
