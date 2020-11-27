@@ -113,6 +113,8 @@ class EntityManager {
 
     ArchetypeBuilder createArchetypeBuilder() { return ArchetypeBuilder(this); }
 
+    EntityCommandBuffer* createEntityCommandBuffer() { return &_taskEntityCommandBuffers.emplace_back(this); }
+
     Entity createEntity();
     Entity createEntity(Archetype* archetype);
     void destroyEntity(const Entity& entity);

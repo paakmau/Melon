@@ -1,6 +1,7 @@
 #pragma once
 
 #include <MelonCore/ArchetypeMask.h>
+#include <MelonCore/Chunk.h>
 #include <MelonCore/Entity.h>
 #include <MelonCore/ObjectStore.h>
 

@@ -14,21 +14,21 @@
 
 struct Group : public MelonCore::SharedComponent {
     unsigned int id;
-    unsigned int value;
+    unsigned int salary;
 
     bool operator==(const Group& other) const {
-        return id == other.id && value == other.value;
+        return id == other.id && salary == other.salary;
     }
 };
 
 template <>
 struct std::hash<Group> {
     std::size_t operator()(const Group& group) {
-        return std::hash<unsigned int>()(group.id) ^ std::hash<unsigned int>()(group.value);
+        return std::hash<unsigned int>()(group.id) ^ std::hash<unsigned int>()(group.salary);
     }
 };
 
-struct Person : public MelonCore::Component {
+struct Money : public MelonCore::Component {
     unsigned int value;
 };
 
@@ -36,44 +36,44 @@ class GroupSystem : public MelonCore::SystemBase {
    protected:
     class GroupChunkTask : public MelonCore::ChunkTask {
        public:
-        GroupChunkTask(const unsigned int& personComponentId, const unsigned int& groupSharedComponentId) : _personComponentId(personComponentId), _groupSharedComponentId(groupSharedComponentId) {}
+        GroupChunkTask(const unsigned int& moneyComponentId, const unsigned int& groupSharedComponentId) : _moneyComponentId(moneyComponentId), _groupSharedComponentId(groupSharedComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
-            Person* people = chunkAccessor.componentArray<Person>(_personComponentId);
+            Money* moneys = chunkAccessor.componentArray<Money>(_moneyComponentId);
             const Group* group = chunkAccessor.sharedComponent<Group>(_groupSharedComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
-                Person& person = people[i];
-                person.value += group->value;
+                Money& money = moneys[i];
+                money.value += group->salary;
             }
         }
 
-        const unsigned int& _personComponentId;
+        const unsigned int& _moneyComponentId;
         const unsigned int& _groupSharedComponentId;
     };
 
     void onEnter() override {
-        MelonCore::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<Person>().markSharedComponents<Group>().createArchetype();
+        MelonCore::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<Money>().markSharedComponents<Group>().createArchetype();
 
         std::array<MelonCore::Entity, 1024> entities;
         for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(archetype);
 
         for (unsigned int i = 0; i < entities.size(); i += 3)
-            entityManager()->setSharedComponent(entities[i], Group{.id = 0, .value = 10});
+            entityManager()->setSharedComponent(entities[i], Group{.id = 0, .salary = 10});
 
         for (unsigned int i = 1; i < entities.size(); i += 3)
-            entityManager()->setSharedComponent(entities[i], Group{.id = 1, .value = 100});
+            entityManager()->setSharedComponent(entities[i], Group{.id = 1, .salary = 100});
 
         for (unsigned int i = 2; i < entities.size(); i += 3)
-            entityManager()->setSharedComponent(entities[i], Group{.id = 2, .value = 1000});
+            entityManager()->setSharedComponent(entities[i], Group{.id = 2, .salary = 1000});
 
-        _entityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Person>().requireSharedComponents<Group>().createEntityFilter();
-        _personComponentId = entityManager()->componentId<Person>();
+        _entityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Money>().requireSharedComponents<Group>().createEntityFilter();
+        _moneyComponentId = entityManager()->componentId<Money>();
         _groupSharedComponentId = entityManager()->sharedComponentId<Group>();
     }
 
     void onUpdate() override {
         printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
-        predecessor() = schedule(std::make_shared<GroupChunkTask>(_personComponentId, _groupSharedComponentId), _entityFilter, predecessor());
+        predecessor() = schedule(std::make_shared<GroupChunkTask>(_moneyComponentId, _groupSharedComponentId), _entityFilter, predecessor());
         if (_counter++ > 1000)
             MelonCore::Instance::instance()->quit();
     }
@@ -82,7 +82,7 @@ class GroupSystem : public MelonCore::SystemBase {
 
    private:
     MelonCore::EntityFilter _entityFilter;
-    unsigned int _personComponentId;
+    unsigned int _moneyComponentId;
     unsigned int _groupSharedComponentId;
     unsigned int _counter{};
 };

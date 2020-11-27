@@ -1,11 +1,8 @@
 #pragma once
 
-#include <memory>
-#include <vector>
+#include <MelonCore/ChunkAccessor.h>
 
 namespace MelonCore {
-
-class ChunkAccessor;
 
 class ChunkTask {
    public:

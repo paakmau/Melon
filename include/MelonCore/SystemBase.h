@@ -1,13 +1,14 @@
 #pragma once
 
+#include <MelonCore/ChunkTask.h>
+#include <MelonCore/EntityCommandBufferChunkTask.h>
+#include <MelonCore/EntityFilter.h>
+#include <MelonCore/EntityManager.h>
+#include <MelonCore/TaskHandle.h>
+
 #include <memory>
 
 namespace MelonCore {
-
-class ChunkTask;
-class EntityFilter;
-class EntityManager;
-class TaskHandle;
 
 class SystemBase {
    public:
@@ -22,10 +23,11 @@ class SystemBase {
     virtual void onExit() = 0;
 
     std::shared_ptr<TaskHandle> schedule(const std::shared_ptr<ChunkTask>& chunkTask, const EntityFilter& entityFilter, const std::shared_ptr<TaskHandle>& predecessor);
+    std::shared_ptr<TaskHandle> schedule(const std::shared_ptr<EntityCommandBufferChunkTask>& entityCommandBufferChunkTask, const EntityFilter& entityFilter, const std::shared_ptr<TaskHandle>& predecessor);
 
     const std::shared_ptr<TaskHandle>& predecessor() const { return _taskHandle; }
     std::shared_ptr<TaskHandle>& predecessor() { return _taskHandle; }
-    EntityManager* entityManager() const { return _entityMananger; }
+    EntityManager* entityManager() const { return _entityManager; }
 
    private:
     void enter(EntityManager* entityManager);
@@ -33,7 +35,7 @@ class SystemBase {
     void exit();
 
     std::shared_ptr<TaskHandle> _taskHandle;
-    EntityManager* _entityMananger;
+    EntityManager* _entityManager;
 
     friend class World;
 };

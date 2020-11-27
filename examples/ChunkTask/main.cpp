@@ -20,14 +20,11 @@ class SpeedSystem : public MelonCore::SystemBase {
        public:
         SpeedChunkTask(const unsigned int& speedComponentId, const unsigned int& translationComponentId) : _speedComponentId(speedComponentId), _translationComponentId(translationComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
-            const MelonCore::Entity* entities = chunkAccessor.entityArray();
             Speed* feet = chunkAccessor.componentArray<Speed>(_speedComponentId);
             MelonCore::Translation* translations = chunkAccessor.componentArray<MelonCore::Translation>(_translationComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
-                const MelonCore::Entity& entity = entities[i];
                 Speed& speed = feet[i];
-                if (speed.value == entity.id)
-                    translations[i].value += glm::vec3(0, 0, speed.value);
+                translations[i].value += glm::vec3(0, 0, speed.value);
             }
         }
 
@@ -42,11 +39,11 @@ class SpeedSystem : public MelonCore::SystemBase {
         for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(archetype);
         for (unsigned int i = 0; i * 3 < entities.size(); i++) {
-            entityManager()->setComponent(entities[i], Speed{.value = entities[i].id});
+            entityManager()->setComponent(entities[i], Speed{.value = i % 10});
             entityManager()->addComponent(entities[i], MelonCore::Translation{.value = glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
         for (unsigned int i = 0; i * 3 < entities.size(); i++) {
-            entityManager()->setComponent(entities[i], Speed{.value = entities[i].id + 10U});
+            entityManager()->setComponent(entities[i], Speed{.value = i % 10 + 10U});
             entityManager()->addComponent(entities[i], MelonCore::Translation{.value = glm::vec3(i % 10 + 10, i % 10 + 20, i % 10 + 30)});
         }
 
