@@ -141,7 +141,9 @@ class EntityManager {
     unsigned int sharedComponentId();
 
     template <typename T>
-    unsigned int sharedComponentIndex(const T& sharedComponent);
+    const T* sharedComponent(const unsigned int& index) const;
+    template <typename T>
+    unsigned int sharedComponentIndex(const T& sharedComponent) const;
 
     unsigned int chunkCount(const EntityFilter& entityFilter) const;
     unsigned int entityCount(const EntityFilter& entityFilter) const;
@@ -384,7 +386,13 @@ unsigned int EntityManager::sharedComponentId() {
 }
 
 template <typename T>
-unsigned int EntityManager::sharedComponentIndex(const T& sharedComponent) {
+const T* EntityManager::sharedComponent(const unsigned int& index) const {
+    static_assert(std::is_base_of_v<SharedComponent, T>);
+    return _sharedComponentStore.object<T>();
+}
+
+template <typename T>
+unsigned int EntityManager::sharedComponentIndex(const T& sharedComponent) const {
     static_assert(std::is_base_of_v<SharedComponent, T>);
     const unsigned int sharedComponentId = registerSharedComponent<T>();
     return _sharedComponentStore.objectIndex(sharedComponentId, sharedComponent);
