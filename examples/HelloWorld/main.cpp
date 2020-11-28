@@ -1,8 +1,8 @@
 #include <MelonCore/Instance.h>
 #include <MelonCore/SystemBase.h>
-#include <MelonCore/TaskHandle.h>
-#include <MelonCore/TaskManager.h>
 #include <MelonCore/Time.h>
+#include <MelonTask/TaskHandle.h>
+#include <MelonTask/TaskManager.h>
 
 #include <cstdio>
 #include <memory>
@@ -16,9 +16,9 @@ class HelloWorldSystem : public MelonCore::SystemBase {
 
     void onUpdate() override {
         std::printf("Delta time : %f, %u + %u = %u\n", MelonCore::Time::instance()->deltaTime(), _a, _b, _sum);
-        std::shared_ptr<MelonCore::TaskHandle> a = MelonCore::TaskManager::instance()->schedule([this]() { _a++; }, {predecessor()});
-        std::shared_ptr<MelonCore::TaskHandle> b = MelonCore::TaskManager::instance()->schedule([this]() { _b++; }, {predecessor()});
-        predecessor() = MelonCore::TaskManager::instance()->schedule([this]() { _sum = _a + _b; }, {a, b});
+        std::shared_ptr<MelonTask::TaskHandle> a = MelonTask::TaskManager::instance()->schedule([this]() { _a++; }, {predecessor()});
+        std::shared_ptr<MelonTask::TaskHandle> b = MelonTask::TaskManager::instance()->schedule([this]() { _b++; }, {predecessor()});
+        predecessor() = MelonTask::TaskManager::instance()->schedule([this]() { _sum = _a + _b; }, {a, b});
         if (_sum >= 100)
             MelonCore::Instance::instance()->quit();
     }

@@ -4,10 +4,10 @@
 #include <MelonCore/EntityManager.h>
 #include <MelonCore/Instance.h>
 #include <MelonCore/SystemBase.h>
-#include <MelonCore/TaskHandle.h>
-#include <MelonCore/TaskManager.h>
 #include <MelonCore/Time.h>
 #include <MelonCore/Translation.h>
+#include <MelonTask/TaskHandle.h>
+#include <MelonTask/TaskManager.h>
 
 #include <array>
 #include <cstdio>
@@ -102,12 +102,14 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
 
     void onUpdate() override {
         printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
-        std::shared_ptr<MelonCore::TaskHandle> damageTaskHandle = schedule(std::make_shared<DamageEntityCommandBufferChunkTask>(_monsterHealthComponentId, _persistentDamageComponentId, _manualDamageCounterComponentId), _monsterEntityFilter, predecessor());
-        std::shared_ptr<MelonCore::TaskHandle> counterTaskHandle = schedule(std::make_shared<CollectCounterCommandBufferChunkTask>(_manualDamageCounterComponentId, _damageTakenCounts), _collectCounterEntityFilter, predecessor());
-        predecessor() = MelonCore::TaskManager::instance()->combine({damageTaskHandle, counterTaskHandle});
+        std::shared_ptr<MelonTask::TaskHandle> damageTaskHandle = schedule(std::make_shared<DamageEntityCommandBufferChunkTask>(_monsterHealthComponentId, _persistentDamageComponentId, _manualDamageCounterComponentId), _monsterEntityFilter, predecessor());
+        std::shared_ptr<MelonTask::TaskHandle> counterTaskHandle = schedule(std::make_shared<CollectCounterCommandBufferChunkTask>(_manualDamageCounterComponentId, _damageTakenCounts), _collectCounterEntityFilter, predecessor());
+        predecessor() = MelonTask::TaskManager::instance()->combine({damageTaskHandle, counterTaskHandle});
         if (entityManager()->entityCount(_monsterEntityFilter) == 0 && entityManager()->entityCount(_collectCounterEntityFilter) == 0) {
+            printf("Damage taken counts: ");
             for (const unsigned int& damageTakenCount : _damageTakenCounts)
                 printf("%d ", damageTakenCount);
+            puts("");
             MelonCore::Instance::instance()->quit();
         }
     }

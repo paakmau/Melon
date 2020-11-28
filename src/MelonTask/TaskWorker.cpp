@@ -1,12 +1,12 @@
-#include <MelonCore/TaskHandle.h>
-#include <MelonCore/TaskManager.h>
-#include <MelonCore/TaskWorker.h>
+#include <MelonTask/TaskHandle.h>
+#include <MelonTask/TaskManager.h>
+#include <MelonTask/TaskWorker.h>
 
 #include <cstdio>
 #include <functional>
 #include <memory>
 
-namespace MelonCore {
+namespace MelonTask {
 
 TaskWorker::TaskWorker() {
     _thread = std::thread(&TaskWorker::threadEntryPoint, this);
@@ -30,4 +30,4 @@ void TaskWorker::join() {
     _thread.join();
 }
 
-}  // namespace MelonCore
+}  // namespace MelonTask

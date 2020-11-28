@@ -1,11 +1,14 @@
 #pragma once
 
+#include <MelonTask/TaskHandle.h>
+#include <MelonTask/TaskWorker.h>
+
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <vector>
 
-namespace MelonCore {
+namespace MelonTask {
 
 class TaskHandle;
 class TaskWorker;
@@ -43,4 +46,4 @@ class TaskManager {
     friend class TaskWorker;
 };
 
-}  // namespace MelonCore
+}  // namespace MelonTask
