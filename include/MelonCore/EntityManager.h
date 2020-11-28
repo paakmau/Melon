@@ -141,7 +141,7 @@ class EntityManager {
     unsigned int sharedComponentId();
 
     template <typename T>
-    const T* sharedComponent(const unsigned int& index) const;
+    const T* sharedComponent(const unsigned int& sharedComponentIndex) const;
     template <typename T>
     unsigned int sharedComponentIndex(const T& sharedComponent) const;
 
@@ -386,9 +386,9 @@ unsigned int EntityManager::sharedComponentId() {
 }
 
 template <typename T>
-const T* EntityManager::sharedComponent(const unsigned int& index) const {
+const T* EntityManager::sharedComponent(const unsigned int& sharedComponentIndex) const {
     static_assert(std::is_base_of_v<SharedComponent, T>);
-    return _sharedComponentStore.object<T>();
+    return _sharedComponentStore.object<T>(sharedComponentIndex);
 }
 
 template <typename T>

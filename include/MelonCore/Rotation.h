@@ -6,7 +6,7 @@
 
 namespace MelonCore {
 
-struct Rotation : public : Component {
+struct Rotation : public Component {
     glm::quat value;
 };
 
