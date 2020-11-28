@@ -61,16 +61,16 @@ class SpawnerAndKillSystem : public MelonCore::SystemBase {
     void onEnter() override {
         MelonCore::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<Spawner>().createArchetype();
 
-        constexpr unsigned int spawnerCount = 5;
+        constexpr unsigned int spawnerCount = 3;
         std::array<MelonCore::Entity, spawnerCount> entities;
         for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(archetype);
         for (unsigned int i = 0; i < entities.size(); i += 3)
-            entityManager()->setComponent(entities[i], Spawner{.initialHealth = 3, .spawnerCount = 2});
-        for (unsigned int i = 1; i < entities.size(); i += 3)
             entityManager()->setComponent(entities[i], Spawner{.initialHealth = 5, .spawnerCount = 1});
+        for (unsigned int i = 1; i < entities.size(); i += 3)
+            entityManager()->setComponent(entities[i], Spawner{.initialHealth = 3, .spawnerCount = 3});
         for (unsigned int i = 2; i < entities.size(); i += 3)
-            entityManager()->setComponent(entities[i], Spawner{.initialHealth = 1, .spawnerCount = 3});
+            entityManager()->setComponent(entities[i], Spawner{.initialHealth = 1, .spawnerCount = 4});
 
         _spawnerEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Spawner>().createEntityFilter();
         _monsterEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Health>().createEntityFilter();

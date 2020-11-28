@@ -13,7 +13,7 @@ namespace MelonCore {
 template <size_t Count>
 class ObjectStore {
    public:
-    static constexpr unsigned int kNullPointerIndex = std::numeric_limits<unsigned int>::max();
+    static constexpr unsigned int kInvalidIndex = std::numeric_limits<unsigned int>::max();
 
     template <typename T>
     unsigned int push(const unsigned int& typeId, const T& object);
@@ -102,7 +102,7 @@ inline unsigned int ObjectStore<Count>::push(const unsigned int& typeId, const T
 
 template <size_t Count>
 inline void ObjectStore<Count>::pop(const unsigned int& typeId, const unsigned int& index) {
-    if (index == kNullPointerIndex) return;
+    if (index == kInvalidIndex) return;
     void* object = _store[index];
     _referenceCounts[index]--;
     bool removed = _referenceCounts[index] == 0;
@@ -122,13 +122,13 @@ inline void ObjectStore<Count>::pop(const unsigned int& typeId, const unsigned i
 template <size_t Count>
 template <typename T>
 const T* ObjectStore<Count>::object(const unsigned int& index) const {
-    if (index == kNullPointerIndex) return nullptr;
+    if (index == kInvalidIndex) return nullptr;
     return static_cast<T*>(_store[index]);
 }
 
 template <size_t Count>
 unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const void* object) {
-    if (_typeHashes[typeId] == nullptr) return kNullPointerIndex;
+    if (_typeHashes[typeId] == nullptr) return kInvalidIndex;
     ObjectWrapper objectWrapper{
         typeId, object,
         _typeHashes[typeId],
@@ -137,7 +137,7 @@ unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const v
     if (_objectIndexMap.contains(objectWrapper))
         return _objectIndexMap[objectWrapper];
     else
-        return kNullPointerIndex;
+        return kInvalidIndex;
 }
 
 template <size_t Count>
@@ -154,7 +154,7 @@ unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const T
     if (_objectIndexMap.contains(objectWrapper))
         return _objectIndexMap[objectWrapper];
     else
-        return kNullPointerIndex;
+        return kInvalidIndex;
 }
 
 template <size_t Count>

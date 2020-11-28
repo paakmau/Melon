@@ -7,6 +7,7 @@
 #include <MelonCore/ObjectPool.h>
 #include <MelonCore/ObjectStore.h>
 
+#include <climits>
 #include <cstddef>
 #include <cstdlib>
 #include <unordered_map>
@@ -16,6 +17,9 @@ namespace MelonCore {
 
 class Combination {
    public:
+    static constexpr unsigned int kInvalidIndex = std::numeric_limits<unsigned int>::max();
+    static constexpr unsigned int kInvalidEntityIndex = std::numeric_limits<unsigned int>::max();
+
     Combination(const unsigned int& index, const ChunkLayout& chunkLayout, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, ObjectPool<Chunk>* chunkPool);
     Combination(const Combination&) = delete;
 

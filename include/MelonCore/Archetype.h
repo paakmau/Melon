@@ -17,14 +17,20 @@
 
 namespace MelonCore {
 
-struct EntityLocation {
-    unsigned int archetypeId;
-    unsigned int combinationIndex;
-    unsigned int entityIndexInCombination;
-};
-
 class Archetype {
    public:
+    static constexpr unsigned int kInvalidId = std::numeric_limits<unsigned int>::max();
+
+    struct EntityLocation {
+        static constexpr EntityLocation invalidEntityLocation() { return EntityLocation{Archetype::kInvalidId, Combination::kInvalidIndex, Combination::kInvalidEntityIndex}; }
+
+        bool valid() const { return archetypeId != Archetype::kInvalidId; }
+
+        unsigned int archetypeId;
+        unsigned int combinationIndex;
+        unsigned int entityIndexInCombination;
+    };
+
     struct SharedComponentIndexHash {
         std::size_t operator()(const std::vector<unsigned int>& sharedComponentIndices) const {
             std::size_t hash = sharedComponentIndices.size();
@@ -125,7 +131,7 @@ inline std::vector<unsigned int> Archetype::notManualSharedComponentIds() const 
 }
 
 inline Combination* Archetype::createCombination() {
-    return createCombination(std::vector<unsigned int>(sharedComponentCount(), ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>::kNullPointerIndex));
+    return createCombination(std::vector<unsigned int>(sharedComponentCount(), ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>::kInvalidIndex));
 }
 
 inline Combination* Archetype::createCombination(const std::vector<unsigned int>& sharedComponentIndices) {

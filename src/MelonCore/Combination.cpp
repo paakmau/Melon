@@ -86,7 +86,10 @@ void Combination::removeEntity(const unsigned int& entityIndexInCombination, Ent
     _entityCountInCurrentChunk--;
     _entityCount--;
 
-    swappedEntity = *static_cast<Entity*>(dstEntityAddress);
+    if (dstChunk != srcChunk || dstEntityIndexInChunk != srcEntityIndexInChunk)
+        swappedEntity = *static_cast<Entity*>(dstEntityAddress);
+    else
+        swappedEntity = Entity::invalidEntity();
 }
 
 void Combination::setComponent(const unsigned int& entityIndexInCombination, const unsigned int& componentId, const void* component) {
