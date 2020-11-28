@@ -402,7 +402,7 @@ unsigned int EntityManager::registerSharedComponent() {
 
 template <typename T>
 void EntityManager::addComponentImmediately(const Entity& entity, const T& component) {
-    const Archetype::EntityLocation& srcLocation = _entityLocations[entity.id];
+    const Archetype::EntityLocation srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     const unsigned int componentId = registerComponent<T>();
     ArchetypeMask mask = srcArchetype->mask();
@@ -432,7 +432,7 @@ void EntityManager::addComponentImmediately(const Entity& entity, const T& compo
 
 template <typename T>
 void EntityManager::removeComponentImmediately(const Entity& entity) {
-    const Archetype::EntityLocation& srcLocation = _entityLocations[entity.id];
+    const Archetype::EntityLocation srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     // If the archetype is single and manual, it should be destroyed;
     if (srcArchetype->single() && srcArchetype->fullyManual()) {
@@ -444,7 +444,7 @@ void EntityManager::removeComponentImmediately(const Entity& entity) {
 
 template <typename T>
 void EntityManager::setComponentImmediately(const Entity& entity, const T& component) {
-    const Archetype::EntityLocation& location = _entityLocations[entity.id];
+    const Archetype::EntityLocation location = _entityLocations[entity.id];
     Archetype* const archetype = _archetypes[location.archetypeId].get();
     const unsigned int componentId = _componentIdMap.at(typeid(T));
     archetype->setComponent(location, componentId, static_cast<const void*>(&component));
@@ -452,7 +452,7 @@ void EntityManager::setComponentImmediately(const Entity& entity, const T& compo
 
 template <typename T>
 void EntityManager::addSharedComponentImmediately(const Entity& entity, const T& sharedComponent) {
-    const Archetype::EntityLocation& srcLocation = _entityLocations[entity.id];
+    const Archetype::EntityLocation srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     const unsigned int sharedComponentId = registerSharedComponent<T>();
     ArchetypeMask mask = srcArchetype->mask();
@@ -482,7 +482,7 @@ void EntityManager::addSharedComponentImmediately(const Entity& entity, const T&
 
 template <typename T>
 void EntityManager::removeSharedComponentImmediately(const Entity& entity) {
-    const Archetype::EntityLocation& srcLocation = _entityLocations[entity.id];
+    const Archetype::EntityLocation srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     // If the archetype is single and manual, it should be destroyed;
     if (srcArchetype->single() && srcArchetype->fullyManual()) {

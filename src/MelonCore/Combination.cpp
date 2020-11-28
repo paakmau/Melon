@@ -26,7 +26,7 @@ void Combination::moveEntityAddingComponent(const unsigned int& entityIndexInSrc
     addEntity(srcEntity, entityIndexInDstCombination, dstChunkCountAdded);
 
     Chunk* dstChunk = _chunks.back();
-    unsigned int entityIndexInDstChunk = _entityCountInCurrentChunk;
+    unsigned int entityIndexInDstChunk = _entityCountInCurrentChunk - 1;
 
     for (const std::pair<unsigned int, unsigned int>& idAndIndex : _chunkLayout.componentIndexMap) {
         if (idAndIndex.first == componentId) continue;
@@ -46,7 +46,7 @@ void Combination::moveEntityRemovingComponent(const unsigned int& entityIndexInS
     addEntity(srcEntity, entityIndexInDstCombination, dstChunkCountAdded);
 
     Chunk* dstChunk = _chunks.back();
-    unsigned int entityIndexInDstChunk = _entityCountInCurrentChunk;
+    unsigned int entityIndexInDstChunk = _entityCountInCurrentChunk - 1;
 
     for (const std::pair<unsigned int, unsigned int>& idAndIndex : _chunkLayout.componentIndexMap) {
         const std::size_t& size = _chunkLayout.componentSizes[idAndIndex.second];

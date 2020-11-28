@@ -116,7 +116,7 @@ void EntityManager::createEntityImmediately(const Entity& entity, Archetype* arc
 }
 
 void EntityManager::destroyEntityImmediately(const Entity& entity) {
-    const Archetype::EntityLocation& location = _entityLocations[entity.id];
+    const Archetype::EntityLocation location = _entityLocations[entity.id];
     Archetype* archetype = _archetypes[location.archetypeId].get();
     // If the archetype is partially manual, we should remove all the components not manual instead
     if (archetype->partiallyManual()) {
@@ -147,7 +147,7 @@ void EntityManager::destroyEntityWithoutCheck(const Entity& entity, Archetype* a
 }
 
 void EntityManager::removeComponentWithoutCheck(const Entity& entity, const unsigned int& componentId, const bool& manual) {
-    const Archetype::EntityLocation& srcLocation = _entityLocations[entity.id];
+    const Archetype::EntityLocation srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     ArchetypeMask mask = srcArchetype->mask();
     mask.markComponent(componentId, manual, false);
@@ -163,7 +163,7 @@ void EntityManager::removeComponentWithoutCheck(const Entity& entity, const unsi
             if (componentIds[i] == componentId) {
                 componentIds.erase(componentIds.begin() + i);
                 componentSizes.erase(componentSizes.begin() + i);
-                componentAligns.erase(componentAligns.begin() + 1);
+                componentAligns.erase(componentAligns.begin() + i);
                 break;
             }
         std::vector<unsigned int> sharedComponentIds = srcArchetype->sharedComponentIds();
@@ -179,7 +179,7 @@ void EntityManager::removeComponentWithoutCheck(const Entity& entity, const unsi
 }
 
 void EntityManager::removeSharedComponentWithoutCheck(const Entity& entity, const unsigned int& sharedComponentId, const bool& manual) {
-    const Archetype::EntityLocation& srcLocation = _entityLocations[entity.id];
+    const Archetype::EntityLocation srcLocation = _entityLocations[entity.id];
     Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
     ArchetypeMask mask = srcArchetype->mask();
     mask.markSharedComponent(sharedComponentId, manual, false);
