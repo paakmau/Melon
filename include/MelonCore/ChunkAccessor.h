@@ -2,8 +2,10 @@
 
 #include <MelonCore/ArchetypeMask.h>
 #include <MelonCore/Chunk.h>
+#include <MelonCore/Component.h>
 #include <MelonCore/Entity.h>
 #include <MelonCore/ObjectStore.h>
+#include <MelonCore/SharedComponent.h>
 
 namespace MelonCore {
 
@@ -38,6 +40,7 @@ inline const Entity* ChunkAccessor::entityArray() const {
 
 template <typename T>
 inline T* ChunkAccessor::componentArray(const unsigned int& componentId) const {
+    static_assert(std::is_base_of_v<Component, T>);
     return reinterpret_cast<T*>(reinterpret_cast<std::byte*>(_chunk) + _chunkLayout.componentOffsets[_chunkLayout.componentIndexMap.at(componentId)]);
 }
 
@@ -50,6 +53,7 @@ inline unsigned int ChunkAccessor::sharedComponentIndex(const unsigned int& shar
 
 template <typename T>
 inline const T* ChunkAccessor::sharedComponent(const unsigned int& sharedComponentId) const {
+    static_assert(std::is_base_of_v<SharedComponent, T>);
     return _sharedComponentStore.object<T>(sharedComponentIndex(sharedComponentId));
 }
 
