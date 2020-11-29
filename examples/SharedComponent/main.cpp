@@ -13,12 +13,12 @@
 #include <utility>
 
 struct Group : public MelonCore::SharedComponent {
-    unsigned int id;
-    unsigned int salary;
-
     bool operator==(const Group& other) const {
         return id == other.id && salary == other.salary;
     }
+
+    unsigned int id;
+    unsigned int salary;
 };
 
 template <>

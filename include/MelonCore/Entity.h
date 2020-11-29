@@ -11,13 +11,13 @@ struct Entity {
 
     static constexpr Entity invalidEntity() { return Entity{kInvalidId}; }
 
-    unsigned int id;
-
     bool operator==(const Entity& other) const {
         return id == other.id;
     }
 
     bool valid() const { return id != kInvalidId; }
+
+    unsigned int id;
 };
 
 }  // namespace MelonCore
