@@ -5,9 +5,4 @@
 
 namespace MelonCore {
 
-class EntityCommandBufferChunkTask {
-   public:
-    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, EntityCommandBuffer* entityCommandBuffer) = 0;
-};
-
 }  // namespace MelonCore

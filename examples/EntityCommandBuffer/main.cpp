@@ -1,5 +1,4 @@
 #include <MelonCore/Archetype.h>
-#include <MelonCore/ChunkTask.h>
 #include <MelonCore/Entity.h>
 #include <MelonCore/EntityManager.h>
 #include <MelonCore/Instance.h>

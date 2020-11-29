@@ -1,6 +1,5 @@
 #include <MelonCore/Archetype.h>
 #include <MelonCore/Entity.h>
-#include <MelonCore/EntityCommandBufferChunkTask.h>
 #include <MelonCore/EntityManager.h>
 #include <MelonCore/Instance.h>
 #include <MelonCore/SystemBase.h>

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <MelonCore/ChunkTask.h>
-#include <MelonCore/EntityCommandBufferChunkTask.h>
+#include <MelonCore/ChunkAccessor.h>
 #include <MelonCore/EntityFilter.h>
 #include <MelonCore/EntityManager.h>
 #include <MelonTask/TaskHandle.h>
@@ -9,6 +8,16 @@
 #include <memory>
 
 namespace MelonCore {
+
+class ChunkTask {
+   public:
+    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) = 0;
+};
+
+class EntityCommandBufferChunkTask {
+   public:
+    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, EntityCommandBuffer* entityCommandBuffer) = 0;
+};
 
 class SystemBase {
    public:
