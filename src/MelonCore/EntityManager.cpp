@@ -76,13 +76,15 @@ unsigned int EntityManager::entityCount(const EntityFilter& entityFilter) const 
 };
 
 unsigned int EntityManager::registerComponent(const std::type_index& typeIndex) {
-    if (_componentIdMap.contains(typeIndex)) return _componentIdMap[typeIndex];
-    return _componentIdMap.emplace(typeIndex, _componentIdMap.size()).first->second;
+    return _componentIdMap.try_emplace(typeIndex, _componentIdMap.size()).first->second;
 }
 
 unsigned int EntityManager::registerSharedComponent(const std::type_index& typeIndex) {
-    if (_sharedComponentIdMap.contains(typeIndex)) return _sharedComponentIdMap[typeIndex];
-    return _sharedComponentIdMap.emplace(typeIndex, _sharedComponentIdMap.size()).first->second;
+    return _sharedComponentIdMap.try_emplace(typeIndex, _sharedComponentIdMap.size()).first->second;
+}
+
+unsigned int EntityManager::registerSingletonComponent(const std::type_index& typeIndex) {
+    return _singletonComponentIdMap.try_emplace(typeIndex, _singletonComponentIdMap.size()).first->second;
 }
 
 Archetype* EntityManager::createArchetype(ArchetypeMask&& mask, std::vector<unsigned int>&& componentIds, std::vector<std::size_t>&& componentSizes, std::vector<std::size_t>&& componentAligns, std::vector<unsigned int>&& sharedComponentIds) {

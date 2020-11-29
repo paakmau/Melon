@@ -10,7 +10,7 @@
 
 namespace MelonCore {
 
-template <size_t Count>
+template <std::size_t Count>
 class ObjectStore {
    public:
     static constexpr unsigned int kInvalidIndex = std::numeric_limits<unsigned int>::max();
@@ -71,7 +71,7 @@ class ObjectStore {
     std::unordered_map<ObjectWrapper, unsigned int, ObjectWrapperHash, ObjectWrapperEqualTo> _objectIndexMap;
 };
 
-template <size_t Count>
+template <std::size_t Count>
 template <typename T>
 inline unsigned int ObjectStore<Count>::push(const unsigned int& typeId, const T& object) {
     _typeHashes[typeId] = objectWrapperHash<T>;
@@ -100,7 +100,7 @@ inline unsigned int ObjectStore<Count>::push(const unsigned int& typeId, const T
     return index;
 }
 
-template <size_t Count>
+template <std::size_t Count>
 inline void ObjectStore<Count>::pop(const unsigned int& typeId, const unsigned int& index) {
     if (index == kInvalidIndex) return;
     void* object = _store[index];
@@ -119,14 +119,14 @@ inline void ObjectStore<Count>::pop(const unsigned int& typeId, const unsigned i
     }
 }
 
-template <size_t Count>
+template <std::size_t Count>
 template <typename T>
 const T* ObjectStore<Count>::object(const unsigned int& index) const {
     if (index == kInvalidIndex) return nullptr;
     return static_cast<T*>(_store[index]);
 }
 
-template <size_t Count>
+template <std::size_t Count>
 unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const void* object) const {
     if (_typeHashes[typeId] == nullptr) return kInvalidIndex;
     ObjectWrapper objectWrapper{
@@ -140,7 +140,7 @@ unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const v
         return kInvalidIndex;
 }
 
-template <size_t Count>
+template <std::size_t Count>
 template <typename T>
 unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const T& object) const {
     ObjectWrapper objectWrapper{
@@ -154,13 +154,13 @@ unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const T
         return kInvalidIndex;
 }
 
-template <size_t Count>
+template <std::size_t Count>
 template <typename T>
 std::size_t ObjectStore<Count>::objectWrapperHash(const void* const& object) {
     return std::hash<T>()(*static_cast<const T*>(object));
 }
 
-template <size_t Count>
+template <std::size_t Count>
 template <typename T>
 bool ObjectStore<Count>::objectWrapperEqualTo(const void* const& lhs, const void* const& rhs) {
     return std::equal_to<T>()(*static_cast<const T*>(lhs), *static_cast<const T*>(rhs));
