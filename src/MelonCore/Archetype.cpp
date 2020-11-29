@@ -97,11 +97,11 @@ void Archetype::moveEntityAddingSharedComponent(const EntityLocation& srcEntityL
     const std::vector<unsigned int>& dstSharedComponentIds = _sharedComponentIds;
     std::vector<unsigned int> dstSharedComponentIndices(_sharedComponentIds.size());
     // Assert SharedComponent ids are in ascending order
-    for (unsigned int i = 0, j = 0; i < srcSharedComponentIndices.size(); i++, j++)
-        if (srcSharedComponentIds[i] == dstSharedComponentIds[j])
-            dstSharedComponentIndices[j] = srcSharedComponentIndices[i];
+    for (unsigned int i = 0, j = 0; i < dstSharedComponentIndices.size(); i++, j++)
+        if (dstSharedComponentIds[i] == srcSharedComponentIds[j])
+            dstSharedComponentIndices[i] = srcSharedComponentIndices[j];
         else
-            dstSharedComponentIndices[j] = sharedComponentId, i--;
+            dstSharedComponentIndices[i] = sharedComponentIndex, j--;
 
     Combination* const dstCombination = createCombination(dstSharedComponentIndices);
 
