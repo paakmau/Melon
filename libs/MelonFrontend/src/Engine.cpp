@@ -2,7 +2,7 @@
 
 namespace MelonFrontend {
 
-void Engine::initialize(const char* title, const unsigned int& width, const unsigned int& height) {
+void Engine::initialize(char const* title, unsigned int const& width, unsigned int const& height) {
     _window.initialize(title, width, height);
 
     _renderer = std::make_unique<Renderer>();
@@ -26,15 +26,15 @@ MeshBuffer Engine::createMeshBuffer(std::vector<Vertex> vertices, std::vector<ui
     return _renderer->createMeshBuffer(vertices, indices);
 }
 
-void Engine::destroyMeshBuffer(const MeshBuffer& meshBuffer) {
+void Engine::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
     _renderer->destroyMeshBuffer(meshBuffer);
 }
 
-void Engine::addBatch(const std::vector<glm::mat4>& models, const MeshBuffer& meshBuffer) { _renderer->addBatch(models, meshBuffer); }
+void Engine::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer) { _renderer->addBatch(models, meshBuffer); }
 
 void Engine::endBatches() { _renderer->endBatches(); }
 
-void Engine::renderFrame(/* TODO: Implement the Camera */ const glm::mat4& vp) { _renderer->renderFrame(vp); }
+void Engine::renderFrame(/* TODO: Implement the Camera */ glm::mat4 const& vp) { _renderer->renderFrame(vp); }
 
 void Engine::endFrame() { _renderer->endFrame(); }
 

@@ -10,20 +10,20 @@ namespace MelonFrontend {
 // TODO: Process window events
 class Window {
   public:
-    void initialize(const char* title, const unsigned int& width, const unsigned int& height);
+    void initialize(char const* title, unsigned int const& width, unsigned int const& height);
     void terminate();
 
     void pollEvents();
 
     void waitForResized();
 
-    std::vector<const char*> requiredVulkanInstanceExtensions() const;
+    std::vector<char const*> requiredVulkanInstanceExtensions() const;
 
     float aspectRatio() const { return static_cast<float>(_extent.width) / static_cast<float>(_extent.height); }
 
     GLFWwindow* const& window() const { return _window; }
 
-    const VkExtent2D& extent() const { return _extent; }
+    VkExtent2D const& extent() const { return _extent; }
 
     bool resized() const { return _resized; }
     bool closed() const { return _closed; }

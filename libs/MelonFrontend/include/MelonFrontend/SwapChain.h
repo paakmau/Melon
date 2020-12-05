@@ -13,16 +13,16 @@ class SwapChain {
     void terminate();
 
     bool acquireNextImageContext(VkSemaphore imageAvailableSemaphore, uint32_t& imageIndex);
-    bool presentImage(const uint32_t& imageIndex, VkSemaphore waitSemaphore);
+    bool presentImage(uint32_t const& imageIndex, VkSemaphore waitSemaphore);
 
     void recreateSwapchain(VkExtent2D extent);
 
     unsigned int imageCount() const;
 
-    const VkFormat& imageFormat() const { return _imageFormat; }
-    const VkExtent2D& imageExtent() const { return _imageExtent; }
-    const std::vector<VkImage>& images() const { return _images; }
-    const std::vector<VkImageView>& imageViews() const { return _imageViews; }
+    VkFormat const& imageFormat() const { return _imageFormat; }
+    VkExtent2D const& imageExtent() const { return _imageExtent; }
+    std::vector<VkImage> const& images() const { return _images; }
+    std::vector<VkImageView> const& imageViews() const { return _imageViews; }
 
   private:
     VkSurfaceKHR _surface;

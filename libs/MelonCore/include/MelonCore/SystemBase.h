@@ -11,12 +11,12 @@ namespace MelonCore {
 
 class ChunkTask {
   public:
-    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) = 0;
+    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) = 0;
 };
 
 class EntityCommandBufferChunkTask {
   public:
-    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, EntityCommandBuffer* entityCommandBuffer) = 0;
+    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex, EntityCommandBuffer* entityCommandBuffer) = 0;
 };
 
 class SystemBase {
@@ -31,10 +31,10 @@ class SystemBase {
     virtual void onUpdate() = 0;
     virtual void onExit() = 0;
 
-    std::shared_ptr<MelonTask::TaskHandle> schedule(const std::shared_ptr<ChunkTask>& chunkTask, const EntityFilter& entityFilter, const std::shared_ptr<MelonTask::TaskHandle>& predecessor);
-    std::shared_ptr<MelonTask::TaskHandle> schedule(const std::shared_ptr<EntityCommandBufferChunkTask>& entityCommandBufferChunkTask, const EntityFilter& entityFilter, const std::shared_ptr<MelonTask::TaskHandle>& predecessor);
+    std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<ChunkTask> const& chunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
+    std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
 
-    const std::shared_ptr<MelonTask::TaskHandle>& predecessor() const { return _taskHandle; }
+    std::shared_ptr<MelonTask::TaskHandle> const& predecessor() const { return _taskHandle; }
     std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return _taskHandle; }
     EntityManager* entityManager() const { return _entityManager; }
 

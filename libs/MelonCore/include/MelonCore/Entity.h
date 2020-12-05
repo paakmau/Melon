@@ -11,7 +11,7 @@ struct Entity {
 
     static constexpr Entity invalidEntity() { return Entity{kInvalidId}; }
 
-    bool operator==(const Entity& other) const {
+    bool operator==(Entity const& other) const {
         return id == other.id;
     }
 

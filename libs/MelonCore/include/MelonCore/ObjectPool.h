@@ -13,7 +13,7 @@ class ObjectPool {
     static constexpr unsigned int kCountPerBuffer = 128;
 
     ObjectPool();
-    ObjectPool(const ObjectPool&) = delete;
+    ObjectPool(ObjectPool const&) = delete;
     ObjectPool(ObjectPool&& other);
     // ObejctPool can't be destroy util all objects are recycled
     ~ObjectPool();
@@ -38,7 +38,7 @@ ObjectPool<T>::ObjectPool(ObjectPool&& other) : _buffer(std::move(other._buffer)
 
 template <typename T>
 ObjectPool<T>::~ObjectPool() {
-    for (const T* buffer : _buffer)
+    for (T const* buffer : _buffer)
         delete[] buffer;
     _buffer.clear();
     _pool.clear();

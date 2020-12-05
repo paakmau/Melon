@@ -7,25 +7,25 @@ TaskManager* TaskManager::instance() {
     return &sInstance;
 }
 
-std::shared_ptr<TaskHandle> TaskManager::schedule(const std::function<void()>& procedure) {
+std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure) {
     std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(procedure);
     _waitingTaskQueue.emplace(taskHandle);
     return taskHandle;
 }
 
-std::shared_ptr<TaskHandle> TaskManager::schedule(const std::function<void()>& procedure, const std::vector<std::shared_ptr<TaskHandle>>& predecessors) {
+std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>> const& predecessors) {
     std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(procedure);
     _waitingTaskAndPredecessorsQueue.emplace(std::make_pair(taskHandle, predecessors));
     return taskHandle;
 }
 
-std::shared_ptr<TaskHandle> TaskManager::schedule(const std::function<void()>& procedure, std::vector<std::shared_ptr<TaskHandle>>&& predecessors) {
+std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>>&& predecessors) {
     std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(procedure);
     _waitingTaskAndPredecessorsQueue.emplace(std::make_pair(taskHandle, std::move(predecessors)));
     return taskHandle;
 }
 
-std::shared_ptr<TaskHandle> TaskManager::combine(const std::vector<std::shared_ptr<TaskHandle>>& taskHandles) {
+std::shared_ptr<TaskHandle> TaskManager::combine(std::vector<std::shared_ptr<TaskHandle>> const& taskHandles) {
     return schedule(nullptr, taskHandles);
 }
 
@@ -38,8 +38,8 @@ void TaskManager::activateWaitingTasks() {
         }
     }
     while (!_waitingTaskAndPredecessorsQueue.empty()) {
-        const std::shared_ptr<TaskHandle>& taskHandle = _waitingTaskAndPredecessorsQueue.front().first;
-        const std::vector<std::shared_ptr<TaskHandle>>& predecessors = _waitingTaskAndPredecessorsQueue.front().second;
+        std::shared_ptr<TaskHandle> const& taskHandle = _waitingTaskAndPredecessorsQueue.front().first;
+        std::vector<std::shared_ptr<TaskHandle>> const& predecessors = _waitingTaskAndPredecessorsQueue.front().second;
         taskHandle->initPredecessors(predecessors);
         _waitingTaskAndPredecessorsQueue.pop();
     }
@@ -53,14 +53,14 @@ TaskManager::TaskManager() {
 
 TaskManager::~TaskManager() {
     _stopped = true;
-    for (const std::unique_ptr<TaskWorker>& worker : _workers)
+    for (std::unique_ptr<TaskWorker> const& worker : _workers)
         worker->notify_stopped();
     _taskQueueConditionVariable.notify_all();
-    for (const std::unique_ptr<TaskWorker>& worker : _workers)
+    for (std::unique_ptr<TaskWorker> const& worker : _workers)
         worker->join();
 }
 
-void TaskManager::queueTask(const std::shared_ptr<TaskHandle>& task) {
+void TaskManager::queueTask(std::shared_ptr<TaskHandle> const& task) {
     std::lock_guard lock(_taskQueueMutex);
     _taskQueue.push(task);
     _taskQueueConditionVariable.notify_one();

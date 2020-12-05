@@ -8,7 +8,7 @@
 
 namespace MelonFrontend {
 
-void Subrenderer::initialize(VkDevice device, VkExtent2D swapChainExtent, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorSetLayout entityDescriptorSetLayout, VkRenderPass renderPass, const unsigned int& swapChainImageCount) {
+void Subrenderer::initialize(VkDevice device, VkExtent2D swapChainExtent, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorSetLayout entityDescriptorSetLayout, VkRenderPass renderPass, unsigned int const& swapChainImageCount) {
     _device = device;
     _swapChainExtent = swapChainExtent;
 
@@ -21,11 +21,11 @@ void Subrenderer::terminate() {
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
 }
 
-void Subrenderer::draw(VkCommandBuffer commandBuffer, const unsigned int& swapChainImageIndex, VkDescriptorSet cameraDescriptorSet, const RenderBatch& renderBatch) {
+void Subrenderer::draw(VkCommandBuffer commandBuffer, unsigned int const& swapChainImageIndex, VkDescriptorSet cameraDescriptorSet, RenderBatch const& renderBatch) {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1, &cameraDescriptorSet, 0, nullptr);
     VkDeviceSize offset = 0;
-    for (const UniformBuffer& entityDescriptorSet : renderBatch.entityUniformMemories) {
+    for (UniformBuffer const& entityDescriptorSet : renderBatch.entityUniformMemories) {
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 1, 1, &entityDescriptorSet.descriptorSet, 0, nullptr);
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &renderBatch.vertexBuffer().buffer, &offset);
         vkCmdBindIndexBuffer(commandBuffer, renderBatch.indexBuffer().buffer, offset, VK_INDEX_TYPE_UINT16);

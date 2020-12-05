@@ -7,11 +7,11 @@ SystemBase::SystemBase() {}
 
 SystemBase::~SystemBase() {}
 
-std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(const std::shared_ptr<ChunkTask>& chunkTask, const EntityFilter& entityFilter, const std::shared_ptr<MelonTask::TaskHandle>& predecessor) {
+std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<ChunkTask> const& chunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor) {
     std::shared_ptr<std::vector<ChunkAccessor>> accessors = std::make_shared<std::vector<ChunkAccessor>>(_entityManager->filterEntities(entityFilter));
     if (accessors->size() == 0) return predecessor;
-    const unsigned int taskCount = std::min(MelonTask::TaskManager::kWorkerCount, (static_cast<unsigned int>(accessors->size()) - 1) / kMinChunkCountPerTask + 1);
-    const unsigned int chunkCountPerTask = accessors->size() / taskCount;
+    unsigned int const taskCount = std::min(MelonTask::TaskManager::kWorkerCount, (static_cast<unsigned int>(accessors->size()) - 1) / kMinChunkCountPerTask + 1);
+    unsigned int const chunkCountPerTask = accessors->size() / taskCount;
     std::vector<std::shared_ptr<MelonTask::TaskHandle>> taskHandles(taskCount);
     unsigned int chunkCounter = 0;
     unsigned int entityCounter = 0;
@@ -29,11 +29,11 @@ std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(const std::shared_pt
     return MelonTask::TaskManager::instance()->combine(taskHandles);
 }
 
-std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(const std::shared_ptr<EntityCommandBufferChunkTask>& entityCommandBufferChunkTask, const EntityFilter& entityFilter, const std::shared_ptr<MelonTask::TaskHandle>& predecessor) {
+std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor) {
     std::shared_ptr<std::vector<ChunkAccessor>> accessors = std::make_shared<std::vector<ChunkAccessor>>(_entityManager->filterEntities(entityFilter));
     if (accessors->size() == 0) return predecessor;
-    const unsigned int taskCount = std::min(MelonTask::TaskManager::kWorkerCount, (static_cast<unsigned int>(accessors->size()) - 1) / kMinChunkCountPerTask + 1);
-    const unsigned int chunkCountPerTask = accessors->size() / taskCount;
+    unsigned int const taskCount = std::min(MelonTask::TaskManager::kWorkerCount, (static_cast<unsigned int>(accessors->size()) - 1) / kMinChunkCountPerTask + 1);
+    unsigned int const chunkCountPerTask = accessors->size() / taskCount;
     std::vector<std::shared_ptr<MelonTask::TaskHandle>> taskHandles(taskCount);
     unsigned int chunkCounter = 0;
     unsigned int entityCounter = 0;

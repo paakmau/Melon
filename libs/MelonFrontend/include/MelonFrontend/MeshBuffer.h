@@ -26,7 +26,7 @@ struct Vertex {
             offsetof(Vertex, normal)};
     }
 
-    bool operator==(const Vertex& other) const {
+    bool operator==(Vertex const& other) const {
         return position == other.position && normal == other.normal;
     }
 
@@ -35,7 +35,7 @@ struct Vertex {
 };
 
 struct MeshBuffer {
-    bool operator==(const MeshBuffer& other) const {
+    bool operator==(MeshBuffer const& other) const {
         return vertexBuffer == other.vertexBuffer && indexBuffer == other.indexBuffer;
     }
 
@@ -49,14 +49,14 @@ struct MeshBuffer {
 
 template <>
 struct std::hash<MelonFrontend::Vertex> {
-    std::size_t operator()(const MelonFrontend::Vertex& vertex) {
+    std::size_t operator()(MelonFrontend::Vertex const& vertex) {
         return std::hash<glm::vec3>()(vertex.position) ^ std::hash<glm::vec3>()(vertex.normal);
     }
 };
 
 template <>
 struct std::hash<MelonFrontend::MeshBuffer> {
-    std::size_t operator()(const MelonFrontend::MeshBuffer& meshBuffer) {
+    std::size_t operator()(MelonFrontend::MeshBuffer const& meshBuffer) {
         return std::hash<MelonFrontend::Buffer>()(meshBuffer.vertexBuffer) ^ std::hash<MelonFrontend::Buffer>()(meshBuffer.indexBuffer);
     }
 };

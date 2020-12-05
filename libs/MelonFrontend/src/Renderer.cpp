@@ -54,7 +54,7 @@ void Renderer::terminate() {
     vkDeviceWaitIdle(_device);
 
     for (std::vector<MeshBuffer> destoryingMeshBuffers : _destroyingMeshBufferArrays) {
-        for (const MeshBuffer& meshBuffer : destoryingMeshBuffers) {
+        for (MeshBuffer const& meshBuffer : destoryingMeshBuffers) {
             vmaDestroyBuffer(_allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
             vmaDestroyBuffer(_allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
         }
@@ -62,9 +62,9 @@ void Renderer::terminate() {
     }
 
     // Recycle the buffers
-    for (const std::vector<RenderBatch> renderBatches : _renderBatchArrays)
-        for (const RenderBatch& renderBatch : renderBatches)
-            for (const UniformBuffer& buffer : renderBatch.entityUniformMemories)
+    for (std::vector<RenderBatch> const& renderBatches : _renderBatchArrays)
+        for (RenderBatch const& renderBatch : renderBatches)
+            for (UniformBuffer const& buffer : renderBatch.entityUniformMemories)
                 _uniformMemoryPool.recycle(buffer);
     _uniformMemoryPool.terminate();
     vkDestroyDescriptorPool(_device, _uniformDescriptorPool, nullptr);
@@ -98,11 +98,11 @@ void Renderer::beginFrame() {
     vkWaitForFences(_device, 1, &_inFlightFences[_currentFrame], VK_TRUE, std::numeric_limits<uint32_t>::max());
 
     vkFreeCommandBuffers(_device, _commandPool, 1, &_commandBuffers[_currentFrame]);
-    for (const SecondaryCommandBuffer& secondaryCommandBuffer : _secondaryCommandBufferArrays[_currentFrame])
+    for (SecondaryCommandBuffer const& secondaryCommandBuffer : _secondaryCommandBufferArrays[_currentFrame])
         vkFreeCommandBuffers(_device, secondaryCommandBuffer.pool, 1, &secondaryCommandBuffer.buffer);
     _secondaryCommandBufferArrays[_currentFrame].clear();
 
-    for (const MeshBuffer& meshBuffer : _destroyingMeshBufferArrays[_currentFrame]) {
+    for (MeshBuffer const& meshBuffer : _destroyingMeshBufferArrays[_currentFrame]) {
         vmaDestroyBuffer(_allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
         vmaDestroyBuffer(_allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
     }
@@ -138,21 +138,21 @@ MeshBuffer Renderer::createMeshBuffer(std::vector<Vertex> vertices, std::vector<
         .indexCount = static_cast<uint32_t>(indices.size())};
 }
 
-void Renderer::destroyMeshBuffer(const MeshBuffer& meshBuffer) {
+void Renderer::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
     _destroyingMeshBufferArrays[_currentFrame].emplace_back(meshBuffer);
 }
 
 void Renderer::beginBatches() {
-    for (const RenderBatch& renderBatch : _renderBatchArrays[_currentFrame])
-        for (const UniformBuffer& buffer : renderBatch.entityUniformMemories)
+    for (RenderBatch const& renderBatch : _renderBatchArrays[_currentFrame])
+        for (UniformBuffer const& buffer : renderBatch.entityUniformMemories)
             _uniformMemoryPool.recycle(buffer);
     _renderBatchArrays[_currentFrame].clear();
 }
 
-void Renderer::addBatch(const std::vector<glm::mat4>& models, const MeshBuffer& meshBuffer) {
+void Renderer::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer) {
     std::vector<UniformBuffer> memories;
-    for (const glm::mat4& model : models) {
-        const UniformBuffer& buffer = memories.emplace_back(_uniformMemoryPool.request(sizeof(EntityUniformObject)));
+    for (glm::mat4 const& model : models) {
+        UniformBuffer const& buffer = memories.emplace_back(_uniformMemoryPool.request(sizeof(EntityUniformObject)));
         EntityUniformObject uniformObject{model};
         recordCommandBufferCopyUniformObject(&uniformObject, buffer, sizeof(EntityUniformObject));
     }
@@ -161,7 +161,7 @@ void Renderer::addBatch(const std::vector<glm::mat4>& models, const MeshBuffer& 
 
 void Renderer::endBatches() {}
 
-void Renderer::renderFrame(/* TODO: Implement Camera */ const glm::mat4& vp) {
+void Renderer::renderFrame(/* TODO: Implement Camera */ glm::mat4 const& vp) {
     bool result = _swapChain.acquireNextImageContext(_imageAvailableSemaphores[_currentFrame], _currentImageIndex);
     if (!result) {
         recreateSwapChain();
@@ -215,11 +215,11 @@ void Renderer::recreateSwapChain() {
     _subrenderer->initialize(_device, _swapChain.imageExtent(), _cameraDescriptorSetLayout, _entityDescriptorSetLayout, _renderPassClear, _swapChain.imageCount());
 }
 
-void Renderer::recordCommandBufferCopyUniformObject(const void* data, UniformBuffer buffer, VkDeviceSize size) {
+void Renderer::recordCommandBufferCopyUniformObject(void const* data, UniformBuffer buffer, VkDeviceSize size) {
     copyBuffer(_allocator, _commandBuffers[_currentFrame], buffer.stagingBuffer.buffer, buffer.stagingBuffer.allocation, data, size, buffer.buffer.buffer);
 }
 
-void Renderer::recordCommandBufferDraw(const std::vector<RenderBatch>& renderBatches, const UniformBuffer& cameraUniformBuffer) {
+void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer) {
     uint32_t taskCount = std::min(kMaxTaskCount, static_cast<unsigned int>(renderBatches.size()));
     _secondaryCommandBufferArrays[_currentFrame].resize(taskCount);
     unsigned int batchCountPerTask = taskCount == 0 ? 0 : (renderBatches.size() / taskCount + ((renderBatches.size() % taskCount == 0) ? 0 : 1));
@@ -265,7 +265,7 @@ void Renderer::recordCommandBufferDraw(const std::vector<RenderBatch>& renderBat
         .clearValueCount = 1,
         .pClearValues = &clearValue};
     vkCmdBeginRenderPass(_commandBuffers[_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-    for (const SecondaryCommandBuffer& secondaryCommandBuffer : _secondaryCommandBufferArrays[_currentFrame])
+    for (SecondaryCommandBuffer const& secondaryCommandBuffer : _secondaryCommandBufferArrays[_currentFrame])
         vkCmdExecuteCommands(_commandBuffers[_currentFrame], 1, &secondaryCommandBuffer.buffer);
     vkCmdEndRenderPass(_commandBuffers[_currentFrame]);
 }

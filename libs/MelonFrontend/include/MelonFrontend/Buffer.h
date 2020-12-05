@@ -8,7 +8,7 @@
 namespace MelonFrontend {
 
 struct Buffer {
-    bool operator==(const Buffer& other) const {
+    bool operator==(Buffer const& other) const {
         return buffer == other.buffer && allocation == other.allocation;
     }
 
@@ -20,7 +20,7 @@ struct Buffer {
 
 template <>
 struct std::hash<MelonFrontend::Buffer> {
-    std::size_t operator()(const MelonFrontend::Buffer& buffer) {
+    std::size_t operator()(MelonFrontend::Buffer const& buffer) {
         return std::hash<void*>()(static_cast<void*>(buffer.buffer)) ^ std::hash<void*>()(static_cast<void*>(buffer.allocation));
     }
 };

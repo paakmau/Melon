@@ -2,7 +2,7 @@
 
 namespace MelonFrontend {
 
-void Window::initialize(const char* title, const unsigned int& width, const unsigned int& height) {
+void Window::initialize(char const* title, unsigned int const& width, unsigned int const& height) {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
@@ -34,10 +34,10 @@ void Window::waitForResized() {
     _resized = false;
 }
 
-std::vector<const char*> Window::requiredVulkanInstanceExtensions() const {
+std::vector<char const*> Window::requiredVulkanInstanceExtensions() const {
     uint32_t extensionCount;
-    const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
-    return std::vector<const char*>(extensions, extensions + extensionCount);
+    char const** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
+    return std::vector<char const*>(extensions, extensions + extensionCount);
 }
 
 void Window::framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height) {

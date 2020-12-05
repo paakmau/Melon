@@ -16,14 +16,14 @@ struct ArchetypeMask {
     typedef std::bitset<kMaxSharedComponentIdCount> ManualSharedComponentMask;
 
     struct Hash {
-        std::size_t operator()(const MelonCore::ArchetypeMask& mask) const {
+        std::size_t operator()(MelonCore::ArchetypeMask const& mask) const {
             return std::hash<ComponentMask>()(mask.componentMask) ^ std::hash<SharedComponentMask>()(mask.sharedComponentMask);
         }
     };
 
     ArchetypeMask() {}
 
-    void markComponent(const unsigned int& componentId, const bool& manual, const bool& value = true) {
+    void markComponent(unsigned int const& componentId, bool const& manual, bool const& value = true) {
         componentMask.set(componentId, value);
         if (manual)
             manualComponentMask.set(componentId, value);
@@ -33,12 +33,12 @@ struct ArchetypeMask {
             count--;
     }
 
-    void markComponents(const std::vector<unsigned int>& componentIds, const std::vector<bool>& manuals) {
+    void markComponents(std::vector<unsigned int> const& componentIds, std::vector<bool> const& manuals) {
         for (unsigned int i = 0; i < componentIds.size(); i++)
             markComponent(componentIds[i], manuals[i]);
     }
 
-    void markSharedComponent(const unsigned int& sharedComponentId, const bool& manual, const bool& value = true) {
+    void markSharedComponent(unsigned int const& sharedComponentId, bool const& manual, bool const& value = true) {
         sharedComponentMask.set(sharedComponentId, value);
         if (manual)
             manualSharedComponentMask.set(sharedComponentId, value);
@@ -48,17 +48,17 @@ struct ArchetypeMask {
             count--;
     }
 
-    void markSharedComponents(const std::vector<unsigned int>& sharedComponentIds, const std::vector<bool>& manuals) {
+    void markSharedComponents(std::vector<unsigned int> const& sharedComponentIds, std::vector<bool> const& manuals) {
         for (unsigned int i = 0; i < sharedComponentIds.size(); i++)
             markSharedComponent(sharedComponentIds[i], manuals[i]);
     }
 
-    bool operator==(const ArchetypeMask& other) const {
+    bool operator==(ArchetypeMask const& other) const {
         return componentMask == other.componentMask && sharedComponentMask == other.sharedComponentMask;
     }
 
-    bool manualComponent(const unsigned int& componentId) const { return manualComponentMask.test(componentId); }
-    bool manualSharedComponent(const unsigned int& sharedComponentId) const { return manualSharedComponentMask.test(sharedComponentId); }
+    bool manualComponent(unsigned int const& componentId) const { return manualComponentMask.test(componentId); }
+    bool manualSharedComponent(unsigned int const& sharedComponentId) const { return manualSharedComponentMask.test(sharedComponentId); }
 
     bool none() const { return count == 0; }
 

@@ -15,16 +15,16 @@ namespace MelonFrontend {
 
 class Engine {
    public:
-    void initialize(const char* title, const unsigned int& width, const unsigned int& height);
+    void initialize(char const* title, unsigned int const& width, unsigned int const& height);
     void terminate();
 
     void beginFrame();
     MeshBuffer createMeshBuffer(std::vector<Vertex> vertices, std::vector<uint16_t> indices);
-    void destroyMeshBuffer(const MeshBuffer& meshBuffer);
+    void destroyMeshBuffer(MeshBuffer const& meshBuffer);
     void beginBatches();
-    void addBatch(const std::vector<glm::mat4>& models, const MeshBuffer& meshBuffer);
+    void addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer);
     void endBatches();
-    void renderFrame(const glm::mat4& vp);
+    void renderFrame(glm::mat4 const& vp);
     void endFrame();
 
     static Engine* instance();

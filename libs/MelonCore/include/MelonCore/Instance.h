@@ -12,8 +12,8 @@ class World;
 
 class Instance {
   public:
-    const char* const& applicationName() const { return _applicationName; }
-    const char*& applicationName() { return _applicationName; }
+    char const* const& applicationName() const { return _applicationName; }
+    char const*& applicationName() { return _applicationName; }
 
     template <typename T, typename... Args>
     void registerSystem(Args&&... args);
@@ -28,7 +28,7 @@ class Instance {
 
     void mainLoop();
 
-    const char* _applicationName{};
+    char const* _applicationName{};
 
     std::unique_ptr<EntityManager> _entityManager;
     std::unique_ptr<World> _defaultWorld;

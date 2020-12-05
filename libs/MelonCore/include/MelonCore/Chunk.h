@@ -22,7 +22,7 @@ struct Chunk {
     static constexpr std::size_t kSize = 16 << 10;
 
     Chunk() {}
-    Chunk(const Chunk&) = delete;
+    Chunk(Chunk const&) = delete;
 
     std::aligned_storage_t<kSize, kAlign> memory;
 };

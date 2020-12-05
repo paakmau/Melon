@@ -8,9 +8,9 @@
 namespace MelonCore {
 
 struct EntityFilter {
-    bool satisfied(const ArchetypeMask& mask) const;
+    bool satisfied(ArchetypeMask const& mask) const;
     // SharedComponents should be in ascending order
-    bool satisfied(const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices) const;
+    bool satisfied(std::vector<unsigned int> const& sharedComponentIds, std::vector<unsigned int> const& sharedComponentIndices) const;
 
     ArchetypeMask::ComponentMask requiredComponentMask;
     ArchetypeMask::ComponentMask rejectedComponentMask;
@@ -25,13 +25,13 @@ struct EntityFilter {
     std::vector<std::pair<unsigned int, unsigned int>> rejectedSharedComponentIdAndIndices;
 };
 
-inline bool EntityFilter::satisfied(const ArchetypeMask& mask) const {
-    const bool requiredSatisfied = (mask.componentMask | requiredComponentMask) == mask.componentMask && (mask.sharedComponentMask | requiredSharedComponentMask) == mask.sharedComponentMask;
-    const bool rejectedSatisfied = (mask.componentMask & rejectedComponentMask).none() && (mask.sharedComponentMask & rejectedSharedComponentMask).none();
+inline bool EntityFilter::satisfied(ArchetypeMask const& mask) const {
+    bool const requiredSatisfied = (mask.componentMask | requiredComponentMask) == mask.componentMask && (mask.sharedComponentMask | requiredSharedComponentMask) == mask.sharedComponentMask;
+    bool const rejectedSatisfied = (mask.componentMask & rejectedComponentMask).none() && (mask.sharedComponentMask & rejectedSharedComponentMask).none();
     return requiredSatisfied && rejectedSatisfied;
 }
 
-inline bool EntityFilter::satisfied(const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices) const {
+inline bool EntityFilter::satisfied(std::vector<unsigned int> const& sharedComponentIds, std::vector<unsigned int> const& sharedComponentIndices) const {
     unsigned int i = 0, j = 0;
     // Check if required SharedComponent indicess satisfied
     while (true) {

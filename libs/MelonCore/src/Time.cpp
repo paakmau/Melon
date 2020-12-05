@@ -7,7 +7,7 @@ Time* Time::instance() {
     return &sInstance;
 }
 
-const float& Time::deltaTime() const {
+float const& Time::deltaTime() const {
     return _deltaTime;
 }
 

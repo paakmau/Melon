@@ -11,9 +11,9 @@ bool TaskHandle::finished() {
     return _finished;
 }
 
-TaskHandle::TaskHandle(const std::function<void()>& procedure) : _procedure(procedure), _finishSharedFuture(_finishPromise.get_future()) {}
+TaskHandle::TaskHandle(std::function<void()> const& procedure) : _procedure(procedure), _finishSharedFuture(_finishPromise.get_future()) {}
 
-void TaskHandle::initPredecessors(const std::vector<std::shared_ptr<TaskHandle>>& predecessors) {
+void TaskHandle::initPredecessors(std::vector<std::shared_ptr<TaskHandle>> const& predecessors) {
     // 用于避免前驱任务完成而导致入队
     _predecessorCount = predecessors.size() + 1;
     for (std::shared_ptr<TaskHandle> predecessor : predecessors)

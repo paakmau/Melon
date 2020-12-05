@@ -8,18 +8,18 @@ template <std::size_t Count>
 class SingletonObjectStore {
   public:
     template <typename T>
-    void push(const unsigned int& typeId, const T& object) {
+    void push(unsigned int const& typeId, T const& object) {
         _store[typeId] = new T(object);
     }
 
     template <typename T>
-    void pop(const unsigned int& typeId) {
+    void pop(unsigned int const& typeId) {
         delete _store[typeId];
         _store[typeId] = nullptr;
     }
 
     template <typename T>
-    T* object(const unsigned int& typeId) const {
+    T* object(unsigned int const& typeId) const {
         return static_cast<T*>(_store[typeId]);
     }
 

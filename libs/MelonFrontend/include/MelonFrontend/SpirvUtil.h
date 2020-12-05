@@ -125,7 +125,7 @@ static EShLanguage findLanguage(VkShaderStageFlagBits stage) {
     }
 }
 
-inline bool glslToSpirv(VkShaderStageFlagBits stageFlag, const char* shaderCode, std::vector<unsigned int>& spirv) {
+inline bool glslToSpirv(VkShaderStageFlagBits stageFlag, char const* shaderCode, std::vector<unsigned int>& spirv) {
     // FIXME: The SPIR-V code is generated successfully, but can't be used by Vulkan
 
     glslang::InitializeProcess();
@@ -133,7 +133,7 @@ inline bool glslToSpirv(VkShaderStageFlagBits stageFlag, const char* shaderCode,
     EShLanguage stage = findLanguage(stageFlag);
     glslang::TShader shader(stage);
     glslang::TProgram program;
-    const char* shaderStrings[1];
+    char const* shaderStrings[1];
 
     // Enable SPIR-V and Vulkan rules when parsing GLSL
     EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);

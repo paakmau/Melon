@@ -8,7 +8,7 @@ class Time {
   public:
     static Time* instance();
 
-    const float& deltaTime() const;
+    float const& deltaTime() const;
 
   private:
     void initialize();

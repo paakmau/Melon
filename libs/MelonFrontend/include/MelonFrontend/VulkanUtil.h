@@ -11,18 +11,18 @@
 
 namespace MelonFrontend {
 
-static VkShaderModule createShaderModule(VkDevice device, const std::vector<unsigned int>& spirv) {
+static VkShaderModule createShaderModule(VkDevice device, std::vector<unsigned int> const& spirv) {
     VkShaderModuleCreateInfo createInfo{
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .codeSize = spirv.size() * sizeof(uint32_t),
-        .pCode = static_cast<const uint32_t*>(spirv.data())};
+        .pCode = static_cast<uint32_t const*>(spirv.data())};
     VkShaderModule shaderModule;
     VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
     assert(result == VK_SUCCESS);
     return shaderModule;
 }
 
-inline void createInstance(const std::vector<const char*>& requiredVulkanInstanceExtensions, VkInstance& instance) {
+inline void createInstance(std::vector<char const*> const& requiredVulkanInstanceExtensions, VkInstance& instance) {
     // TODO: Define the application name and engine name
 
     // TODO: Enable validation layers for debug
@@ -104,10 +104,10 @@ inline void selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface, VkPh
     }
 }
 
-inline void createLogicalDevice(VkPhysicalDevice physicalDevice, const uint32_t& graphicsQueueFamilyIndex, const uint32_t& presentQueueFamilyIndex, VkPhysicalDeviceFeatures physicalDeviceFeatures, VkDevice& device, VkQueue& graphicsQueue, VkQueue& presentQueue) {
+inline void createLogicalDevice(VkPhysicalDevice physicalDevice, uint32_t const& graphicsQueueFamilyIndex, uint32_t const& presentQueueFamilyIndex, VkPhysicalDeviceFeatures physicalDeviceFeatures, VkDevice& device, VkQueue& graphicsQueue, VkQueue& presentQueue) {
     // Device queue create info
-    const float queuePriority = 1.0f;
-    std::vector<const char*> deviceExtensionNames = {
+    float const queuePriority = 1.0f;
+    std::vector<char const*> deviceExtensionNames = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
     std::set<uint32_t> uniqueQueueFamilyIndicies{graphicsQueueFamilyIndex, presentQueueFamilyIndex};
@@ -121,7 +121,7 @@ inline void createLogicalDevice(VkPhysicalDevice physicalDevice, const uint32_t&
 
     // Device create info
     // TODO: Don't enable features unnecessary
-    const VkPhysicalDeviceFeatures& enabledFeatures = physicalDeviceFeatures;
+    VkPhysicalDeviceFeatures const& enabledFeatures = physicalDeviceFeatures;
     VkDeviceCreateInfo deviceCreateInfo{
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = static_cast<uint32_t>(deviceQueueCreateInfos.size()),
@@ -165,14 +165,14 @@ inline void createSwapchain(VkDevice device, VkExtent2D windowExtent, VkSurfaceK
         surfaceFormat = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
     else {
         surfaceFormat = availableFormats[0];
-        for (const auto& availableFormat : availableFormats)
+        for (auto const& availableFormat : availableFormats)
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
                 surfaceFormat = availableFormat;
     }
 
     // Choose a proper present mode
     VkPresentModeKHR presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-    for (const auto& availablePresentMode : availablePresentModes)
+    for (auto const& availablePresentMode : availablePresentModes)
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             presentMode = availablePresentMode;
             break;
@@ -194,7 +194,7 @@ inline void createSwapchain(VkDevice device, VkExtent2D windowExtent, VkSurfaceK
     if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount)
         imageCount = surfaceCapabilities.maxImageCount;
 
-    const auto compositeAlpha = (surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) ? VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR : VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    VkCompositeAlphaFlagBitsKHR const compositeAlpha = (surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) ? VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR : VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
     // Create Swapchain
     VkSwapchainCreateInfoKHR swapchainCreateInfo{
@@ -254,7 +254,7 @@ inline void createSwapchain(VkDevice device, VkExtent2D windowExtent, VkSurfaceK
 }
 
 inline void createAllocator(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VmaAllocator& allocator) {
-    const VmaVulkanFunctions vulkanFunctions{
+    VmaVulkanFunctions const vulkanFunctions{
         .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
         .vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
         .vkAllocateMemory = vkAllocateMemory,
@@ -273,7 +273,7 @@ inline void createAllocator(VkInstance instance, VkPhysicalDevice physicalDevice
         .vkDestroyImage = vkDestroyImage,
         .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
         .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR};
-    const VmaAllocatorCreateInfo createInfo{
+    VmaAllocatorCreateInfo const createInfo{
         .physicalDevice = physicalDevice,
         .device = device,
         .pVulkanFunctions = &vulkanFunctions,
@@ -356,7 +356,7 @@ inline void createFramebuffer(VkDevice device, VkImageView imageViews, VkRenderP
 }
 
 template <size_t Count>
-inline void createSemaphores(VkDevice device, const unsigned int& count, std::array<VkSemaphore, Count>& semaphores) {
+inline void createSemaphores(VkDevice device, unsigned int const& count, std::array<VkSemaphore, Count>& semaphores) {
     VkSemaphoreCreateInfo createInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
     for (unsigned int i = 0; i < count; i++) {
         VkResult result = vkCreateSemaphore(device, &createInfo, nullptr, &semaphores[i]);
@@ -365,7 +365,7 @@ inline void createSemaphores(VkDevice device, const unsigned int& count, std::ar
 }
 
 template <size_t Count>
-inline void createFences(VkDevice device, VkFenceCreateFlags flags, const unsigned int& count, std::array<VkFence, Count>& fences) {
+inline void createFences(VkDevice device, VkFenceCreateFlags flags, unsigned int const& count, std::array<VkFence, Count>& fences) {
     VkFenceCreateInfo createInfo{
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
         .flags = flags};
@@ -376,7 +376,7 @@ inline void createFences(VkDevice device, VkFenceCreateFlags flags, const unsign
 }
 
 template <size_t Count>
-inline void createDescriptorSetLayout(VkDevice device, const std::array<uint32_t, Count>& counts, const std::array<VkDescriptorType, Count>& types, const std::array<VkShaderStageFlags, Count>& stageFlags, VkDescriptorSetLayout& descriptorSetLayout) {
+inline void createDescriptorSetLayout(VkDevice device, std::array<uint32_t, Count> const& counts, std::array<VkDescriptorType, Count> const& types, std::array<VkShaderStageFlags, Count> const& stageFlags, VkDescriptorSetLayout& descriptorSetLayout) {
     std::array<VkDescriptorSetLayoutBinding, Count> bindings;
     for (unsigned int i = 0; i < Count; i++) {
         bindings[i] = VkDescriptorSetLayoutBinding{
@@ -397,7 +397,7 @@ inline void createDescriptorSetLayout(VkDevice device, const std::array<uint32_t
 }
 
 template <size_t Count>
-inline void createPipelineLayout(VkDevice device, const std::array<VkDescriptorSetLayout, Count>& descriptorSetLayouts, VkPipelineLayout& pipelineLayout) {
+inline void createPipelineLayout(VkDevice device, std::array<VkDescriptorSetLayout, Count> const& descriptorSetLayouts, VkPipelineLayout& pipelineLayout) {
     VkPipelineLayoutCreateInfo layoutCreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .setLayoutCount = static_cast<uint32_t>(Count),
@@ -408,7 +408,7 @@ inline void createPipelineLayout(VkDevice device, const std::array<VkDescriptorS
 }
 
 template <size_t Count>
-inline void createGraphicsPipeline(VkDevice device, const std::vector<uint32_t>& vertexShader, const std::vector<uint32_t>& fragmentShader, const uint32_t& vertexInputStride, const std::array<VkFormat, Count>& vertexInputAttributeFormats, const std::array<uint32_t, Count>& vertexInputAttributeOffsets, VkExtent2D swapChainExtent, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, VkPipeline& pipeline) {
+inline void createGraphicsPipeline(VkDevice device, std::vector<uint32_t> const& vertexShader, std::vector<uint32_t> const& fragmentShader, uint32_t const& vertexInputStride, std::array<VkFormat, Count> const& vertexInputAttributeFormats, std::array<uint32_t, Count> const& vertexInputAttributeOffsets, VkExtent2D swapChainExtent, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, VkPipeline& pipeline) {
     VkShaderModule vertexShaderModule = createShaderModule(device, vertexShader);
     VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -527,7 +527,7 @@ inline void createBuffer(VmaAllocator allocator, VkDeviceSize bufferSize, VkBuff
 }
 
 template <size_t Count>
-inline void createDescriptorPool(VkDevice device, const std::array<VkDescriptorType, Count>& types, const std::array<uint32_t, Count>& descriptorCounts, const uint32_t& descriptorSetCount, VkDescriptorPool& descriptorPool) {
+inline void createDescriptorPool(VkDevice device, std::array<VkDescriptorType, Count> const& types, std::array<uint32_t, Count> const& descriptorCounts, uint32_t const& descriptorSetCount, VkDescriptorPool& descriptorPool) {
     std::array<VkDescriptorPoolSize, Count> poolSizes;
     for (unsigned int i = 0; i < Count; i++)
         poolSizes[i] = VkDescriptorPoolSize{
@@ -555,7 +555,7 @@ inline void allocateDescriptorSet(VkDevice device, VkDescriptorSetLayout descrip
 }
 
 template <size_t Count>
-inline void updateUniformDescriptorSet(VkDevice device, VkDescriptorSet descriptorSet, const std::array<VkBuffer, Count>& uniformBuffers, const std::array<VkDeviceSize, Count>& uniformBufferRanges) {
+inline void updateUniformDescriptorSet(VkDevice device, VkDescriptorSet descriptorSet, std::array<VkBuffer, Count> const& uniformBuffers, std::array<VkDeviceSize, Count> const& uniformBufferRanges) {
     std::array<VkWriteDescriptorSet, Count> writeDescriptorSets;
     std::array<VkDescriptorBufferInfo, Count> bufferInfos;
     for (unsigned int i = 0; i < Count; i++) {
@@ -577,7 +577,7 @@ inline void updateUniformDescriptorSet(VkDevice device, VkDescriptorSet descript
     vkUpdateDescriptorSets(device, Count, writeDescriptorSets.data(), 0, nullptr);
 }
 
-inline void copyBuffer(VmaAllocator allocator, VkCommandBuffer commandBuffer, VkBuffer stagingBuffer, VmaAllocation stagingAllocation, const void* data, VkDeviceSize size, VkBuffer dstBuffer) {
+inline void copyBuffer(VmaAllocator allocator, VkCommandBuffer commandBuffer, VkBuffer stagingBuffer, VmaAllocation stagingAllocation, void const* data, VkDeviceSize size, VkBuffer dstBuffer) {
     void* mappedData;
     vmaMapMemory(allocator, stagingAllocation, &mappedData);
     memcpy(mappedData, data, size);

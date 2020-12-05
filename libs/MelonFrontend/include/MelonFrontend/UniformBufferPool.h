@@ -20,10 +20,10 @@ class FixedSizeBufferPool {
     void terminate();
 
     Buffer request();
-    void recycle(const Buffer& buffer);
+    void recycle(Buffer const& buffer);
 
-    const VkDevice& device() const { return _device; }
-    const VkDeviceSize& size() const { return _size; }
+    VkDevice const& device() const { return _device; }
+    VkDeviceSize const& size() const { return _size; }
 
   private:
     VkDevice _device;

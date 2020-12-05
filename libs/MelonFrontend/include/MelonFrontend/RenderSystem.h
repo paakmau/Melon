@@ -12,7 +12,7 @@ namespace MelonFrontend {
 
 class RenderSystem : public MelonCore::SystemBase {
   public:
-    RenderSystem(const unsigned int& width, const unsigned int& height);
+    RenderSystem(unsigned int const& width, unsigned int const& height);
     virtual ~RenderSystem();
 
   protected:

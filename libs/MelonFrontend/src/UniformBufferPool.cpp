@@ -17,7 +17,7 @@ void FixedSizeBufferPool::initialize(VkDevice device, VmaAllocator allocator, Vk
 }
 
 void FixedSizeBufferPool::terminate() {
-    for (const Buffer& buffer : _pool)
+    for (Buffer const& buffer : _pool)
         vmaDestroyBuffer(_allocator, buffer.buffer, buffer.allocation);
 }
 
@@ -30,7 +30,7 @@ Buffer FixedSizeBufferPool::request() {
     return _pool[--_poolCount];
 }
 
-void FixedSizeBufferPool::recycle(const Buffer& buffer) {
+void FixedSizeBufferPool::recycle(Buffer const& buffer) {
     if (_poolCount == _pool.size())
         vmaDestroyBuffer(_allocator, buffer.buffer, buffer.allocation);
     else
@@ -56,7 +56,7 @@ void UniformBufferPool::registerUniformObjectSize(VkDeviceSize size) {
 }
 
 UniformBuffer UniformBufferPool::request(VkDeviceSize size) {
-    const unsigned int& index = _sizeIndexMap[size];
+    unsigned int const& index = _sizeIndexMap[size];
     Buffer stagingBuffer = _stagingBufferPools[index].request();
     Buffer buffer = _bufferPools[index].request();
 
@@ -68,7 +68,7 @@ UniformBuffer UniformBufferPool::request(VkDeviceSize size) {
 }
 
 void UniformBufferPool::recycle(UniformBuffer buffer) {
-    const unsigned int& index = _sizeIndexMap[buffer.size];
+    unsigned int const& index = _sizeIndexMap[buffer.size];
     _stagingBufferPools[index].recycle(buffer.stagingBuffer);
     _bufferPools[index].recycle(buffer.buffer);
 

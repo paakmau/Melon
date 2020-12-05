@@ -29,11 +29,11 @@ class Renderer {
 
     void beginFrame();
     MeshBuffer createMeshBuffer(std::vector<Vertex> vertices, std::vector<uint16_t> indices);
-    void destroyMeshBuffer(const MeshBuffer& meshBuffer);
+    void destroyMeshBuffer(MeshBuffer const& meshBuffer);
     void beginBatches();
-    void addBatch(const std::vector<glm::mat4>& models, const MeshBuffer& meshBuffer);
+    void addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer);
     void endBatches();
-    void renderFrame(const glm::mat4& vp);
+    void renderFrame(glm::mat4 const& vp);
     void endFrame();
 
   private:
@@ -44,8 +44,8 @@ class Renderer {
 
     void recreateSwapChain();
 
-    void recordCommandBufferCopyUniformObject(const void* data, UniformBuffer memory, VkDeviceSize size);
-    void recordCommandBufferDraw(const std::vector<RenderBatch>& renderBatches, const UniformBuffer& cameraUniformBuffer);
+    void recordCommandBufferCopyUniformObject(void const* data, UniformBuffer memory, VkDeviceSize size);
+    void recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer);
 
     Window* _window;
 

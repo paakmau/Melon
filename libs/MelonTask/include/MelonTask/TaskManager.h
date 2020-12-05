@@ -17,10 +17,10 @@ class TaskManager {
   public:
     static constexpr unsigned int kWorkerCount = 8;
 
-    std::shared_ptr<TaskHandle> schedule(const std::function<void()>& procedure);
-    std::shared_ptr<TaskHandle> schedule(const std::function<void()>& procedure, const std::vector<std::shared_ptr<TaskHandle>>& predecessors);
-    std::shared_ptr<TaskHandle> schedule(const std::function<void()>& procedure, std::vector<std::shared_ptr<TaskHandle>>&& predecessors);
-    std::shared_ptr<TaskHandle> combine(const std::vector<std::shared_ptr<TaskHandle>>& taskHandles);
+    std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure);
+    std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>> const& predecessors);
+    std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>>&& predecessors);
+    std::shared_ptr<TaskHandle> combine(std::vector<std::shared_ptr<TaskHandle>> const& taskHandles);
     // 规划的任务不会执行而是存放在等待队列
     // 调用该函数把等待队列中的任务加入执行队列
     void activateWaitingTasks();
@@ -31,7 +31,7 @@ class TaskManager {
     TaskManager();
     ~TaskManager();
 
-    void queueTask(const std::shared_ptr<TaskHandle>& taskHandle);
+    void queueTask(std::shared_ptr<TaskHandle> const& taskHandle);
     std::shared_ptr<TaskHandle> getNextTask();
 
     bool _stopped{};

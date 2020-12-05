@@ -32,7 +32,7 @@ bool SwapChain::acquireNextImageContext(VkSemaphore imageAvailableSemaphore, uin
     return true;
 }
 
-bool SwapChain::presentImage(const uint32_t& imageIndex, VkSemaphore waitSemaphore) {
+bool SwapChain::presentImage(uint32_t const& imageIndex, VkSemaphore waitSemaphore) {
     VkPresentInfoKHR presentInfo{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = 1,

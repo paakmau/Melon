@@ -12,7 +12,7 @@ World::World(EntityManager* entityManager) : _entityManager(entityManager) {
 }
 
 void World::enter() {
-    for (const std::unique_ptr<SystemBase>& system : _systems)
+    for (std::unique_ptr<SystemBase> const& system : _systems)
         system->enter(_entityManager);
 }
 
@@ -23,15 +23,15 @@ void World::update() {
         predecessors[i] = _systems[i]->predecessor();
     std::shared_ptr<MelonTask::TaskHandle> taskHandle = MelonTask::TaskManager::instance()->schedule(_entityCommandBufferExecutor, predecessors);
     MelonTask::TaskManager::instance()->activateWaitingTasks();
-    for (const std::unique_ptr<SystemBase>& system : _systems)
+    for (std::unique_ptr<SystemBase> const& system : _systems)
         system->predecessor() = taskHandle;
     // Update systems
-    for (const std::unique_ptr<SystemBase>& system : _systems)
+    for (std::unique_ptr<SystemBase> const& system : _systems)
         system->update();
 }
 
 void World::exit() {
-    for (const std::unique_ptr<SystemBase>& system : _systems)
+    for (std::unique_ptr<SystemBase> const& system : _systems)
         system->exit();
 }
 
