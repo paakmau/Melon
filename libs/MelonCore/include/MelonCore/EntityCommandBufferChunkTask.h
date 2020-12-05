@@ -1,7 +1,7 @@
 #pragma once
 
-#include <MelonCore/EntityManager.h>
 #include <MelonCore/ChunkAccessor.h>
+#include <MelonCore/EntityManager.h>
 
 namespace MelonCore {
 

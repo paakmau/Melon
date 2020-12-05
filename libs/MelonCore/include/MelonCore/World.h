@@ -12,7 +12,7 @@ class TaskHandle;
 class EntityManager;
 
 class World {
-   public:
+  public:
     World(EntityManager* entityManager);
 
     template <typename T, typename... Args>
@@ -22,7 +22,7 @@ class World {
     void update();
     void exit();
 
-   private:
+  private:
     EntityManager* const _entityManager;
     std::vector<std::unique_ptr<SystemBase>> _systems;
     std::function<void()> _entityCommandBufferExecutor;

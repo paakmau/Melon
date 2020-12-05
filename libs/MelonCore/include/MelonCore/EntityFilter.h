@@ -18,7 +18,7 @@ struct EntityFilter {
     ArchetypeMask::SharedComponentMask requiredSharedComponentMask;
     ArchetypeMask::SharedComponentMask rejectedSharedComponentMask;
 
-    // FIXME: It will crash if SharedComponents are destroyed 
+    // FIXME: It will crash if SharedComponents are destroyed
     // SharedComponents should be in ascending order
     std::vector<std::pair<unsigned int, unsigned int>> requiredSharedComponentIdAndIndices;
     // SharedComponents should be in ascending order

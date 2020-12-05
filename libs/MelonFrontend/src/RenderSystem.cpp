@@ -16,7 +16,7 @@
 namespace MelonFrontend {
 
 class CreatedRenderMeshTask : public MelonCore::ChunkTask {
-   public:
+  public:
     CreatedRenderMeshTask(const unsigned int& renderMeshComponentId, std::vector<MelonCore::Entity>& entities, std::vector<unsigned int>& renderMeshIndices) : _renderMeshComponentId(renderMeshComponentId), _entities(entities), _renderMeshIndices(renderMeshIndices) {}
     virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
@@ -32,7 +32,7 @@ class CreatedRenderMeshTask : public MelonCore::ChunkTask {
 };
 
 class RenderTask : public MelonCore::ChunkTask {
-   public:
+  public:
     RenderTask(std::vector<glm::mat4>& models, std::vector<const ManualRenderMesh*>& manualRenderMeshes, const unsigned int& translationComponentId, const unsigned int& rotationComponentId, const unsigned int& scaleComponentId, const unsigned int& manualRenderMeshComponentId) : _models(models), _manualRenderMeshes(manualRenderMeshes), _translationComponentId(translationComponentId), _rotationComponentId(rotationComponentId), _scaleComponentId(scaleComponentId), _manualRenderMeshComponentId(manualRenderMeshComponentId){};
 
     virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
@@ -60,7 +60,7 @@ class RenderTask : public MelonCore::ChunkTask {
 };
 
 class DestroyedRenderMeshTask : public MelonCore::ChunkTask {
-   public:
+  public:
     DestroyedRenderMeshTask(const unsigned int& manualRenderMeshComponentId, std::vector<MelonCore::Entity>& entities, std::vector<unsigned int>& manualRenderMeshIndices) : _manualRenderMeshComponentId(manualRenderMeshComponentId), _entities(entities), _manualRenderMeshIndices(manualRenderMeshIndices) {}
     virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {

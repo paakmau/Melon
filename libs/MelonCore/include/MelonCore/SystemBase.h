@@ -10,23 +10,23 @@
 namespace MelonCore {
 
 class ChunkTask {
-   public:
+  public:
     virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) = 0;
 };
 
 class EntityCommandBufferChunkTask {
-   public:
+  public:
     virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, EntityCommandBuffer* entityCommandBuffer) = 0;
 };
 
 class SystemBase {
-   public:
+  public:
     static constexpr unsigned int kMinChunkCountPerTask = 16;
 
     SystemBase();
     virtual ~SystemBase();
 
-   protected:
+  protected:
     virtual void onEnter() = 0;
     virtual void onUpdate() = 0;
     virtual void onExit() = 0;
@@ -38,7 +38,7 @@ class SystemBase {
     std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return _taskHandle; }
     EntityManager* entityManager() const { return _entityManager; }
 
-   private:
+  private:
     void enter(EntityManager* entityManager);
     void update();
     void exit();

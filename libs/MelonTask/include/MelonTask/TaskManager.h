@@ -14,7 +14,7 @@ class TaskHandle;
 class TaskWorker;
 
 class TaskManager {
-   public:
+  public:
     static constexpr unsigned int kWorkerCount = 8;
 
     std::shared_ptr<TaskHandle> schedule(const std::function<void()>& procedure);
@@ -27,7 +27,7 @@ class TaskManager {
 
     static TaskManager* instance();
 
-   private:
+  private:
     TaskManager();
     ~TaskManager();
 

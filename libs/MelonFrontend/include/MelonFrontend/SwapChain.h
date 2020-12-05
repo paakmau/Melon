@@ -8,7 +8,7 @@
 namespace MelonFrontend {
 
 class SwapChain {
-   public:
+  public:
     void initialize(VkExtent2D extent, VkSurfaceKHR surface, VkPhysicalDevice physicalDevice, VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex, VkQueue presentQueue);
     void terminate();
 
@@ -24,7 +24,7 @@ class SwapChain {
     const std::vector<VkImage>& images() const { return _images; }
     const std::vector<VkImageView>& imageViews() const { return _imageViews; }
 
-   private:
+  private:
     VkSurfaceKHR _surface;
     VkPhysicalDevice _physicalDevice;
     VkDevice _device;

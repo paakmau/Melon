@@ -11,7 +11,7 @@ class EntityManager;
 class World;
 
 class Instance {
-   public:
+  public:
     const char* const& applicationName() const { return _applicationName; }
     const char*& applicationName() { return _applicationName; }
 
@@ -23,7 +23,7 @@ class Instance {
 
     static Instance* instance();
 
-   private:
+  private:
     Instance();
 
     void mainLoop();

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <MelonFrontend/VulkanPlatform.h>
 #include <GLFW/glfw3.h>
+#include <MelonFrontend/VulkanPlatform.h>
 
 #include <vector>
 
@@ -9,7 +9,7 @@ namespace MelonFrontend {
 
 // TODO: Process window events
 class Window {
-   public:
+  public:
     void initialize(const char* title, const int& width, const int& height);
     void terminate();
 
@@ -28,7 +28,7 @@ class Window {
     bool resized() const { return _resized; }
     bool closed() const { return _closed; }
 
-   private:
+  private:
     static void framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height);
     static void windowCloseCallback(GLFWwindow* glfwWindow);
 

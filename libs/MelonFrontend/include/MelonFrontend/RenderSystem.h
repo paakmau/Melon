@@ -11,16 +11,16 @@
 namespace MelonFrontend {
 
 class RenderSystem : public MelonCore::SystemBase {
-   public:
+  public:
     RenderSystem(const unsigned int& width, const unsigned int& height);
     virtual ~RenderSystem();
 
-   protected:
+  protected:
     virtual void onEnter() final;
     virtual void onUpdate() final;
     virtual void onExit() final;
 
-   private:
+  private:
     MelonCore::EntityFilter _createdRenderMeshEntityFilter;
     MelonCore::EntityFilter _renderMeshEntityFilter;
     MelonCore::EntityFilter _destroyedRenderMeshEntityFilter;

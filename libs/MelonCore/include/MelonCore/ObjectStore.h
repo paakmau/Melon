@@ -12,7 +12,7 @@ namespace MelonCore {
 
 template <std::size_t Count>
 class ObjectStore {
-   public:
+  public:
     static constexpr unsigned int kInvalidIndex = std::numeric_limits<unsigned int>::max();
 
     template <typename T>
@@ -27,7 +27,7 @@ class ObjectStore {
     template <typename T>
     unsigned int objectIndex(const unsigned int& typeId, const T& object) const;
 
-   private:
+  private:
     struct ObjectWrapper {
         unsigned int typeId;
         const void* object;

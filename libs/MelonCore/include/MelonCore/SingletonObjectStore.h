@@ -6,7 +6,7 @@ namespace MelonCore {
 
 template <std::size_t Count>
 class SingletonObjectStore {
-   public:
+  public:
     template <typename T>
     void push(const unsigned int& typeId, const T& object) {
         _store[typeId] = new T(object);
@@ -23,7 +23,7 @@ class SingletonObjectStore {
         return static_cast<T*>(_store[typeId]);
     }
 
-   private:
+  private:
     std::array<void*, Count> _store;
 };
 

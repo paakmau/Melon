@@ -26,8 +26,6 @@ inline void createInstance(const std::vector<const char*>& requiredVulkanInstanc
     // TODO: Define the application name and engine name
 
     // TODO: Enable validation layers for debug
-    // TODO: TEMP
-    std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
     // Application info
     VkApplicationInfo applicationInfo{
@@ -514,8 +512,6 @@ inline void createGraphicsPipeline(VkDevice device, const std::vector<uint32_t>&
 
     vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
     vkDestroyShaderModule(device, vertexShaderModule, nullptr);
-
-    // TODO: TEMP 可能要销毁
 }
 
 inline void createBuffer(VmaAllocator allocator, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage, VkBuffer& buffer, VmaAllocation& allocation) {

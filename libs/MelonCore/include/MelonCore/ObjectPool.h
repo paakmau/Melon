@@ -9,7 +9,7 @@ namespace MelonCore {
 
 template <typename T>
 class ObjectPool {
-   public:
+  public:
     static constexpr unsigned int kCountPerBuffer = 128;
 
     ObjectPool();
@@ -22,7 +22,7 @@ class ObjectPool {
     T* request(Args&&... args);
     void recycle(T* object);
 
-   private:
+  private:
     void createBuffer();
     std::vector<T*> _buffer;
     std::vector<T*> _pool;

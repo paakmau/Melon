@@ -33,7 +33,7 @@ namespace MelonCore {
 class EntityManager;
 
 class ArchetypeBuilder {
-   public:
+  public:
     template <typename... Ts>
     ArchetypeBuilder& markComponents();
     template <typename... Ts>
@@ -41,7 +41,7 @@ class ArchetypeBuilder {
 
     Archetype* createArchetype();
 
-   private:
+  private:
     ArchetypeBuilder(EntityManager* entityManager) : _entityManager(entityManager) {}
     std::vector<unsigned int> _componentIds;
     std::vector<std::size_t> _componentSizes;
@@ -54,7 +54,7 @@ class ArchetypeBuilder {
 };
 
 class EntityFilterBuilder {
-   public:
+  public:
     template <typename... Ts>
     EntityFilterBuilder& requireComponents();
     template <typename... Ts>
@@ -72,7 +72,7 @@ class EntityFilterBuilder {
 
     EntityFilter createEntityFilter();
 
-   private:
+  private:
     EntityFilterBuilder(EntityManager* entityManager) : _entityManager(entityManager) {}
     EntityFilter _entityFilter;
     EntityManager* _entityManager;
@@ -81,7 +81,7 @@ class EntityFilterBuilder {
 };
 
 class EntityCommandBuffer {
-   public:
+  public:
     EntityCommandBuffer(EntityManager* entityManager) noexcept;
 
     Entity createEntity();
@@ -106,7 +106,7 @@ class EntityCommandBuffer {
     template <typename T>
     void setSingletonComponent(const T& singletonComponent);
 
-   private:
+  private:
     void execute();
 
     EntityManager* _entityManager;
@@ -116,7 +116,7 @@ class EntityCommandBuffer {
 };
 
 class EntityManager {
-   public:
+  public:
     static constexpr unsigned int kMaxSingletonComponentIdCount = 256U;
 
     EntityManager();
@@ -169,7 +169,7 @@ class EntityManager {
     unsigned int chunkCount(const EntityFilter& entityFilter) const;
     unsigned int entityCount(const EntityFilter& entityFilter) const;
 
-   private:
+  private:
     template <typename T>
     unsigned int registerComponent();
     unsigned int registerComponent(const std::type_index& typeIndex);

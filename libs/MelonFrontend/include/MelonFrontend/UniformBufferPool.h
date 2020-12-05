@@ -12,7 +12,7 @@
 namespace MelonFrontend {
 
 class FixedSizeBufferPool {
-   public:
+  public:
     static constexpr unsigned int kPoolSize = 2048U;
 
     void initialize(VkDevice device, VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage);
@@ -25,7 +25,7 @@ class FixedSizeBufferPool {
     const VkDevice& device() const { return _device; }
     const VkDeviceSize& size() const { return _size; }
 
-   private:
+  private:
     VkDevice _device;
     VmaAllocator _allocator;
     VkDeviceSize _size;
@@ -38,7 +38,7 @@ class FixedSizeBufferPool {
 };
 
 class UniformBufferPool {
-   public:
+  public:
     void initialize(VkDevice device, VmaAllocator allocator, VkDescriptorSetLayout layout, VkDescriptorPool descriptorPool);
     // UniformBufferPool can't terminate util all buffers are recycled
     void terminate();
@@ -48,7 +48,7 @@ class UniformBufferPool {
     UniformBuffer request(VkDeviceSize size);
     void recycle(UniformBuffer memory);
 
-   private:
+  private:
     VkDevice _device;
     VmaAllocator _allocator;
     std::vector<FixedSizeBufferPool> _stagingBufferPools;

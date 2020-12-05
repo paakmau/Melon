@@ -10,12 +10,12 @@
 namespace MelonTask {
 
 class TaskHandle : public std::enable_shared_from_this<TaskHandle> {
-   public:
+  public:
     TaskHandle(const std::function<void()>& procedure);
     void complete();
     bool finished();
 
-   private:
+  private:
     void initPredecessors(const std::vector<std::shared_ptr<TaskHandle>>& predecessors);
     bool appendSuccessor(std::shared_ptr<TaskHandle> successor);
     void execute();

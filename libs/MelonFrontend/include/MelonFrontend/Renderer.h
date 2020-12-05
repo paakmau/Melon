@@ -19,7 +19,7 @@ class SwapChain;
 struct SwapchainImageContext;
 
 class Renderer {
-   public:
+  public:
     static constexpr unsigned int kMaxInFlightFrameCount = 2U;
     static constexpr unsigned int kMaxTaskCount = 4U;
     static constexpr unsigned int kMaxUniformDescriptorCount = 2048U;
@@ -36,7 +36,7 @@ class Renderer {
     void renderFrame(const glm::mat4& vp);
     void endFrame();
 
-   private:
+  private:
     struct SecondaryCommandBuffer {
         VkCommandPool pool;
         VkCommandBuffer buffer;

@@ -10,7 +10,7 @@
 namespace MelonCore {
 
 class ChunkAccessor {
-   public:
+  public:
     const Entity* entityArray() const;
     template <typename T>
     T* componentArray(const unsigned int& componentId) const;
@@ -21,7 +21,7 @@ class ChunkAccessor {
 
     const unsigned int& entityCount() const { return _entityCount; }
 
-   private:
+  private:
     ChunkAccessor(std::byte* chunk, const ChunkLayout& chunkLayout, const unsigned int& entityCount, const std::vector<unsigned int>& sharedComponentIds, const std::vector<unsigned int>& sharedComponentIndices, const ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>& sharedComponentStore);
     std::byte* const _chunk;
     const ChunkLayout& _chunkLayout;

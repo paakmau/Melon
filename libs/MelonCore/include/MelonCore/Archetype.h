@@ -18,7 +18,7 @@
 namespace MelonCore {
 
 class Archetype {
-   public:
+  public:
     static constexpr unsigned int kInvalidId = std::numeric_limits<unsigned int>::max();
 
     struct EntityLocation {
@@ -87,7 +87,7 @@ class Archetype {
     const unsigned int& chunkCount() const { return _chunkCount; }
     const unsigned int& entityCount() const { return _entityCount; }
 
-   private:
+  private:
     Combination* createCombination();
     Combination* createCombination(const std::vector<unsigned int>& sharedComponentIndices);
     void destroyCombination(const unsigned int& combinationIndex, const std::vector<unsigned int>& sharedComponentIndices);

@@ -5,13 +5,13 @@
 namespace MelonTask {
 
 class TaskWorker {
-   public:
+  public:
     TaskWorker();
     void threadEntryPoint();
     void notify_stopped();
     void join();
 
-   private:
+  private:
     std::thread _thread;
     bool _stopped{};
 };

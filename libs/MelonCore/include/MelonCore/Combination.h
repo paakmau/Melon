@@ -16,7 +16,7 @@
 namespace MelonCore {
 
 class Combination {
-   public:
+  public:
     static constexpr unsigned int kInvalidIndex = std::numeric_limits<unsigned int>::max();
     static constexpr unsigned int kInvalidEntityIndex = std::numeric_limits<unsigned int>::max();
 
@@ -41,7 +41,7 @@ class Combination {
     const std::vector<unsigned int>& sharedComponentIndices() const { return _sharedComponentIndices; }
     const unsigned int& entityCount() const { return _entityCount; }
 
-   private:
+  private:
     void requestChunk();
     void recycleChunk();
 
