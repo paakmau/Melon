@@ -2,7 +2,7 @@
 
 namespace MelonFrontend {
 
-void Window::initialize(const char* title, const int& width, const int& height) {
+void Window::initialize(const char* title, const unsigned int& width, const unsigned int& height) {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     _window = glfwCreateWindow(width, height, title, nullptr, nullptr);

@@ -10,7 +10,7 @@ namespace MelonFrontend {
 // TODO: Process window events
 class Window {
   public:
-    void initialize(const char* title, const int& width, const int& height);
+    void initialize(const char* title, const unsigned int& width, const unsigned int& height);
     void terminate();
 
     void pollEvents();
