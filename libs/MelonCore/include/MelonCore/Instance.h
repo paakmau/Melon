@@ -15,7 +15,7 @@ class Instance {
     char const* const& applicationName() const { return _applicationName; }
     char const*& applicationName() { return _applicationName; }
 
-    template <typename T, typename... Args>
+    template <typename Type, typename... Args>
     void registerSystem(Args&&... args);
 
     void start();
@@ -36,9 +36,9 @@ class Instance {
     bool _shouldQuit{};
 };
 
-template <typename T, typename... Args>
+template <typename Type, typename... Args>
 void Instance::registerSystem(Args&&... args) {
-    _defaultWorld->registerSystem<T>(std::forward<Args>(args)...);
+    _defaultWorld->registerSystem<Type>(std::forward<Args>(args)...);
 }
 
 }  // namespace MelonCore

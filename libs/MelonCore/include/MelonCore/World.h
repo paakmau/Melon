@@ -15,7 +15,7 @@ class World {
   public:
     World(EntityManager* entityManager);
 
-    template <typename T, typename... Args>
+    template <typename Type, typename... Args>
     void registerSystem(Args&&... args);
 
     void enter();
@@ -28,9 +28,9 @@ class World {
     std::function<void()> _entityCommandBufferExecutor;
 };
 
-template <typename T, typename... Args>
+template <typename Type, typename... Args>
 void World::registerSystem(Args&&... args) {
-    _systems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+    _systems.emplace_back(std::make_unique<Type>(std::forward<Args>(args)...));
 }
 
 }  // namespace MelonCore

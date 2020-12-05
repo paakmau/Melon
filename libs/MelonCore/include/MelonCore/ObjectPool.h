@@ -7,7 +7,7 @@
 
 namespace MelonCore {
 
-template <typename T>
+template <typename Type>
 class ObjectPool {
   public:
     static constexpr unsigned int kCountPerBuffer = 128;
@@ -19,52 +19,52 @@ class ObjectPool {
     ~ObjectPool();
 
     template <typename... Args>
-    T* request(Args&&... args);
-    void recycle(T* object);
+    Type* request(Args&&... args);
+    void recycle(Type* object);
 
   private:
     void createBuffer();
-    std::vector<T*> _buffer;
-    std::vector<T*> _pool;
+    std::vector<Type*> _buffer;
+    std::vector<Type*> _pool;
 };
 
-template <typename T>
-ObjectPool<T>::ObjectPool() {
+template <typename Type>
+ObjectPool<Type>::ObjectPool() {
     createBuffer();
 }
 
-template <typename T>
-ObjectPool<T>::ObjectPool(ObjectPool&& other) : _buffer(std::move(other._buffer)), _pool(std::move(other._pool)) {}
+template <typename Type>
+ObjectPool<Type>::ObjectPool(ObjectPool&& other) : _buffer(std::move(other._buffer)), _pool(std::move(other._pool)) {}
 
-template <typename T>
-ObjectPool<T>::~ObjectPool() {
-    for (T const* buffer : _buffer)
+template <typename Type>
+ObjectPool<Type>::~ObjectPool() {
+    for (Type const* buffer : _buffer)
         delete[] buffer;
     _buffer.clear();
     _pool.clear();
 }
 
-template <typename T>
+template <typename Type>
 template <typename... Args>
-T* ObjectPool<T>::request(Args&&... args) {
+Type* ObjectPool<Type>::request(Args&&... args) {
     if (_pool.empty())
         createBuffer();
-    T* object = _pool.back();
-    new (object) T(std::forward<Args>(args)...);
+    Type* object = _pool.back();
+    new (object) Type(std::forward<Args>(args)...);
     _pool.pop_back();
     return object;
 }
 
-template <typename T>
-void ObjectPool<T>::recycle(T* object) {
-    if constexpr (std::is_trivially_destructible<T>())
-        object->~T();
+template <typename Type>
+void ObjectPool<Type>::recycle(Type* object) {
+    if constexpr (std::is_trivially_destructible<Type>())
+        object->~Type();
     _pool.push_back(object);
 }
 
-template <typename T>
-void ObjectPool<T>::createBuffer() {
-    T* p = _buffer.emplace_back(reinterpret_cast<T*>(new std::aligned_storage_t<sizeof(T), alignof(T)>[kCountPerBuffer]));
+template <typename Type>
+void ObjectPool<Type>::createBuffer() {
+    Type* p = _buffer.emplace_back(reinterpret_cast<Type*>(new std::aligned_storage_t<sizeof(Type), alignof(Type)>[kCountPerBuffer]));
     for (unsigned int i = 0; i < kCountPerBuffer; i++, p++)
         _pool.push_back(p);
 }
