@@ -12,8 +12,8 @@ class World;
 
 class Instance {
   public:
-    char const* const& applicationName() const { return _applicationName; }
-    char const*& applicationName() { return _applicationName; }
+    char const* const& applicationName() const { return m_ApplicationName; }
+    char const*& applicationName() { return m_ApplicationName; }
 
     template <typename Type, typename... Args>
     void registerSystem(Args&&... args);
@@ -28,17 +28,17 @@ class Instance {
 
     void mainLoop();
 
-    char const* _applicationName{};
+    char const* m_ApplicationName{};
 
-    std::unique_ptr<EntityManager> _entityManager;
-    std::unique_ptr<World> _defaultWorld;
+    std::unique_ptr<EntityManager> m_EntityManager;
+    std::unique_ptr<World> m_DefaultWorld;
 
-    bool _shouldQuit{};
+    bool m_ShouldQuit{};
 };
 
 template <typename Type, typename... Args>
 void Instance::registerSystem(Args&&... args) {
-    _defaultWorld->registerSystem<Type>(std::forward<Args>(args)...);
+    m_DefaultWorld->registerSystem<Type>(std::forward<Args>(args)...);
 }
 
 }  // namespace MelonCore

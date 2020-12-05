@@ -8,20 +8,20 @@
 namespace MelonCore {
 
 void Instance::start() {
-    _defaultWorld->enter();
+    m_DefaultWorld->enter();
     mainLoop();
-    _defaultWorld->exit();
+    m_DefaultWorld->exit();
 }
 
 void Instance::quit() {
-    _shouldQuit = true;
+    m_ShouldQuit = true;
 }
 
 void Instance::mainLoop() {
     Time::instance()->initialize();
-    while (!_shouldQuit) {
+    while (!m_ShouldQuit) {
         Time::instance()->update();
-        _defaultWorld->update();
+        m_DefaultWorld->update();
     }
 }
 
@@ -31,8 +31,8 @@ Instance* Instance::instance() {
 }
 
 Instance::Instance() {
-    _entityManager = std::make_unique<EntityManager>();
-    _defaultWorld = std::make_unique<World>(_entityManager.get());
+    m_EntityManager = std::make_unique<EntityManager>();
+    m_DefaultWorld = std::make_unique<World>(m_EntityManager.get());
 }
 
 }  // namespace MelonCore

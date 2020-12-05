@@ -18,13 +18,13 @@ struct ChunkLayout {
 };
 
 struct Chunk {
-    static constexpr std::size_t kAlign = 64;
-    static constexpr std::size_t kSize = 16 << 10;
+    static constexpr std::size_t k_Align = 64;
+    static constexpr std::size_t k_Size = 16 << 10;
 
     Chunk() {}
     Chunk(Chunk const&) = delete;
 
-    std::aligned_storage_t<kSize, kAlign> memory;
+    std::aligned_storage_t<k_Size, k_Align> memory;
 };
 
 }  // namespace MelonCore

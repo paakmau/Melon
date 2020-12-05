@@ -9,11 +9,11 @@
 namespace MelonTask {
 
 TaskWorker::TaskWorker() {
-    _thread = std::thread(&TaskWorker::threadEntryPoint, this);
+    m_Thread = std::thread(&TaskWorker::threadEntryPoint, this);
 }
 
 void TaskWorker::threadEntryPoint() {
-    while (!_stopped) {
+    while (!m_Stopped) {
         std::shared_ptr<TaskHandle> task = TaskManager::instance()->getNextTask();
         if (task) {
             task->execute();
@@ -23,11 +23,11 @@ void TaskWorker::threadEntryPoint() {
 }
 
 void TaskWorker::notify_stopped() {
-    _stopped = true;
+    m_Stopped = true;
 }
 
 void TaskWorker::join() {
-    _thread.join();
+    m_Thread.join();
 }
 
 }  // namespace MelonTask

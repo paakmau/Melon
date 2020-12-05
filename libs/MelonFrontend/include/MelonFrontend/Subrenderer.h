@@ -16,10 +16,10 @@ class Subrenderer {
     void draw(VkCommandBuffer commandBuffer, unsigned int const& swapChainImageIndex, VkDescriptorSet cameraDescriptorSet, RenderBatch const& renderBatch);
 
   protected:
-    VkDevice _device;
-    VkExtent2D _swapChainExtent;
-    VkPipelineLayout _pipelineLayout;
-    VkPipeline _pipeline;
+    VkDevice m_Device;
+    VkExtent2D m_SwapChainExtent;
+    VkPipelineLayout m_PipelineLayout;
+    VkPipeline m_Pipeline;
 };
 
 }  // namespace MelonFrontend

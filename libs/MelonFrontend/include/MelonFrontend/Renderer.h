@@ -20,9 +20,9 @@ struct SwapchainImageContext;
 
 class Renderer {
   public:
-    static constexpr unsigned int kMaxInFlightFrameCount = 2U;
-    static constexpr unsigned int kMaxTaskCount = 4U;
-    static constexpr unsigned int kMaxUniformDescriptorCount = 2048U;
+    static constexpr unsigned int k_MaxInFlightFrameCount = 2U;
+    static constexpr unsigned int k_MaxTaskCount = 4U;
+    static constexpr unsigned int k_MaxUniformDescriptorCount = 2048U;
 
     void initialize(Window* window);
     void terminate();
@@ -47,43 +47,43 @@ class Renderer {
     void recordCommandBufferCopyUniformObject(void const* data, UniformBuffer memory, VkDeviceSize size);
     void recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer);
 
-    Window* _window;
+    Window* m_Window;
 
-    VkInstance _vulkanInstance;
-    VkSurfaceKHR _surface;
-    VkPhysicalDevice _physicalDevice;
-    VkPhysicalDeviceFeatures _physicalDeviceFeatures;
-    uint32_t _graphicsQueueFamilyIndex;
-    uint32_t _presentQueueFamilyIndex;
-    VkDevice _device;
-    VkQueue _graphicsQueue;
-    VkQueue _presentQueue;
+    VkInstance m_VulkanInstance;
+    VkSurfaceKHR m_Surface;
+    VkPhysicalDevice m_PhysicalDevice;
+    VkPhysicalDeviceFeatures m_PhysicalDeviceFeatures;
+    uint32_t m_GraphicsQueueFamilyIndex;
+    uint32_t m_PresentQueueFamilyIndex;
+    VkDevice m_Device;
+    VkQueue m_GraphicsQueue;
+    VkQueue m_PresentQueue;
 
-    SwapChain _swapChain;
-    VkCommandPool _commandPool;
-    VkCommandPool _commandPools[kMaxTaskCount];
-    uint32_t _currentImageIndex;
+    SwapChain m_SwapChain;
+    VkCommandPool m_CommandPool;
+    VkCommandPool m_CommandPools[k_MaxTaskCount];
+    uint32_t m_CurrentImageIndex;
 
-    VkRenderPass _renderPassClear;
-    std::vector<VkFramebuffer> _framebuffers;
+    VkRenderPass m_RenderPassClear;
+    std::vector<VkFramebuffer> m_Framebuffers;
 
-    unsigned int _currentFrame{};
-    std::array<VkSemaphore, kMaxInFlightFrameCount> _imageAvailableSemaphores;
-    std::array<VkSemaphore, kMaxInFlightFrameCount> _renderFinishedSemaphores;
-    std::array<VkFence, kMaxInFlightFrameCount> _inFlightFences;
-    std::array<VkCommandBuffer, kMaxInFlightFrameCount> _commandBuffers;
-    std::array<std::vector<SecondaryCommandBuffer>, kMaxInFlightFrameCount> _secondaryCommandBufferArrays;
-    std::array<std::vector<MeshBuffer>, kMaxInFlightFrameCount> _destroyingMeshBufferArrays;
+    unsigned int m_CurrentFrame{};
+    std::array<VkSemaphore, k_MaxInFlightFrameCount> m_ImageAvailableSemaphores;
+    std::array<VkSemaphore, k_MaxInFlightFrameCount> m_RenderFinishedSemaphores;
+    std::array<VkFence, k_MaxInFlightFrameCount> m_InFlightFences;
+    std::array<VkCommandBuffer, k_MaxInFlightFrameCount> m_CommandBuffers;
+    std::array<std::vector<SecondaryCommandBuffer>, k_MaxInFlightFrameCount> m_SecondaryCommandBufferArrays;
+    std::array<std::vector<MeshBuffer>, k_MaxInFlightFrameCount> m_DestroyingMeshBufferArrays;
 
-    VkDescriptorSetLayout _cameraDescriptorSetLayout;
-    VkDescriptorSetLayout _entityDescriptorSetLayout;
-    std::unique_ptr<Subrenderer> _subrenderer;
+    VkDescriptorSetLayout m_CameraDescriptorSetLayout;
+    VkDescriptorSetLayout m_EntityDescriptorSetLayout;
+    std::unique_ptr<Subrenderer> m_Subrenderer;
 
-    VmaAllocator _allocator;
-    VkDescriptorPool _uniformDescriptorPool;
-    UniformBufferPool _uniformMemoryPool;
-    std::array<std::vector<RenderBatch>, kMaxInFlightFrameCount> _renderBatchArrays;
-    std::array<UniformBuffer, kMaxInFlightFrameCount> _cameraUniformMemories;
+    VmaAllocator m_Allocator;
+    VkDescriptorPool m_UniformDescriptorPool;
+    UniformBufferPool m_UniformMemoryPool;
+    std::array<std::vector<RenderBatch>, k_MaxInFlightFrameCount> m_RenderBatchArrays;
+    std::array<UniformBuffer, k_MaxInFlightFrameCount> m_CameraUniformMemories;
 };
 
 }  // namespace MelonFrontend

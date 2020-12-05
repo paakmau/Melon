@@ -14,8 +14,8 @@ class Time {
     void initialize();
     void update();
 
-    std::chrono::steady_clock::time_point _previousTimePoint;
-    float _deltaTime{};
+    std::chrono::steady_clock::time_point m_PreviousTimePoint;
+    float m_DeltaTime{};
 
     friend class Instance;
 };

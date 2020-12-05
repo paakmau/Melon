@@ -7,13 +7,13 @@
 namespace MelonCore {
 
 struct ArchetypeMask {
-    static constexpr unsigned int kMaxComponentIdCount = 1024U;
-    static constexpr unsigned int kMaxSharedComponentIdCount = 256U;
+    static constexpr unsigned int k_MaxComponentIdCount = 1024U;
+    static constexpr unsigned int k_MaxSharedComponentIdCount = 256U;
 
-    using ComponentMask = std::bitset<kMaxComponentIdCount>;
-    using ManualComponentMask = std::bitset<kMaxComponentIdCount>;
-    using SharedComponentMask = std::bitset<kMaxSharedComponentIdCount>;
-    using ManualSharedComponentMask = std::bitset<kMaxSharedComponentIdCount>;
+    using ComponentMask = std::bitset<k_MaxComponentIdCount>;
+    using ManualComponentMask = std::bitset<k_MaxComponentIdCount>;
+    using SharedComponentMask = std::bitset<k_MaxSharedComponentIdCount>;
+    using ManualSharedComponentMask = std::bitset<k_MaxSharedComponentIdCount>;
 
     struct Hash {
         std::size_t operator()(MelonCore::ArchetypeMask const& mask) const {

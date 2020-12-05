@@ -23,14 +23,14 @@ class World {
     void exit();
 
   private:
-    EntityManager* const _entityManager;
-    std::vector<std::unique_ptr<SystemBase>> _systems;
-    std::function<void()> _entityCommandBufferExecutor;
+    EntityManager* const m_EntityManager;
+    std::vector<std::unique_ptr<SystemBase>> m_Systems;
+    std::function<void()> m_EntityCommandBufferExecutor;
 };
 
 template <typename Type, typename... Args>
 void World::registerSystem(Args&&... args) {
-    _systems.emplace_back(std::make_unique<Type>(std::forward<Args>(args)...));
+    m_Systems.emplace_back(std::make_unique<Type>(std::forward<Args>(args)...));
 }
 
 }  // namespace MelonCore

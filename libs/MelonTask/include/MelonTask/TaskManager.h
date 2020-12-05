@@ -15,7 +15,7 @@ class TaskWorker;
 
 class TaskManager {
   public:
-    static constexpr unsigned int kWorkerCount = 8;
+    static constexpr unsigned int k_WorkerCount = 8;
 
     std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure);
     std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>> const& predecessors);
@@ -34,13 +34,13 @@ class TaskManager {
     void queueTask(std::shared_ptr<TaskHandle> const& taskHandle);
     std::shared_ptr<TaskHandle> getNextTask();
 
-    bool _stopped{};
-    std::queue<std::shared_ptr<TaskHandle>> _waitingTaskQueue;
-    std::queue<std::pair<std::shared_ptr<TaskHandle>, std::vector<std::shared_ptr<TaskHandle>>>> _waitingTaskAndPredecessorsQueue;
-    std::queue<std::shared_ptr<TaskHandle>> _taskQueue;
-    std::mutex _taskQueueMutex;
-    std::condition_variable _taskQueueConditionVariable;
-    std::vector<std::unique_ptr<TaskWorker>> _workers;
+    bool m_Stopped{};
+    std::queue<std::shared_ptr<TaskHandle>> m_WaitingTaskQueue;
+    std::queue<std::pair<std::shared_ptr<TaskHandle>, std::vector<std::shared_ptr<TaskHandle>>>> m_WaitingTaskAndPredecessorsQueue;
+    std::queue<std::shared_ptr<TaskHandle>> m_TaskQueue;
+    std::mutex m_TaskQueueMutex;
+    std::condition_variable m_TaskQueueConditionVariable;
+    std::vector<std::unique_ptr<TaskWorker>> m_Workers;
 
     friend class TaskHandle;
     friend class TaskWorker;

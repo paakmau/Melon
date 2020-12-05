@@ -12,16 +12,16 @@
 namespace MelonFrontend {
 
 struct Vertex {
-    static constexpr unsigned int kAttributeCount = 2;
+    static constexpr unsigned int k_AttributeCount = 2;
 
-    static std::array<VkFormat, kAttributeCount> formats() {
-        return std::array<VkFormat, kAttributeCount>{
+    static std::array<VkFormat, k_AttributeCount> formats() {
+        return std::array<VkFormat, k_AttributeCount>{
             VK_FORMAT_R32G32B32_SFLOAT,
             VK_FORMAT_R32G32B32_SFLOAT};
     }
 
-    static std::array<uint32_t, kAttributeCount> offsets() {
-        return std::array<uint32_t, kAttributeCount>{
+    static std::array<uint32_t, k_AttributeCount> offsets() {
+        return std::array<uint32_t, k_AttributeCount>{
             offsetof(Vertex, position),
             offsetof(Vertex, normal)};
     }

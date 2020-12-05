@@ -12,8 +12,8 @@ class TaskWorker {
     void join();
 
   private:
-    std::thread _thread;
-    bool _stopped{};
+    std::thread m_Thread;
+    bool m_Stopped{};
 };
 
 }  // namespace MelonTask

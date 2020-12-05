@@ -19,25 +19,25 @@ class SwapChain {
 
     unsigned int imageCount() const;
 
-    VkFormat const& imageFormat() const { return _imageFormat; }
-    VkExtent2D const& imageExtent() const { return _imageExtent; }
-    std::vector<VkImage> const& images() const { return _images; }
-    std::vector<VkImageView> const& imageViews() const { return _imageViews; }
+    VkFormat const& imageFormat() const { return m_ImageFormat; }
+    VkExtent2D const& imageExtent() const { return m_ImageExtent; }
+    std::vector<VkImage> const& images() const { return m_Images; }
+    std::vector<VkImageView> const& imageViews() const { return m_ImageViews; }
 
   private:
-    VkSurfaceKHR _surface;
-    VkPhysicalDevice _physicalDevice;
-    VkDevice _device;
-    uint32_t _graphicsQueueFamilyIndex;
-    uint32_t _presentQueueFamilyIndex;
-    VkQueue _presentQueue;
-    VkSwapchainKHR _swapchain;
-    VkFormat _imageFormat;
-    VkExtent2D _imageExtent;
-    std::vector<VkImage> _images;
-    std::vector<VkImageView> _imageViews;
+    VkSurfaceKHR m_Surface;
+    VkPhysicalDevice m_PhysicalDevice;
+    VkDevice m_Device;
+    uint32_t m_GraphicsQueueFamilyIndex;
+    uint32_t m_PresentQueueFamilyIndex;
+    VkQueue m_PresentQueue;
+    VkSwapchainKHR m_Swapchain;
+    VkFormat m_ImageFormat;
+    VkExtent2D m_ImageExtent;
+    std::vector<VkImage> m_Images;
+    std::vector<VkImageView> m_ImageViews;
 };
 
-inline unsigned int SwapChain::imageCount() const { return _images.size(); }
+inline unsigned int SwapChain::imageCount() const { return m_Images.size(); }
 
 }  // namespace MelonFrontend

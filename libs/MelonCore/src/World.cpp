@@ -5,33 +5,33 @@
 
 namespace MelonCore {
 
-World::World(EntityManager* entityManager) : _entityManager(entityManager) {
-    _entityCommandBufferExecutor = [entityManager]() {
+World::World(EntityManager* entityManager) : m_EntityManager(entityManager) {
+    m_EntityCommandBufferExecutor = [entityManager]() {
         entityManager->executeEntityCommandBuffers();
     };
 }
 
 void World::enter() {
-    for (std::unique_ptr<SystemBase> const& system : _systems)
-        system->enter(_entityManager);
+    for (std::unique_ptr<SystemBase> const& system : m_Systems)
+        system->enter(m_EntityManager);
 }
 
 void World::update() {
     // Schedule entity command buffer executor
-    std::vector<std::shared_ptr<MelonTask::TaskHandle>> predecessors(_systems.size());
-    for (unsigned int i = 0; i < _systems.size(); i++)
-        predecessors[i] = _systems[i]->predecessor();
-    std::shared_ptr<MelonTask::TaskHandle> taskHandle = MelonTask::TaskManager::instance()->schedule(_entityCommandBufferExecutor, predecessors);
+    std::vector<std::shared_ptr<MelonTask::TaskHandle>> predecessors(m_Systems.size());
+    for (unsigned int i = 0; i < m_Systems.size(); i++)
+        predecessors[i] = m_Systems[i]->predecessor();
+    std::shared_ptr<MelonTask::TaskHandle> taskHandle = MelonTask::TaskManager::instance()->schedule(m_EntityCommandBufferExecutor, predecessors);
     MelonTask::TaskManager::instance()->activateWaitingTasks();
-    for (std::unique_ptr<SystemBase> const& system : _systems)
+    for (std::unique_ptr<SystemBase> const& system : m_Systems)
         system->predecessor() = taskHandle;
     // Update systems
-    for (std::unique_ptr<SystemBase> const& system : _systems)
+    for (std::unique_ptr<SystemBase> const& system : m_Systems)
         system->update();
 }
 
 void World::exit() {
-    for (std::unique_ptr<SystemBase> const& system : _systems)
+    for (std::unique_ptr<SystemBase> const& system : m_Systems)
         system->exit();
 }
 

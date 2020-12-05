@@ -19,14 +19,14 @@ class Window {
 
     std::vector<char const*> requiredVulkanInstanceExtensions() const;
 
-    float aspectRatio() const { return static_cast<float>(_extent.width) / static_cast<float>(_extent.height); }
+    float aspectRatio() const { return static_cast<float>(m_Extent.width) / static_cast<float>(m_Extent.height); }
 
-    GLFWwindow* const& window() const { return _window; }
+    GLFWwindow* const& window() const { return m_Window; }
 
-    VkExtent2D const& extent() const { return _extent; }
+    VkExtent2D const& extent() const { return m_Extent; }
 
-    bool resized() const { return _resized; }
-    bool closed() const { return _closed; }
+    bool resized() const { return m_Resized; }
+    bool closed() const { return m_Closed; }
 
   private:
     static void framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height);
@@ -35,12 +35,12 @@ class Window {
     void notifyResized();
     void notifyClosed();
 
-    GLFWwindow* _window;
+    GLFWwindow* m_Window;
 
-    VkExtent2D _extent;
+    VkExtent2D m_Extent;
 
-    bool _resized{};
-    bool _closed{};
+    bool m_Resized{};
+    bool m_Closed{};
 };
 
 }  // namespace MelonFrontend

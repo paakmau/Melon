@@ -42,13 +42,13 @@ class ArchetypeBuilder {
     Archetype* createArchetype();
 
   private:
-    ArchetypeBuilder(EntityManager* entityManager) : _entityManager(entityManager) {}
-    std::vector<unsigned int> _componentIds;
-    std::vector<std::size_t> _componentSizes;
-    std::vector<std::size_t> _componentAligns;
-    std::vector<unsigned int> _sharedComponentIds;
-    ArchetypeMask _mask;
-    EntityManager* _entityManager;
+    ArchetypeBuilder(EntityManager* entityManager) : m_EntityManager(entityManager) {}
+    std::vector<unsigned int> m_ComponentIds;
+    std::vector<std::size_t> m_ComponentSizes;
+    std::vector<std::size_t> m_ComponentAligns;
+    std::vector<unsigned int> m_SharedComponentIds;
+    ArchetypeMask m_Mask;
+    EntityManager* m_EntityManager;
 
     friend class EntityManager;
 };
@@ -73,9 +73,9 @@ class EntityFilterBuilder {
     EntityFilter createEntityFilter();
 
   private:
-    EntityFilterBuilder(EntityManager* entityManager) : _entityManager(entityManager) {}
-    EntityFilter _entityFilter;
-    EntityManager* _entityManager;
+    EntityFilterBuilder(EntityManager* entityManager) : m_EntityManager(entityManager) {}
+    EntityFilter m_EntityFilter;
+    EntityManager* m_EntityManager;
 
     friend class EntityManager;
 };
@@ -109,22 +109,22 @@ class EntityCommandBuffer {
   private:
     void execute();
 
-    EntityManager* _entityManager;
-    std::vector<std::function<void()>> _procedures;  // TODO: Improve performance
+    EntityManager* m_EntityManager;
+    std::vector<std::function<void()>> m_Procedures;  // TODO: Improve performance
 
     friend class EntityManager;
 };
 
 class EntityManager {
   public:
-    static constexpr unsigned int kMaxSingletonComponentIdCount = 256U;
+    static constexpr unsigned int k_MaxSingletonComponentIdCount = 256U;
 
     EntityManager();
     EntityManager(EntityManager const&) = delete;
 
     ArchetypeBuilder createArchetypeBuilder() { return ArchetypeBuilder(this); }
 
-    EntityCommandBuffer* createEntityCommandBuffer() { return _taskEntityCommandBuffers.emplace_back(std::make_unique<EntityCommandBuffer>(this)).get(); }
+    EntityCommandBuffer* createEntityCommandBuffer() { return m_TaskEntityCommandBuffers.emplace_back(std::make_unique<EntityCommandBuffer>(this)).get(); }
 
     Entity createEntity();
     Entity createEntity(Archetype* archetype);
@@ -209,28 +209,28 @@ class EntityManager {
 
     void executeEntityCommandBuffers();
 
-    std::unordered_map<std::type_index, unsigned int> _componentIdMap;
-    std::unordered_map<std::type_index, unsigned int> _sharedComponentIdMap;
-    std::unordered_map<std::type_index, unsigned int> _singletonComponentIdMap;
+    std::unordered_map<std::type_index, unsigned int> m_ComponentIdMap;
+    std::unordered_map<std::type_index, unsigned int> m_SharedComponentIdMap;
+    std::unordered_map<std::type_index, unsigned int> m_SingletonComponentIdMap;
 
-    ObjectPool<Chunk> _chunkPool;
+    ObjectPool<Chunk> m_ChunkPool;
 
-    ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount> _sharedComponentStore;
-    SingletonObjectStore<kMaxSingletonComponentIdCount> _singletonComponentStore;
+    ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> m_SharedComponentStore;
+    SingletonObjectStore<k_MaxSingletonComponentIdCount> m_SingletonComponentStore;
 
-    unsigned int _archetypeIdCounter{};
-    std::unordered_map<ArchetypeMask, Archetype*, ArchetypeMask::Hash> _archetypeMap;
-    std::vector<std::unique_ptr<Archetype>> _archetypes;
+    unsigned int m_ArchetypeIdCounter{};
+    std::unordered_map<ArchetypeMask, Archetype*, ArchetypeMask::Hash> m_ArchetypeMap;
+    std::vector<std::unique_ptr<Archetype>> m_Archetypes;
 
     // TODO: To avoid contention, a few reserved Entity id could be passed to EntityCommandBuffer in main thread.
-    std::mutex _entityIdMutex;
-    unsigned int _entityIdCounter{};
-    std::queue<unsigned int> _freeEntityIds;
+    std::mutex m_EntityIdMutex;
+    unsigned int m_EntityIdCounter{};
+    std::queue<unsigned int> m_FreeEntityIds;
 
-    std::vector<Archetype::EntityLocation> _entityLocations;
+    std::vector<Archetype::EntityLocation> m_EntityLocations;
 
-    EntityCommandBuffer _mainEntityCommandBuffer;
-    std::vector<std::unique_ptr<EntityCommandBuffer>> _taskEntityCommandBuffers;
+    EntityCommandBuffer m_MainEntityCommandBuffer;
+    std::vector<std::unique_ptr<EntityCommandBuffer>> m_TaskEntityCommandBuffers;
 
     friend class ArchetypeBuilder;
     friend class EntityCommandBuffer;
@@ -242,210 +242,210 @@ template <typename... Types>
 ArchetypeBuilder& ArchetypeBuilder::markComponents() {
     // TODO: Check if derived from Component, which should be encapsulated in a method
     static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<Component, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<Component, Types>>..., std::true_type>>);
-    std::vector<unsigned int> const componentIds{_entityManager->componentId<Types>()...};
+    std::vector<unsigned int> const componentIds{m_EntityManager->componentId<Types>()...};
     std::vector<std::size_t> const componentSizes{sizeof(Types)...};
     std::vector<std::size_t> const componentAligns{alignof(Types)...};
-    _componentIds.insert(_componentIds.end(), componentIds.begin(), componentIds.end());
-    _componentSizes.insert(_componentSizes.end(), componentSizes.begin(), componentSizes.end());
-    _componentAligns.insert(_componentAligns.end(), componentAligns.begin(), componentAligns.end());
-    _mask.markComponents(componentIds, {std::is_base_of_v<ManualComponent, Types>...});
+    m_ComponentIds.insert(m_ComponentIds.end(), componentIds.begin(), componentIds.end());
+    m_ComponentSizes.insert(m_ComponentSizes.end(), componentSizes.begin(), componentSizes.end());
+    m_ComponentAligns.insert(m_ComponentAligns.end(), componentAligns.begin(), componentAligns.end());
+    m_Mask.markComponents(componentIds, {std::is_base_of_v<ManualComponent, Types>...});
     return *this;
 }
 
 template <typename... Types>
 ArchetypeBuilder& ArchetypeBuilder::markSharedComponents() {
     static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<SharedComponent, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<SharedComponent, Types>>..., std::true_type>>);
-    std::vector<unsigned int> const sharedComponentIds{_entityManager->sharedComponentId<Types>()...};
-    _sharedComponentIds.insert(_sharedComponentIds.end(), sharedComponentIds.begin(), sharedComponentIds.end());
-    _mask.markSharedComponents(sharedComponentIds, {std::is_base_of_v<ManualSharedComponent, Types>...});
+    std::vector<unsigned int> const sharedComponentIds{m_EntityManager->sharedComponentId<Types>()...};
+    m_SharedComponentIds.insert(m_SharedComponentIds.end(), sharedComponentIds.begin(), sharedComponentIds.end());
+    m_Mask.markSharedComponents(sharedComponentIds, {std::is_base_of_v<ManualSharedComponent, Types>...});
     return *this;
 }
 
 inline Archetype* ArchetypeBuilder::createArchetype() {
-    return _entityManager->createArchetype(std::move(_mask), std::move(_componentIds), std::move(_componentSizes), std::move(_componentAligns), std::move(_sharedComponentIds));
+    return m_EntityManager->createArchetype(std::move(m_Mask), std::move(m_ComponentIds), std::move(m_ComponentSizes), std::move(m_ComponentAligns), std::move(m_SharedComponentIds));
 }
 
 template <typename... Types>
 EntityFilterBuilder& EntityFilterBuilder::requireComponents() {
     static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<Component, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<Component, Types>>..., std::true_type>>);
-    std::vector<unsigned int> const& componentIds{_entityManager->componentId<Types>()...};
+    std::vector<unsigned int> const& componentIds{m_EntityManager->componentId<Types>()...};
     for (unsigned int const& cmptId : componentIds)
-        _entityFilter.requiredComponentMask.set(cmptId);
+        m_EntityFilter.requiredComponentMask.set(cmptId);
     return *this;
 }
 
 template <typename... Types>
 EntityFilterBuilder& EntityFilterBuilder::rejectComponents() {
     static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<Component, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<Component, Types>>..., std::true_type>>);
-    std::vector<unsigned int> const& componentIds{_entityManager->componentId<Types>()...};
+    std::vector<unsigned int> const& componentIds{m_EntityManager->componentId<Types>()...};
     for (unsigned int const& cmptId : componentIds)
-        _entityFilter.rejectedComponentMask.set(cmptId);
+        m_EntityFilter.rejectedComponentMask.set(cmptId);
     return *this;
 }
 
 template <typename... Types>
 EntityFilterBuilder& EntityFilterBuilder::requireSharedComponents() {
     static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<SharedComponent, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<SharedComponent, Types>>..., std::true_type>>);
-    std::vector<unsigned int> const& sharedComponentIds{_entityManager->sharedComponentId<Types>()...};
+    std::vector<unsigned int> const& sharedComponentIds{m_EntityManager->sharedComponentId<Types>()...};
     for (unsigned int const& sharedCmptId : sharedComponentIds)
-        _entityFilter.requiredSharedComponentMask.set(sharedCmptId);
+        m_EntityFilter.requiredSharedComponentMask.set(sharedCmptId);
     return *this;
 }
 
 template <typename... Types>
 EntityFilterBuilder& EntityFilterBuilder::rejectSharedComponents() {
     static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<SharedComponent, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<SharedComponent, Types>>..., std::true_type>>);
-    std::vector<unsigned int> const& sharedComponentIds{_entityManager->sharedComponentId<Types>()...};
+    std::vector<unsigned int> const& sharedComponentIds{m_EntityManager->sharedComponentId<Types>()...};
     for (unsigned int const& sharedCmptId : sharedComponentIds)
-        _entityFilter.rejectedSharedComponentMask.set(sharedCmptId);
+        m_EntityFilter.rejectedSharedComponentMask.set(sharedCmptId);
     return *this;
 }
 
 template <typename Type>
 EntityFilterBuilder& EntityFilterBuilder::requireSharedComponent(Type const& sharedComponent) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    unsigned int const sharedComponentId = _entityManager->sharedComponentId<Type>();
-    unsigned int const sharedComponentIndex = _entityManager->sharedComponentIndex(sharedComponent);
-    _entityFilter.requiredSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
+    unsigned int const sharedComponentId = m_EntityManager->sharedComponentId<Type>();
+    unsigned int const sharedComponentIndex = m_EntityManager->sharedComponentIndex(sharedComponent);
+    m_EntityFilter.requiredSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
 }
 
 template <typename Type>
 EntityFilterBuilder& EntityFilterBuilder::rejectSharedComponent(Type const& sharedComponent) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    unsigned int const sharedComponentId = _entityManager->sharedComponentId<Type>();
-    unsigned int const sharedComponentIndex = _entityManager->sharedComponentIndex(sharedComponent);
-    _entityFilter.rejectedSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
+    unsigned int const sharedComponentId = m_EntityManager->sharedComponentId<Type>();
+    unsigned int const sharedComponentIndex = m_EntityManager->sharedComponentIndex(sharedComponent);
+    m_EntityFilter.rejectedSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
 }
 
 inline EntityFilter EntityFilterBuilder::createEntityFilter() {
-    std::sort(_entityFilter.requiredSharedComponentIdAndIndices.begin(), _entityFilter.requiredSharedComponentIdAndIndices.end());
-    return std::move(_entityFilter);
+    std::sort(m_EntityFilter.requiredSharedComponentIdAndIndices.begin(), m_EntityFilter.requiredSharedComponentIdAndIndices.end());
+    return std::move(m_EntityFilter);
 }
 
 template <typename Type>
 void EntityCommandBuffer::addComponent(Entity const& entity, Type const& component) {
     static_assert(std::is_base_of_v<Component, Type>);
-    _procedures.emplace_back([this, entity, component]() {
-        _entityManager->addComponentImmediately(entity, component);
+    m_Procedures.emplace_back([this, entity, component]() {
+        m_EntityManager->addComponentImmediately(entity, component);
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::removeComponent(Entity const& entity) {
     static_assert(std::is_base_of_v<Component, Type>);
-    _procedures.emplace_back([this, entity]() {
-        _entityManager->removeComponentImmediately<Type>(entity);
+    m_Procedures.emplace_back([this, entity]() {
+        m_EntityManager->removeComponentImmediately<Type>(entity);
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::setComponent(Entity const& entity, Type const& component) {
     static_assert(std::is_base_of_v<Component, Type>);
-    _procedures.emplace_back([this, entity, component]() {
-        _entityManager->setComponentImmediately(entity, component);
+    m_Procedures.emplace_back([this, entity, component]() {
+        m_EntityManager->setComponentImmediately(entity, component);
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::addSharedComponent(Entity const& entity, Type const& sharedComponent) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    _procedures.emplace_back([this, entity, sharedComponent]() {
-        _entityManager->addSharedComponentImmediately(entity, sharedComponent);
+    m_Procedures.emplace_back([this, entity, sharedComponent]() {
+        m_EntityManager->addSharedComponentImmediately(entity, sharedComponent);
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::removeSharedComponent(Entity const& entity) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    _procedures.emplace_back([this, entity]() {
-        _entityManager->removeSharedComponentImmediately<Type>(entity);
+    m_Procedures.emplace_back([this, entity]() {
+        m_EntityManager->removeSharedComponentImmediately<Type>(entity);
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::setSharedComponent(Entity const& entity, Type const& sharedComponent) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    _procedures.emplace_back([this, entity, sharedComponent]() {
-        _entityManager->setSharedComponentImmediately(entity, sharedComponent);
+    m_Procedures.emplace_back([this, entity, sharedComponent]() {
+        m_EntityManager->setSharedComponentImmediately(entity, sharedComponent);
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::addSingletonComponent(Type const& singletonComponent) {
     static_assert(std::is_base_of_v<SingletonComponent, Type>);
-    _procedures.emplace_back([this, singletonComponent]() {
-        _entityManager->addSingletonComponentImmediately(singletonComponent);
+    m_Procedures.emplace_back([this, singletonComponent]() {
+        m_EntityManager->addSingletonComponentImmediately(singletonComponent);
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::removeSingletonComponent() {
     static_assert(std::is_base_of_v<SingletonComponent, Type>);
-    _procedures.emplace_back([this]() {
-        _entityManager->removeSingletonComponentImmediately<Type>();
+    m_Procedures.emplace_back([this]() {
+        m_EntityManager->removeSingletonComponentImmediately<Type>();
     });
 }
 
 template <typename Type>
 void EntityCommandBuffer::setSingletonComponent(Type const& singletonComponent) {
     static_assert(std::is_base_of_v<SingletonComponent, Type>);
-    _procedures.emplace_back([this, singletonComponent]() {
-        _entityManager->setSingletonComponentImmediately(singletonComponent);
+    m_Procedures.emplace_back([this, singletonComponent]() {
+        m_EntityManager->setSingletonComponentImmediately(singletonComponent);
     });
 }
 
 template <typename Type>
 void EntityManager::addComponent(Entity const& entity, Type const& component) {
     static_assert(std::is_base_of_v<Component, Type>);
-    _mainEntityCommandBuffer.addComponent(entity, component);
+    m_MainEntityCommandBuffer.addComponent(entity, component);
 }
 
 template <typename Type>
 void EntityManager::removeComponent(Entity const& entity) {
     static_assert(std::is_base_of_v<Component, Type>);
-    _mainEntityCommandBuffer.removeComponent<Type>(entity);
+    m_MainEntityCommandBuffer.removeComponent<Type>(entity);
 }
 
 template <typename Type>
 void EntityManager::setComponent(Entity const& entity, Type const& component) {
     static_assert(std::is_base_of_v<Component, Type>);
-    _mainEntityCommandBuffer.setComponent(entity, component);
+    m_MainEntityCommandBuffer.setComponent(entity, component);
 }
 
 template <typename Type>
 void EntityManager::addSharedComponent(Entity const& entity, Type const& sharedComponent) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    _mainEntityCommandBuffer.addSharedComponent(entity, sharedComponent);
+    m_MainEntityCommandBuffer.addSharedComponent(entity, sharedComponent);
 }
 
 template <typename Type>
 void EntityManager::removeSharedComponent(Entity const& entity) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    _mainEntityCommandBuffer.removeSharedComponent<Type>(entity);
+    m_MainEntityCommandBuffer.removeSharedComponent<Type>(entity);
 }
 
 template <typename Type>
 void EntityManager::setSharedComponent(Entity const& entity, Type const& sharedComponent) {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    _mainEntityCommandBuffer.setSharedComponent(entity, sharedComponent);
+    m_MainEntityCommandBuffer.setSharedComponent(entity, sharedComponent);
 }
 
 template <typename Type>
 void EntityManager::addSingletonComponent(Type const& singletonComponent) {
     static_assert(std::is_base_of_v<SingletonComponent, Type>);
-    _mainEntityCommandBuffer.addSingletonComponent(singletonComponent);
+    m_MainEntityCommandBuffer.addSingletonComponent(singletonComponent);
 }
 
 template <typename Type>
 void EntityManager::removeSingletonComponent() {
     static_assert(std::is_base_of_v<SingletonComponent, Type>);
-    _mainEntityCommandBuffer.removeSingletonComponent<Type>();
+    m_MainEntityCommandBuffer.removeSingletonComponent<Type>();
 }
 
 template <typename Type>
 void EntityManager::setSingletonComponent(Type const& singletonComponent) {
     static_assert(std::is_base_of_v<SingletonComponent, Type>);
-    _mainEntityCommandBuffer.setSingletonComponent(singletonComponent);
+    m_MainEntityCommandBuffer.setSingletonComponent(singletonComponent);
 }
 
 template <typename Type>
@@ -469,20 +469,20 @@ unsigned int EntityManager::singletonComponentId() {
 template <typename Type>
 Type const* EntityManager::sharedComponent(unsigned int const& sharedComponentIndex) const {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
-    return _sharedComponentStore.object<Type>(sharedComponentIndex);
+    return m_SharedComponentStore.object<Type>(sharedComponentIndex);
 }
 
 template <typename Type>
 unsigned int EntityManager::sharedComponentIndex(Type const& sharedComponent) const {
     static_assert(std::is_base_of_v<SharedComponent, Type>);
     unsigned int const sharedComponentId = registerSharedComponent<Type>();
-    return _sharedComponentStore.objectIndex(sharedComponentId, sharedComponent);
+    return m_SharedComponentStore.objectIndex(sharedComponentId, sharedComponent);
 }
 
 template <typename Type>
 Type* EntityManager::singletonComponent(unsigned int const& singletonComponentId) const {
     static_assert(std::is_base_of_v<SingletonComponent, Type>);
-    return _singletonComponentStore.object<Type>(singletonComponentId);
+    return m_SingletonComponentStore.object<Type>(singletonComponentId);
 }
 
 template <typename Type>
@@ -502,15 +502,15 @@ unsigned int EntityManager::registerSingletonComponent() {
 
 template <typename Type>
 void EntityManager::addComponentImmediately(Entity const& entity, Type const& component) {
-    Archetype::EntityLocation const srcLocation = _entityLocations[entity.id];
-    Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
+    Archetype::EntityLocation const srcLocation = m_EntityLocations[entity.id];
+    Archetype* const srcArchetype = m_Archetypes[srcLocation.archetypeId].get();
     unsigned int const componentId = registerComponent<Type>();
     ArchetypeMask mask = srcArchetype->mask();
     mask.markComponent(componentId, std::is_base_of_v<ManualComponent, Type>);
 
     Archetype* dstArchetype;
-    if (_archetypeMap.contains(mask))
-        dstArchetype = _archetypeMap[mask];
+    if (m_ArchetypeMap.contains(mask))
+        dstArchetype = m_ArchetypeMap[mask];
     else {
         std::vector<unsigned int> componentIds = srcArchetype->componentIds();
         std::vector<std::size_t> componentSizes = srcArchetype->componentSizes();
@@ -525,15 +525,15 @@ void EntityManager::addComponentImmediately(Entity const& entity, Type const& co
     Entity srcSwappedEntity;
     Archetype::EntityLocation dstLocation;
     dstArchetype->moveEntityAddingComponent(srcLocation, srcArchetype, componentId, static_cast<void const*>(&component), dstLocation, srcSwappedEntity);
-    _entityLocations[entity.id] = dstLocation;
+    m_EntityLocations[entity.id] = dstLocation;
     if (srcSwappedEntity.valid())
-        _entityLocations[srcSwappedEntity.id] = srcLocation;
+        m_EntityLocations[srcSwappedEntity.id] = srcLocation;
 }
 
 template <typename Type>
 void EntityManager::removeComponentImmediately(Entity const& entity) {
-    Archetype::EntityLocation const srcLocation = _entityLocations[entity.id];
-    Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
+    Archetype::EntityLocation const srcLocation = m_EntityLocations[entity.id];
+    Archetype* const srcArchetype = m_Archetypes[srcLocation.archetypeId].get();
     // If the archetype is single and manual, it should be destroyed;
     if (srcArchetype->single() && srcArchetype->fullyManual()) {
         destroyEntityWithoutCheck(entity, srcArchetype, srcLocation);
@@ -544,23 +544,23 @@ void EntityManager::removeComponentImmediately(Entity const& entity) {
 
 template <typename Type>
 void EntityManager::setComponentImmediately(Entity const& entity, Type const& component) {
-    Archetype::EntityLocation const location = _entityLocations[entity.id];
-    Archetype* const archetype = _archetypes[location.archetypeId].get();
-    unsigned int const componentId = _componentIdMap.at(typeid(Type));
+    Archetype::EntityLocation const location = m_EntityLocations[entity.id];
+    Archetype* const archetype = m_Archetypes[location.archetypeId].get();
+    unsigned int const componentId = m_ComponentIdMap.at(typeid(Type));
     archetype->setComponent(location, componentId, static_cast<void const*>(&component));
 }
 
 template <typename Type>
 void EntityManager::addSharedComponentImmediately(Entity const& entity, Type const& sharedComponent) {
-    Archetype::EntityLocation const srcLocation = _entityLocations[entity.id];
-    Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
+    Archetype::EntityLocation const srcLocation = m_EntityLocations[entity.id];
+    Archetype* const srcArchetype = m_Archetypes[srcLocation.archetypeId].get();
     unsigned int const sharedComponentId = registerSharedComponent<Type>();
     ArchetypeMask mask = srcArchetype->mask();
     mask.markSharedComponent(sharedComponentId, std::is_base_of_v<ManualSharedComponent, Type>);
 
     Archetype* dstArchetype;
-    if (_archetypeMap.contains(mask))
-        dstArchetype = _archetypeMap[mask];
+    if (m_ArchetypeMap.contains(mask))
+        dstArchetype = m_ArchetypeMap[mask];
     else {
         std::vector<unsigned int> componentIds = srcArchetype->componentIds();
         std::vector<std::size_t> componentSizes = srcArchetype->componentSizes();
@@ -570,20 +570,20 @@ void EntityManager::addSharedComponentImmediately(Entity const& entity, Type con
         dstArchetype = createArchetype(std::move(mask), std::move(componentIds), std::move(componentSizes), std::move(componentAligns), std::move(sharedComponentIds));
     }
 
-    unsigned int sharedComponentIndex = _sharedComponentStore.push(sharedComponentId, sharedComponent);
+    unsigned int sharedComponentIndex = m_SharedComponentStore.push(sharedComponentId, sharedComponent);
 
     Entity srcSwappedEntity;
     Archetype::EntityLocation dstLocation;
     dstArchetype->moveEntityAddingSharedComponent(srcLocation, srcArchetype, sharedComponentId, sharedComponentIndex, dstLocation, srcSwappedEntity);
-    _entityLocations[entity.id] = dstLocation;
+    m_EntityLocations[entity.id] = dstLocation;
     if (srcSwappedEntity.valid())
-        _entityLocations[srcSwappedEntity.id] = srcLocation;
+        m_EntityLocations[srcSwappedEntity.id] = srcLocation;
 }
 
 template <typename Type>
 void EntityManager::removeSharedComponentImmediately(Entity const& entity) {
-    Archetype::EntityLocation const srcLocation = _entityLocations[entity.id];
-    Archetype* const srcArchetype = _archetypes[srcLocation.archetypeId].get();
+    Archetype::EntityLocation const srcLocation = m_EntityLocations[entity.id];
+    Archetype* const srcArchetype = m_Archetypes[srcLocation.archetypeId].get();
     // If the archetype is single and manual, it should be destroyed;
     if (srcArchetype->single() && srcArchetype->fullyManual()) {
         destroyEntityWithoutCheck(entity, srcArchetype, srcLocation);
@@ -594,36 +594,36 @@ void EntityManager::removeSharedComponentImmediately(Entity const& entity) {
 
 template <typename Type>
 void EntityManager::setSharedComponentImmediately(Entity const& entity, Type const& sharedComponent) {
-    Archetype::EntityLocation const location = _entityLocations[entity.id];
-    Archetype* const archetype = _archetypes[location.archetypeId].get();
+    Archetype::EntityLocation const location = m_EntityLocations[entity.id];
+    Archetype* const archetype = m_Archetypes[location.archetypeId].get();
     unsigned int const sharedComponentId = registerSharedComponent<Type>();
 
-    unsigned int sharedComponentIndex = _sharedComponentStore.push(sharedComponentId, sharedComponent);
+    unsigned int sharedComponentIndex = m_SharedComponentStore.push(sharedComponentId, sharedComponent);
 
     unsigned int originalSharedComponentIndex;
     Archetype::EntityLocation dstLocation;
     Entity swappedEntity;
     archetype->setSharedComponent(location, sharedComponentId, sharedComponentIndex, originalSharedComponentIndex, dstLocation, swappedEntity);
-    _entityLocations[entity.id] = dstLocation;
+    m_EntityLocations[entity.id] = dstLocation;
     if (swappedEntity.valid())
-        _entityLocations[swappedEntity.id] = location;
+        m_EntityLocations[swappedEntity.id] = location;
 
-    _sharedComponentStore.pop(sharedComponentId, originalSharedComponentIndex);
+    m_SharedComponentStore.pop(sharedComponentId, originalSharedComponentIndex);
 }
 
 template <typename Type>
 void EntityManager::addSingletonComponentImmediately(Type const& singletonComponent) {
-    _singletonComponentStore.push(registerSingletonComponent<Type>(), singletonComponent);
+    m_SingletonComponentStore.push(registerSingletonComponent<Type>(), singletonComponent);
 }
 
 template <typename Type>
 void EntityManager::removeSingletonComponentImmediately() {
-    _singletonComponentStore.pop(registerSingletonComponent<Type>());
+    m_SingletonComponentStore.pop(registerSingletonComponent<Type>());
 }
 
 template <typename Type>
 void EntityManager::setSingletonComponentImmediately(Type const& singletonComponent) {
-    *_singletonComponentStore.object(registerSingletonComponent<Type>()) = singletonComponent;
+    *m_SingletonComponentStore.object(registerSingletonComponent<Type>()) = singletonComponent;
 }
 
 }  // namespace MelonCore

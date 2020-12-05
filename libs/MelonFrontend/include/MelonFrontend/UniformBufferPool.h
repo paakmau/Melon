@@ -13,7 +13,7 @@ namespace MelonFrontend {
 
 class FixedSizeBufferPool {
   public:
-    static constexpr unsigned int kPoolSize = 2048U;
+    static constexpr unsigned int k_PoolSize = 2048U;
 
     void initialize(VkDevice device, VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage);
     // FixedSizeBufferPool can't terminate util all buffers are recycled
@@ -22,19 +22,19 @@ class FixedSizeBufferPool {
     Buffer request();
     void recycle(Buffer const& buffer);
 
-    VkDevice const& device() const { return _device; }
-    VkDeviceSize const& size() const { return _size; }
+    VkDevice const& device() const { return m_Device; }
+    VkDeviceSize const& size() const { return m_Size; }
 
   private:
-    VkDevice _device;
-    VmaAllocator _allocator;
-    VkDeviceSize _size;
-    VkBufferUsageFlags _bufferUsage;
-    VmaMemoryUsage _memoryUsage;
+    VkDevice m_Device;
+    VmaAllocator m_Allocator;
+    VkDeviceSize m_Size;
+    VkBufferUsageFlags m_BufferUsage;
+    VmaMemoryUsage m_MemoryUsage;
 
-    std::array<Buffer, kPoolSize> _pool;
-    // std::vector<Buffer> _extendedPool;
-    unsigned int _poolCount = kPoolSize;
+    std::array<Buffer, k_PoolSize> m_Pool;
+    // std::vector<Buffer> m_ExtendedPool;
+    unsigned int m_PoolCount = k_PoolSize;
 };
 
 class UniformBufferPool {
@@ -49,13 +49,13 @@ class UniformBufferPool {
     void recycle(UniformBuffer memory);
 
   private:
-    VkDevice _device;
-    VmaAllocator _allocator;
-    std::vector<FixedSizeBufferPool> _stagingBufferPools;
-    std::vector<FixedSizeBufferPool> _bufferPools;
-    std::unordered_map<VkDeviceSize, unsigned int> _sizeIndexMap;
-    VkDescriptorSetLayout _layout;
-    VkDescriptorPool _descriptorPool;
+    VkDevice m_Device;
+    VmaAllocator m_Allocator;
+    std::vector<FixedSizeBufferPool> m_StagingBufferPools;
+    std::vector<FixedSizeBufferPool> m_BufferPools;
+    std::unordered_map<VkDeviceSize, unsigned int> m_SizeIndexMap;
+    VkDescriptorSetLayout m_Layout;
+    VkDescriptorPool m_DescriptorPool;
 };
 
 }  // namespace MelonFrontend

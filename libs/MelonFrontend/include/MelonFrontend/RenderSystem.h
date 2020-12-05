@@ -21,20 +21,20 @@ class RenderSystem : public MelonCore::SystemBase {
     virtual void onExit() final;
 
   private:
-    MelonCore::EntityFilter _createdRenderMeshEntityFilter;
-    MelonCore::EntityFilter _renderMeshEntityFilter;
-    MelonCore::EntityFilter _destroyedRenderMeshEntityFilter;
-    unsigned int _translationComponentId;
-    unsigned int _rotationComponentId;
-    unsigned int _scaleComponentId;
-    unsigned int _renderMeshComponentId;
-    unsigned int _manualRenderMeshComponentId;
+    MelonCore::EntityFilter m_CreatedRenderMeshEntityFilter;
+    MelonCore::EntityFilter m_RenderMeshEntityFilter;
+    MelonCore::EntityFilter m_DestroyedRenderMeshEntityFilter;
+    unsigned int m_TranslationComponentId;
+    unsigned int m_RotationComponentId;
+    unsigned int m_ScaleComponentId;
+    unsigned int m_RenderMeshComponentId;
+    unsigned int m_ManualRenderMeshComponentId;
 
-    unsigned int _currentWidth;
-    unsigned int _currentHeight;
+    unsigned int m_CurrentWidth;
+    unsigned int m_CurrentHeight;
 
-    std::unordered_map<unsigned int, unsigned int> _renderMeshReferenceCountMap;
-    std::unordered_map<unsigned int, MeshBuffer> _meshBufferMap;
+    std::unordered_map<unsigned int, unsigned int> m_RenderMeshReferenceCountMap;
+    std::unordered_map<unsigned int, MeshBuffer> m_MeshBufferMap;
 };
 
 }  // namespace MelonFrontend

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-static constexpr TBuiltInResource kDefaultResources{
+static constexpr TBuiltInResource k_DefaultResources{
     .maxLights = 32,
     .maxClipPlanes = 6,
     .maxTextureUnits = 32,
@@ -144,7 +144,7 @@ inline bool glslToSpirv(VkShaderStageFlagBits stageFlag, char const* shaderCode,
     shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_1);
     shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_3);
 
-    if (!shader.parse(&kDefaultResources, 100, false, messages)) {
+    if (!shader.parse(&k_DefaultResources, 100, false, messages)) {
         puts(shader.getInfoLog());
         puts(shader.getInfoDebugLog());
         return false;  // Something didn't work

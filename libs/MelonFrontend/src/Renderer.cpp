@@ -13,123 +13,123 @@
 namespace MelonFrontend {
 
 void Renderer::initialize(Window* window) {
-    _window = window;
+    m_Window = window;
 
     volkInitialize();
-    createInstance(window->requiredVulkanInstanceExtensions(), _vulkanInstance);
-    volkLoadInstance(_vulkanInstance);
-    glfwCreateWindowSurface(_vulkanInstance, window->window(), nullptr, &_surface);
-    selectPhysicalDevice(_vulkanInstance, _surface, _physicalDevice, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, _physicalDeviceFeatures);
-    createLogicalDevice(_physicalDevice, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, _physicalDeviceFeatures, _device, _graphicsQueue, _presentQueue);
+    createInstance(window->requiredVulkanInstanceExtensions(), m_VulkanInstance);
+    volkLoadInstance(m_VulkanInstance);
+    glfwCreateWindowSurface(m_VulkanInstance, window->window(), nullptr, &m_Surface);
+    selectPhysicalDevice(m_VulkanInstance, m_Surface, m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PhysicalDeviceFeatures);
+    createLogicalDevice(m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PhysicalDeviceFeatures, m_Device, m_GraphicsQueue, m_PresentQueue);
 
-    _swapChain.initialize(window->extent(), _surface, _physicalDevice, _device, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, _presentQueue);
+    m_SwapChain.initialize(window->extent(), m_Surface, m_PhysicalDevice, m_Device, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PresentQueue);
 
-    createCommandPool(_device, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, _graphicsQueueFamilyIndex, _commandPool);
-    for (unsigned int i = 0; i < kMaxTaskCount; i++)
-        createCommandPool(_device, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, _graphicsQueueFamilyIndex, _commandPools[i]);
-    createRenderPass(_device, _swapChain.imageFormat(), _renderPassClear);
-    _framebuffers.resize(_swapChain.imageCount());
-    for (unsigned int i = 0; i < _framebuffers.size(); i++)
-        createFramebuffer(_device, _swapChain.imageViews()[i], _renderPassClear, _swapChain.imageExtent(), _framebuffers[i]);
-    createSemaphores(_device, kMaxInFlightFrameCount, _imageAvailableSemaphores);
-    createSemaphores(_device, kMaxInFlightFrameCount, _renderFinishedSemaphores);
-    createFences(_device, VK_FENCE_CREATE_SIGNALED_BIT, kMaxInFlightFrameCount, _inFlightFences);
+    createCommandPool(m_Device, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, m_GraphicsQueueFamilyIndex, m_CommandPool);
+    for (unsigned int i = 0; i < k_MaxTaskCount; i++)
+        createCommandPool(m_Device, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, m_GraphicsQueueFamilyIndex, m_CommandPools[i]);
+    createRenderPass(m_Device, m_SwapChain.imageFormat(), m_RenderPassClear);
+    m_Framebuffers.resize(m_SwapChain.imageCount());
+    for (unsigned int i = 0; i < m_Framebuffers.size(); i++)
+        createFramebuffer(m_Device, m_SwapChain.imageViews()[i], m_RenderPassClear, m_SwapChain.imageExtent(), m_Framebuffers[i]);
+    createSemaphores(m_Device, k_MaxInFlightFrameCount, m_ImageAvailableSemaphores);
+    createSemaphores(m_Device, k_MaxInFlightFrameCount, m_RenderFinishedSemaphores);
+    createFences(m_Device, VK_FENCE_CREATE_SIGNALED_BIT, k_MaxInFlightFrameCount, m_InFlightFences);
 
-    createDescriptorSetLayout<1>(_device, {1}, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {VK_SHADER_STAGE_VERTEX_BIT}, _cameraDescriptorSetLayout);
-    createDescriptorSetLayout<1>(_device, {1}, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {VK_SHADER_STAGE_VERTEX_BIT}, _entityDescriptorSetLayout);
-    _subrenderer = std::make_unique<Subrenderer>();
-    _subrenderer->initialize(_device, _swapChain.imageExtent(), _cameraDescriptorSetLayout, _entityDescriptorSetLayout, _renderPassClear, _swapChain.imageCount());
+    createDescriptorSetLayout<1>(m_Device, {1}, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {VK_SHADER_STAGE_VERTEX_BIT}, m_CameraDescriptorSetLayout);
+    createDescriptorSetLayout<1>(m_Device, {1}, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {VK_SHADER_STAGE_VERTEX_BIT}, m_EntityDescriptorSetLayout);
+    m_Subrenderer = std::make_unique<Subrenderer>();
+    m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
 
-    createAllocator(_vulkanInstance, _physicalDevice, _device, _allocator);
-    createDescriptorPool<1>(_device, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {kMaxUniformDescriptorCount}, {kMaxUniformDescriptorCount}, _uniformDescriptorPool);
-    _uniformMemoryPool.initialize(_device, _allocator, _cameraDescriptorSetLayout, _uniformDescriptorPool);
-    _uniformMemoryPool.registerUniformObjectSize(sizeof(CameraUniformObject));
-    _uniformMemoryPool.registerUniformObjectSize(sizeof(EntityUniformObject));
+    createAllocator(m_VulkanInstance, m_PhysicalDevice, m_Device, m_Allocator);
+    createDescriptorPool<1>(m_Device, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {k_MaxUniformDescriptorCount}, {k_MaxUniformDescriptorCount}, m_UniformDescriptorPool);
+    m_UniformMemoryPool.initialize(m_Device, m_Allocator, m_CameraDescriptorSetLayout, m_UniformDescriptorPool);
+    m_UniformMemoryPool.registerUniformObjectSize(sizeof(CameraUniformObject));
+    m_UniformMemoryPool.registerUniformObjectSize(sizeof(EntityUniformObject));
 
-    for (unsigned int i = 0; i < _cameraUniformMemories.size(); i++)
-        _cameraUniformMemories[i] = _uniformMemoryPool.request(sizeof(CameraUniformObject));
+    for (unsigned int i = 0; i < m_CameraUniformMemories.size(); i++)
+        m_CameraUniformMemories[i] = m_UniformMemoryPool.request(sizeof(CameraUniformObject));
 }
 
 void Renderer::terminate() {
-    vkDeviceWaitIdle(_device);
+    vkDeviceWaitIdle(m_Device);
 
-    for (std::vector<MeshBuffer> destoryingMeshBuffers : _destroyingMeshBufferArrays) {
+    for (std::vector<MeshBuffer> destoryingMeshBuffers : m_DestroyingMeshBufferArrays) {
         for (MeshBuffer const& meshBuffer : destoryingMeshBuffers) {
-            vmaDestroyBuffer(_allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
-            vmaDestroyBuffer(_allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
+            vmaDestroyBuffer(m_Allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
+            vmaDestroyBuffer(m_Allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
         }
         destoryingMeshBuffers.clear();
     }
 
     // Recycle the buffers
-    for (std::vector<RenderBatch> const& renderBatches : _renderBatchArrays)
+    for (std::vector<RenderBatch> const& renderBatches : m_RenderBatchArrays)
         for (RenderBatch const& renderBatch : renderBatches)
             for (UniformBuffer const& buffer : renderBatch.entityUniformMemories)
-                _uniformMemoryPool.recycle(buffer);
-    _uniformMemoryPool.terminate();
-    vkDestroyDescriptorPool(_device, _uniformDescriptorPool, nullptr);
-    vmaDestroyAllocator(_allocator);
+                m_UniformMemoryPool.recycle(buffer);
+    m_UniformMemoryPool.terminate();
+    vkDestroyDescriptorPool(m_Device, m_UniformDescriptorPool, nullptr);
+    vmaDestroyAllocator(m_Allocator);
 
-    _subrenderer->terminate();
-    vkDestroyDescriptorSetLayout(_device, _entityDescriptorSetLayout, nullptr);
-    vkDestroyDescriptorSetLayout(_device, _cameraDescriptorSetLayout, nullptr);
+    m_Subrenderer->terminate();
+    vkDestroyDescriptorSetLayout(m_Device, m_EntityDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(m_Device, m_CameraDescriptorSetLayout, nullptr);
 
-    for (unsigned int i = 0; i < kMaxInFlightFrameCount; i++) {
-        vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
-        vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
-        vkDestroyFence(_device, _inFlightFences[i], nullptr);
+    for (unsigned int i = 0; i < k_MaxInFlightFrameCount; i++) {
+        vkDestroySemaphore(m_Device, m_ImageAvailableSemaphores[i], nullptr);
+        vkDestroySemaphore(m_Device, m_RenderFinishedSemaphores[i], nullptr);
+        vkDestroyFence(m_Device, m_InFlightFences[i], nullptr);
     }
 
-    for (VkFramebuffer framebuffer : _framebuffers)
-        vkDestroyFramebuffer(_device, framebuffer, nullptr);
-    vkDestroyRenderPass(_device, _renderPassClear, nullptr);
-    for (unsigned int i = 0; i < kMaxTaskCount; i++)
-        vkDestroyCommandPool(_device, _commandPools[i], nullptr);
-    vkDestroyCommandPool(_device, _commandPool, nullptr);
+    for (VkFramebuffer framebuffer : m_Framebuffers)
+        vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+    vkDestroyRenderPass(m_Device, m_RenderPassClear, nullptr);
+    for (unsigned int i = 0; i < k_MaxTaskCount; i++)
+        vkDestroyCommandPool(m_Device, m_CommandPools[i], nullptr);
+    vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
-    _swapChain.terminate();
+    m_SwapChain.terminate();
 
-    vkDestroyDevice(_device, nullptr);
-    vkDestroySurfaceKHR(_vulkanInstance, _surface, nullptr);
-    vkDestroyInstance(_vulkanInstance, nullptr);
+    vkDestroyDevice(m_Device, nullptr);
+    vkDestroySurfaceKHR(m_VulkanInstance, m_Surface, nullptr);
+    vkDestroyInstance(m_VulkanInstance, nullptr);
 }
 
 void Renderer::beginFrame() {
-    vkWaitForFences(_device, 1, &_inFlightFences[_currentFrame], VK_TRUE, std::numeric_limits<uint32_t>::max());
+    vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, std::numeric_limits<uint32_t>::max());
 
-    vkFreeCommandBuffers(_device, _commandPool, 1, &_commandBuffers[_currentFrame]);
-    for (SecondaryCommandBuffer const& secondaryCommandBuffer : _secondaryCommandBufferArrays[_currentFrame])
-        vkFreeCommandBuffers(_device, secondaryCommandBuffer.pool, 1, &secondaryCommandBuffer.buffer);
-    _secondaryCommandBufferArrays[_currentFrame].clear();
+    vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &m_CommandBuffers[m_CurrentFrame]);
+    for (SecondaryCommandBuffer const& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
+        vkFreeCommandBuffers(m_Device, secondaryCommandBuffer.pool, 1, &secondaryCommandBuffer.buffer);
+    m_SecondaryCommandBufferArrays[m_CurrentFrame].clear();
 
-    for (MeshBuffer const& meshBuffer : _destroyingMeshBufferArrays[_currentFrame]) {
-        vmaDestroyBuffer(_allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
-        vmaDestroyBuffer(_allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
+    for (MeshBuffer const& meshBuffer : m_DestroyingMeshBufferArrays[m_CurrentFrame]) {
+        vmaDestroyBuffer(m_Allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
+        vmaDestroyBuffer(m_Allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
     }
-    _destroyingMeshBufferArrays[_currentFrame].clear();
+    m_DestroyingMeshBufferArrays[m_CurrentFrame].clear();
 
-    allocateCommandBuffer(_device, _commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1, _commandBuffers[_currentFrame]);
+    allocateCommandBuffer(m_Device, m_CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1, m_CommandBuffers[m_CurrentFrame]);
 
     VkCommandBufferBeginInfo beginInfo{.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
-    vkBeginCommandBuffer(_commandBuffers[_currentFrame], &beginInfo);
+    vkBeginCommandBuffer(m_CommandBuffers[m_CurrentFrame], &beginInfo);
 }
 
 MeshBuffer Renderer::createMeshBuffer(std::vector<Vertex> vertices, std::vector<uint16_t> indices) {
     // TODO: Use VMA_MEMORY_USAGE_GPU_ONLY instead
     VkDeviceSize bufferSize = vertices.size() * sizeof(Vertex);
     Buffer vertexBuffer;
-    createBuffer(_allocator, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, vertexBuffer.buffer, vertexBuffer.allocation);
+    createBuffer(m_Allocator, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, vertexBuffer.buffer, vertexBuffer.allocation);
     void* mappedData;
-    vmaMapMemory(_allocator, vertexBuffer.allocation, &mappedData);
+    vmaMapMemory(m_Allocator, vertexBuffer.allocation, &mappedData);
     memcpy(mappedData, vertices.data(), bufferSize);
-    vmaUnmapMemory(_allocator, vertexBuffer.allocation);
+    vmaUnmapMemory(m_Allocator, vertexBuffer.allocation);
 
     bufferSize = indices.size() * sizeof(uint16_t);
     Buffer indexBuffer;
-    createBuffer(_allocator, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, indexBuffer.buffer, indexBuffer.allocation);
-    vmaMapMemory(_allocator, indexBuffer.allocation, &mappedData);
+    createBuffer(m_Allocator, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, indexBuffer.buffer, indexBuffer.allocation);
+    vmaMapMemory(m_Allocator, indexBuffer.allocation, &mappedData);
     memcpy(mappedData, indices.data(), bufferSize);
-    vmaUnmapMemory(_allocator, indexBuffer.allocation);
+    vmaUnmapMemory(m_Allocator, indexBuffer.allocation);
 
     return MeshBuffer{
         .vertexBuffer = vertexBuffer,
@@ -139,57 +139,57 @@ MeshBuffer Renderer::createMeshBuffer(std::vector<Vertex> vertices, std::vector<
 }
 
 void Renderer::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
-    _destroyingMeshBufferArrays[_currentFrame].emplace_back(meshBuffer);
+    m_DestroyingMeshBufferArrays[m_CurrentFrame].emplace_back(meshBuffer);
 }
 
 void Renderer::beginBatches() {
-    for (RenderBatch const& renderBatch : _renderBatchArrays[_currentFrame])
+    for (RenderBatch const& renderBatch : m_RenderBatchArrays[m_CurrentFrame])
         for (UniformBuffer const& buffer : renderBatch.entityUniformMemories)
-            _uniformMemoryPool.recycle(buffer);
-    _renderBatchArrays[_currentFrame].clear();
+            m_UniformMemoryPool.recycle(buffer);
+    m_RenderBatchArrays[m_CurrentFrame].clear();
 }
 
 void Renderer::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer) {
     std::vector<UniformBuffer> memories;
     for (glm::mat4 const& model : models) {
-        UniformBuffer const& buffer = memories.emplace_back(_uniformMemoryPool.request(sizeof(EntityUniformObject)));
+        UniformBuffer const& buffer = memories.emplace_back(m_UniformMemoryPool.request(sizeof(EntityUniformObject)));
         EntityUniformObject uniformObject{model};
         recordCommandBufferCopyUniformObject(&uniformObject, buffer, sizeof(EntityUniformObject));
     }
-    _renderBatchArrays[_currentFrame].emplace_back(RenderBatch{std::move(memories), meshBuffer});
+    m_RenderBatchArrays[m_CurrentFrame].emplace_back(RenderBatch{std::move(memories), meshBuffer});
 }
 
 void Renderer::endBatches() {}
 
 void Renderer::renderFrame(/* TODO: Implement Camera */ glm::mat4 const& vp) {
-    bool result = _swapChain.acquireNextImageContext(_imageAvailableSemaphores[_currentFrame], _currentImageIndex);
+    bool result = m_SwapChain.acquireNextImageContext(m_ImageAvailableSemaphores[m_CurrentFrame], m_CurrentImageIndex);
     if (!result) {
         recreateSwapChain();
         return;
     }
 
     CameraUniformObject uniformObject{vp};
-    recordCommandBufferCopyUniformObject(&uniformObject, _cameraUniformMemories[_currentFrame], sizeof(CameraUniformObject));
+    recordCommandBufferCopyUniformObject(&uniformObject, m_CameraUniformMemories[m_CurrentFrame], sizeof(CameraUniformObject));
 
-    recordCommandBufferDraw(_renderBatchArrays[_currentFrame], _cameraUniformMemories[_currentFrame]);
+    recordCommandBufferDraw(m_RenderBatchArrays[m_CurrentFrame], m_CameraUniformMemories[m_CurrentFrame]);
 
-    vkEndCommandBuffer(_commandBuffers[_currentFrame]);
+    vkEndCommandBuffer(m_CommandBuffers[m_CurrentFrame]);
 
     // Submit current command buffer
-    vkResetFences(_device, 1, &_inFlightFences[_currentFrame]);
+    vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     VkSubmitInfo submitInfo{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
         .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &_imageAvailableSemaphores[_currentFrame],
+        .pWaitSemaphores = &m_ImageAvailableSemaphores[m_CurrentFrame],
         .pWaitDstStageMask = waitStages,
         .commandBufferCount = 1,
-        .pCommandBuffers = &_commandBuffers[_currentFrame],
+        .pCommandBuffers = &m_CommandBuffers[m_CurrentFrame],
         .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &_renderFinishedSemaphores[_currentFrame]};
-    vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]);
+        .pSignalSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrame]};
+    vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
-    result = _swapChain.presentImage(_currentImageIndex, _renderFinishedSemaphores[_currentFrame]);
+    result = m_SwapChain.presentImage(m_CurrentImageIndex, m_RenderFinishedSemaphores[m_CurrentFrame]);
     if (!result) {
         recreateSwapChain();
         return;
@@ -197,42 +197,42 @@ void Renderer::renderFrame(/* TODO: Implement Camera */ glm::mat4 const& vp) {
 }
 
 void Renderer::endFrame() {
-    _currentFrame = (_currentFrame + 1) % kMaxInFlightFrameCount;
+    m_CurrentFrame = (m_CurrentFrame + 1) % k_MaxInFlightFrameCount;
 }
 
 void Renderer::recreateSwapChain() {
-    _window->waitForResized();
-    vkDeviceWaitIdle(_device);
-    _subrenderer->terminate();
-    for (VkFramebuffer framebuffer : _framebuffers)
-        vkDestroyFramebuffer(_device, framebuffer, nullptr);
-    vkDestroyRenderPass(_device, _renderPassClear, nullptr);
-    _swapChain.recreateSwapchain(_window->extent());
-    createRenderPass(_device, _swapChain.imageFormat(), _renderPassClear);
-    _framebuffers.resize(_swapChain.imageCount());
-    for (unsigned int i = 0; i < _framebuffers.size(); i++)
-        createFramebuffer(_device, _swapChain.imageViews()[i], _renderPassClear, _swapChain.imageExtent(), _framebuffers[i]);
-    _subrenderer->initialize(_device, _swapChain.imageExtent(), _cameraDescriptorSetLayout, _entityDescriptorSetLayout, _renderPassClear, _swapChain.imageCount());
+    m_Window->waitForResized();
+    vkDeviceWaitIdle(m_Device);
+    m_Subrenderer->terminate();
+    for (VkFramebuffer framebuffer : m_Framebuffers)
+        vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+    vkDestroyRenderPass(m_Device, m_RenderPassClear, nullptr);
+    m_SwapChain.recreateSwapchain(m_Window->extent());
+    createRenderPass(m_Device, m_SwapChain.imageFormat(), m_RenderPassClear);
+    m_Framebuffers.resize(m_SwapChain.imageCount());
+    for (unsigned int i = 0; i < m_Framebuffers.size(); i++)
+        createFramebuffer(m_Device, m_SwapChain.imageViews()[i], m_RenderPassClear, m_SwapChain.imageExtent(), m_Framebuffers[i]);
+    m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
 }
 
 void Renderer::recordCommandBufferCopyUniformObject(void const* data, UniformBuffer buffer, VkDeviceSize size) {
-    copyBuffer(_allocator, _commandBuffers[_currentFrame], buffer.stagingBuffer.buffer, buffer.stagingBuffer.allocation, data, size, buffer.buffer.buffer);
+    copyBuffer(m_Allocator, m_CommandBuffers[m_CurrentFrame], buffer.stagingBuffer.buffer, buffer.stagingBuffer.allocation, data, size, buffer.buffer.buffer);
 }
 
 void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer) {
-    uint32_t taskCount = std::min(kMaxTaskCount, static_cast<unsigned int>(renderBatches.size()));
-    _secondaryCommandBufferArrays[_currentFrame].resize(taskCount);
+    uint32_t taskCount = std::min(k_MaxTaskCount, static_cast<unsigned int>(renderBatches.size()));
+    m_SecondaryCommandBufferArrays[m_CurrentFrame].resize(taskCount);
     unsigned int batchCountPerTask = taskCount == 0 ? 0 : (renderBatches.size() / taskCount + ((renderBatches.size() % taskCount == 0) ? 0 : 1));
 
     std::vector<std::shared_ptr<MelonTask::TaskHandle>> subrendererHandles(taskCount);
     for (uint32_t i = 0; i < taskCount; i++) {
-        VkDevice device = _device;
-        VkFramebuffer framebuffer = _framebuffers[_currentImageIndex];
-        VkRenderPass renderPass = _renderPassClear;
-        SecondaryCommandBuffer* secondaryCommandBuffer = &_secondaryCommandBufferArrays[_currentFrame][i];
-        secondaryCommandBuffer->pool = _commandPools[i];
-        Subrenderer* subrenderer = _subrenderer.get();
-        unsigned int swapChainImageIndex = _currentImageIndex;
+        VkDevice device = m_Device;
+        VkFramebuffer framebuffer = m_Framebuffers[m_CurrentImageIndex];
+        VkRenderPass renderPass = m_RenderPassClear;
+        SecondaryCommandBuffer* secondaryCommandBuffer = &m_SecondaryCommandBufferArrays[m_CurrentFrame][i];
+        secondaryCommandBuffer->pool = m_CommandPools[i];
+        Subrenderer* subrenderer = m_Subrenderer.get();
+        unsigned int swapChainImageIndex = m_CurrentImageIndex;
         subrendererHandles[i] = MelonTask::TaskManager::instance()->schedule(
             [device, framebuffer, renderPass, secondaryCommandBuffer, subrenderer, swapChainImageIndex, i, &cameraUniformBuffer, &renderBatches, batchCountPerTask]() {
                 allocateCommandBuffer(device, secondaryCommandBuffer->pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1, secondaryCommandBuffer->buffer);
@@ -258,16 +258,16 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
     VkClearValue clearValue = {0.0f, 0.0f, 0.0f, 1.0f};
     VkRenderPassBeginInfo renderPassInfo{
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-        .renderPass = _renderPassClear,
-        .framebuffer = _framebuffers[_currentImageIndex],
+        .renderPass = m_RenderPassClear,
+        .framebuffer = m_Framebuffers[m_CurrentImageIndex],
         .renderArea.offset = {0, 0},
-        .renderArea.extent = _swapChain.imageExtent(),
+        .renderArea.extent = m_SwapChain.imageExtent(),
         .clearValueCount = 1,
         .pClearValues = &clearValue};
-    vkCmdBeginRenderPass(_commandBuffers[_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-    for (SecondaryCommandBuffer const& secondaryCommandBuffer : _secondaryCommandBufferArrays[_currentFrame])
-        vkCmdExecuteCommands(_commandBuffers[_currentFrame], 1, &secondaryCommandBuffer.buffer);
-    vkCmdEndRenderPass(_commandBuffers[_currentFrame]);
+    vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+    for (SecondaryCommandBuffer const& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
+        vkCmdExecuteCommands(m_CommandBuffers[m_CurrentFrame], 1, &secondaryCommandBuffer.buffer);
+    vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
 }
 
 }  // namespace MelonFrontend

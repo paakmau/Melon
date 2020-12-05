@@ -6,24 +6,24 @@
 namespace MelonFrontend {
 
 void SwapChain::initialize(VkExtent2D extent, VkSurfaceKHR surface, VkPhysicalDevice physicalDevice, VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex, VkQueue presentQueue) {
-    _surface = surface;
-    _physicalDevice = physicalDevice;
-    _device = device;
-    _graphicsQueueFamilyIndex = graphicsQueueFamilyIndex;
-    _presentQueueFamilyIndex = presentQueueFamilyIndex;
-    _presentQueue = presentQueue;
+    m_Surface = surface;
+    m_PhysicalDevice = physicalDevice;
+    m_Device = device;
+    m_GraphicsQueueFamilyIndex = graphicsQueueFamilyIndex;
+    m_PresentQueueFamilyIndex = presentQueueFamilyIndex;
+    m_PresentQueue = presentQueue;
 
-    createSwapchain(device, extent, surface, physicalDevice, graphicsQueueFamilyIndex, presentQueueFamilyIndex, _swapchain, _imageFormat, _imageExtent, _images, _imageViews);
+    createSwapchain(device, extent, surface, physicalDevice, graphicsQueueFamilyIndex, presentQueueFamilyIndex, m_Swapchain, m_ImageFormat, m_ImageExtent, m_Images, m_ImageViews);
 }
 
 void SwapChain::terminate() {
-    for (VkImageView imageView : _imageViews)
-        vkDestroyImageView(_device, imageView, nullptr);
-    vkDestroySwapchainKHR(_device, _swapchain, nullptr);
+    for (VkImageView imageView : m_ImageViews)
+        vkDestroyImageView(m_Device, imageView, nullptr);
+    vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
 }
 
 bool SwapChain::acquireNextImageContext(VkSemaphore imageAvailableSemaphore, uint32_t& imageIndex) {
-    VkResult result = vkAcquireNextImageKHR(_device, _swapchain, std::numeric_limits<uint32_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(m_Device, m_Swapchain, std::numeric_limits<uint32_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
         return false;
     else
@@ -38,9 +38,9 @@ bool SwapChain::presentImage(uint32_t const& imageIndex, VkSemaphore waitSemapho
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &waitSemaphore,
         .swapchainCount = 1,
-        .pSwapchains = &_swapchain,
+        .pSwapchains = &m_Swapchain,
         .pImageIndices = &imageIndex};
-    VkResult result = vkQueuePresentKHR(_presentQueue, &presentInfo);
+    VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
         return false;
     else
@@ -49,11 +49,11 @@ bool SwapChain::presentImage(uint32_t const& imageIndex, VkSemaphore waitSemapho
 }
 
 void SwapChain::recreateSwapchain(VkExtent2D extent) {
-    for (VkImageView imageView : _imageViews)
-        vkDestroyImageView(_device, imageView, nullptr);
-    vkDestroySwapchainKHR(_device, _swapchain, nullptr);
+    for (VkImageView imageView : m_ImageViews)
+        vkDestroyImageView(m_Device, imageView, nullptr);
+    vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
 
-    createSwapchain(_device, extent, _surface, _physicalDevice, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, _swapchain, _imageFormat, _imageExtent, _images, _imageViews);
+    createSwapchain(m_Device, extent, m_Surface, m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_Swapchain, m_ImageFormat, m_ImageExtent, m_Images, m_ImageViews);
 }
 
 }  // namespace MelonFrontend

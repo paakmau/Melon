@@ -3,40 +3,40 @@
 namespace MelonFrontend {
 
 void Engine::initialize(char const* title, unsigned int const& width, unsigned int const& height) {
-    _window.initialize(title, width, height);
+    m_Window.initialize(title, width, height);
 
-    _renderer = std::make_unique<Renderer>();
-    _renderer->initialize(&_window);
+    m_Renderer = std::make_unique<Renderer>();
+    m_Renderer->initialize(&m_Window);
 }
 
 void Engine::terminate() {
-    _renderer->terminate();
+    m_Renderer->terminate();
 
-    _window.terminate();
+    m_Window.terminate();
 }
 
 void Engine::beginFrame() {
-    _window.pollEvents();
-    _renderer->beginFrame();
+    m_Window.pollEvents();
+    m_Renderer->beginFrame();
 }
 
-void Engine::beginBatches() { _renderer->beginBatches(); }
+void Engine::beginBatches() { m_Renderer->beginBatches(); }
 
 MeshBuffer Engine::createMeshBuffer(std::vector<Vertex> vertices, std::vector<uint16_t> indices) {
-    return _renderer->createMeshBuffer(vertices, indices);
+    return m_Renderer->createMeshBuffer(vertices, indices);
 }
 
 void Engine::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
-    _renderer->destroyMeshBuffer(meshBuffer);
+    m_Renderer->destroyMeshBuffer(meshBuffer);
 }
 
-void Engine::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer) { _renderer->addBatch(models, meshBuffer); }
+void Engine::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer) { m_Renderer->addBatch(models, meshBuffer); }
 
-void Engine::endBatches() { _renderer->endBatches(); }
+void Engine::endBatches() { m_Renderer->endBatches(); }
 
-void Engine::renderFrame(/* TODO: Implement the Camera */ glm::mat4 const& vp) { _renderer->renderFrame(vp); }
+void Engine::renderFrame(/* TODO: Implement the Camera */ glm::mat4 const& vp) { m_Renderer->renderFrame(vp); }
 
-void Engine::endFrame() { _renderer->endFrame(); }
+void Engine::endFrame() { m_Renderer->endFrame(); }
 
 Engine* Engine::instance() {
     static Engine sInstance;
@@ -46,11 +46,11 @@ Engine* Engine::instance() {
 Engine::Engine() {}
 
 void Engine::notifyWindowResized() {
-    _windowResized = true;
+    m_WindowResized = true;
 }
 
 void Engine::notifyWindowClosed() {
-    _windowClosed = true;
+    m_WindowClosed = true;
 }
 
 }  // namespace MelonFrontend

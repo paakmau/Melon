@@ -21,7 +21,7 @@ class EntityCommandBufferChunkTask {
 
 class SystemBase {
   public:
-    static constexpr unsigned int kMinChunkCountPerTask = 16;
+    static constexpr unsigned int k_MinChunkCountPerTask = 16;
 
     SystemBase();
     virtual ~SystemBase();
@@ -34,17 +34,17 @@ class SystemBase {
     std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<ChunkTask> const& chunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
     std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
 
-    std::shared_ptr<MelonTask::TaskHandle> const& predecessor() const { return _taskHandle; }
-    std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return _taskHandle; }
-    EntityManager* entityManager() const { return _entityManager; }
+    std::shared_ptr<MelonTask::TaskHandle> const& predecessor() const { return m_TaskHandle; }
+    std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return m_TaskHandle; }
+    EntityManager* entityManager() const { return m_EntityManager; }
 
   private:
     void enter(EntityManager* entityManager);
     void update();
     void exit();
 
-    std::shared_ptr<MelonTask::TaskHandle> _taskHandle;
-    EntityManager* _entityManager;
+    std::shared_ptr<MelonTask::TaskHandle> m_TaskHandle;
+    EntityManager* m_EntityManager;
 
     friend class World;
 };

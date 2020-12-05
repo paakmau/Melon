@@ -19,12 +19,12 @@ namespace MelonCore {
 
 class Archetype {
   public:
-    static constexpr unsigned int kInvalidId = std::numeric_limits<unsigned int>::max();
+    static constexpr unsigned int k_InvalidId = std::numeric_limits<unsigned int>::max();
 
     struct EntityLocation {
-        static constexpr EntityLocation invalidEntityLocation() { return EntityLocation{Archetype::kInvalidId, Combination::kInvalidIndex, Combination::kInvalidEntityIndex}; }
+        static constexpr EntityLocation invalidEntityLocation() { return EntityLocation{Archetype::k_InvalidId, Combination::k_InvalidIndex, Combination::k_InvalidEntityIndex}; }
 
-        bool valid() const { return archetypeId != Archetype::kInvalidId; }
+        bool valid() const { return archetypeId != Archetype::k_InvalidId; }
 
         unsigned int archetypeId;
         unsigned int combinationIndex;
@@ -63,101 +63,101 @@ class Archetype {
     void setComponent(EntityLocation const& location, unsigned int const& componentId, void const* component);
     void setSharedComponent(EntityLocation const& location, unsigned int const& sharedComponentId, unsigned int const& sharedComponentIndex, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& swappedEntity);
 
-    void filterEntities(EntityFilter const& entityFilter, ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
+    void filterEntities(EntityFilter const& entityFilter, ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
 
-    bool single() const { return _mask.single(); }
-    bool fullyManual() const { return _mask.fullyManual(); }
-    bool partiallyManual() const { return _mask.partiallyManual(); }
+    bool single() const { return m_Mask.single(); }
+    bool fullyManual() const { return m_Mask.fullyManual(); }
+    bool partiallyManual() const { return m_Mask.partiallyManual(); }
 
     std::vector<unsigned int> notManualComponentIds() const;
     std::vector<unsigned int> notManualSharedComponentIds() const;
 
-    unsigned int componentCount() const { return _mask.componentCount(); }
-    unsigned int sharedComponentCount() const { return _mask.sharedComponentCount(); }
+    unsigned int componentCount() const { return m_Mask.componentCount(); }
+    unsigned int sharedComponentCount() const { return m_Mask.sharedComponentCount(); }
 
-    unsigned int const& id() const { return _id; }
-    ArchetypeMask const& mask() const { return _mask; }
+    unsigned int const& id() const { return m_Id; }
+    ArchetypeMask const& mask() const { return m_Mask; }
 
-    std::vector<unsigned int> const& componentIds() const { return _componentIds; }
-    std::vector<std::size_t> const& componentSizes() const { return _componentSizes; }
-    std::vector<std::size_t> const& componentAligns() const { return _componentAligns; }
+    std::vector<unsigned int> const& componentIds() const { return m_ComponentIds; }
+    std::vector<std::size_t> const& componentSizes() const { return m_ComponentSizes; }
+    std::vector<std::size_t> const& componentAligns() const { return m_ComponentAligns; }
 
-    std::vector<unsigned int> const& sharedComponentIds() const { return _sharedComponentIds; }
+    std::vector<unsigned int> const& sharedComponentIds() const { return m_SharedComponentIds; }
 
-    unsigned int const& chunkCount() const { return _chunkCount; }
-    unsigned int const& entityCount() const { return _entityCount; }
+    unsigned int const& chunkCount() const { return m_ChunkCount; }
+    unsigned int const& entityCount() const { return m_EntityCount; }
 
   private:
     Combination* createCombination();
     Combination* createCombination(std::vector<unsigned int> const& sharedComponentIndices);
     void destroyCombination(unsigned int const& combinationIndex, std::vector<unsigned int> const& sharedComponentIndices);
 
-    unsigned int const _id;
-    ArchetypeMask const _mask;
+    unsigned int const m_Id;
+    ArchetypeMask const m_Mask;
 
-    ChunkLayout _chunkLayout;
-    std::vector<unsigned int> _componentIds;
-    std::vector<std::size_t> _componentSizes;
-    std::vector<std::size_t> _componentAligns;
+    ChunkLayout m_ChunkLayout;
+    std::vector<unsigned int> m_ComponentIds;
+    std::vector<std::size_t> m_ComponentSizes;
+    std::vector<std::size_t> m_ComponentAligns;
 
     // Shared component ids should be in ascending order
-    std::vector<unsigned int> _sharedComponentIds;
+    std::vector<unsigned int> m_SharedComponentIds;
 
-    unsigned int _chunkCount{};
-    unsigned int _entityCount{};
+    unsigned int m_ChunkCount{};
+    unsigned int m_EntityCount{};
 
-    ObjectPool<Chunk>* _chunkPool;
-    std::vector<std::unique_ptr<Combination>> _combinations;
-    std::unordered_map<std::vector<unsigned int>, unsigned int, SharedComponentIndexHash> _combinationIndexMap;
-    std::vector<unsigned int> _freeCombinationIndices;
+    ObjectPool<Chunk>* m_ChunkPool;
+    std::vector<std::unique_ptr<Combination>> m_Combinations;
+    std::unordered_map<std::vector<unsigned int>, unsigned int, SharedComponentIndexHash> m_CombinationIndexMap;
+    std::vector<unsigned int> m_FreeCombinationIndices;
 
     friend class EntityManager;
 };
 
 inline std::vector<unsigned int> Archetype::notManualComponentIds() const {
     std::vector<unsigned int> componentIds;
-    for (unsigned int const& componentId : _componentIds)
-        if (!_mask.manualComponent(componentId))
+    for (unsigned int const& componentId : m_ComponentIds)
+        if (!m_Mask.manualComponent(componentId))
             componentIds.push_back(componentId);
     return componentIds;
 }
 
 inline std::vector<unsigned int> Archetype::notManualSharedComponentIds() const {
     std::vector<unsigned int> sharedComponentIds;
-    for (unsigned int const& sharedComponentId : _sharedComponentIds)
-        if (!_mask.manualSharedComponent(sharedComponentId))
+    for (unsigned int const& sharedComponentId : m_SharedComponentIds)
+        if (!m_Mask.manualSharedComponent(sharedComponentId))
             sharedComponentIds.push_back(sharedComponentId);
     return sharedComponentIds;
 }
 
 inline Combination* Archetype::createCombination() {
-    return createCombination(std::vector<unsigned int>(sharedComponentCount(), ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount>::kInvalidIndex));
+    return createCombination(std::vector<unsigned int>(sharedComponentCount(), ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount>::k_InvalidIndex));
 }
 
 inline Combination* Archetype::createCombination(std::vector<unsigned int> const& sharedComponentIndices) {
-    if (_combinationIndexMap.contains(sharedComponentIndices))
-        return _combinations[_combinationIndexMap[sharedComponentIndices]].get();
+    if (m_CombinationIndexMap.contains(sharedComponentIndices))
+        return m_Combinations[m_CombinationIndexMap[sharedComponentIndices]].get();
     unsigned int combinationIndex;
-    if (_freeCombinationIndices.empty()) {
-        combinationIndex = _combinations.size();
-        _combinations.emplace_back(std::make_unique<Combination>(combinationIndex, _chunkLayout, _sharedComponentIds, sharedComponentIndices, _chunkPool));
+    if (m_FreeCombinationIndices.empty()) {
+        combinationIndex = m_Combinations.size();
+        m_Combinations.emplace_back(std::make_unique<Combination>(combinationIndex, m_ChunkLayout, m_SharedComponentIds, sharedComponentIndices, m_ChunkPool));
     } else {
-        combinationIndex = _freeCombinationIndices.back(), _freeCombinationIndices.pop_back();
-        _combinations[combinationIndex] = std::make_unique<Combination>(combinationIndex, _chunkLayout, _sharedComponentIds, sharedComponentIndices, _chunkPool);
+        combinationIndex = m_FreeCombinationIndices.back(), m_FreeCombinationIndices.pop_back();
+        m_Combinations[combinationIndex] = std::make_unique<Combination>(combinationIndex, m_ChunkLayout, m_SharedComponentIds, sharedComponentIndices, m_ChunkPool);
     }
-    _combinationIndexMap.emplace(sharedComponentIndices, combinationIndex);
+    m_CombinationIndexMap.emplace(sharedComponentIndices, combinationIndex);
     // TODO: A new Combination should not have a Chunk
-    _chunkCount++;
-    return _combinations[combinationIndex].get();
+    m_ChunkCount++;
+    return m_Combinations[combinationIndex].get();
 }
 
 // TODO: Consider when to destroy a Combination
 inline void Archetype::destroyCombination(unsigned int const& combinationIndex, std::vector<unsigned int> const& sharedComponentIndices) {
-    _combinations[combinationIndex].reset();
-    _combinationIndexMap.erase(sharedComponentIndices);
-    _freeCombinationIndices.push_back(combinationIndex);
+    m_Combinations[combinationIndex].reset();
+    m_CombinationIndexMap.erase(sharedComponentIndices);
+    m_FreeCombinationIndices.push_back(combinationIndex);
     // TODO: A new Combination should not have a Chunk
-    _chunkCount--;
+    m_ChunkCount--;
 }
 
 }  // namespace MelonCore

@@ -3,76 +3,76 @@
 namespace MelonFrontend {
 
 void FixedSizeBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage) {
-    _device = device;
-    _allocator = allocator;
-    _size = size;
-    _bufferUsage = bufferUsage;
-    _memoryUsage = memoryUsage;
+    m_Device = device;
+    m_Allocator = allocator;
+    m_Size = size;
+    m_BufferUsage = bufferUsage;
+    m_MemoryUsage = memoryUsage;
 
-    for (unsigned int i = 0; i < _pool.size(); i++) {
+    for (unsigned int i = 0; i < m_Pool.size(); i++) {
         Buffer buffer;
-        createBuffer(_allocator, _size, _bufferUsage, _memoryUsage, buffer.buffer, buffer.allocation);
-        _pool[i] = buffer;
+        createBuffer(m_Allocator, m_Size, m_BufferUsage, m_MemoryUsage, buffer.buffer, buffer.allocation);
+        m_Pool[i] = buffer;
     }
 }
 
 void FixedSizeBufferPool::terminate() {
-    for (Buffer const& buffer : _pool)
-        vmaDestroyBuffer(_allocator, buffer.buffer, buffer.allocation);
+    for (Buffer const& buffer : m_Pool)
+        vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
 }
 
 Buffer FixedSizeBufferPool::request() {
-    if (_poolCount == 0) {
+    if (m_PoolCount == 0) {
         Buffer buffer;
-        createBuffer(_allocator, _size, _bufferUsage, _memoryUsage, buffer.buffer, buffer.allocation);
+        createBuffer(m_Allocator, m_Size, m_BufferUsage, m_MemoryUsage, buffer.buffer, buffer.allocation);
         return buffer;
     }
-    return _pool[--_poolCount];
+    return m_Pool[--m_PoolCount];
 }
 
 void FixedSizeBufferPool::recycle(Buffer const& buffer) {
-    if (_poolCount == _pool.size())
-        vmaDestroyBuffer(_allocator, buffer.buffer, buffer.allocation);
+    if (m_PoolCount == m_Pool.size())
+        vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
     else
-        _pool[_poolCount++] = buffer;
+        m_Pool[m_PoolCount++] = buffer;
 }
 
-void UniformBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDescriptorSetLayout layout, VkDescriptorPool descriptorPool) { _device = device, _allocator = allocator, _layout = layout, _descriptorPool = descriptorPool; }
+void UniformBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDescriptorSetLayout layout, VkDescriptorPool descriptorPool) { m_Device = device, m_Allocator = allocator, m_Layout = layout, m_DescriptorPool = descriptorPool; }
 
 void UniformBufferPool::terminate() {
-    for (FixedSizeBufferPool pool : _stagingBufferPools)
+    for (FixedSizeBufferPool pool : m_StagingBufferPools)
         pool.terminate();
-    for (FixedSizeBufferPool pool : _bufferPools)
+    for (FixedSizeBufferPool pool : m_BufferPools)
         pool.terminate();
 }
 
 void UniformBufferPool::registerUniformObjectSize(VkDeviceSize size) {
-    if (_sizeIndexMap.contains(size)) return;
-    _stagingBufferPools.emplace_back(FixedSizeBufferPool());
-    _stagingBufferPools.back().initialize(_device, _allocator, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
-    _bufferPools.emplace_back(FixedSizeBufferPool());
-    _bufferPools.back().initialize(_device, _allocator, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
-    _sizeIndexMap.emplace(size, _bufferPools.size() - 1);
+    if (m_SizeIndexMap.contains(size)) return;
+    m_StagingBufferPools.emplace_back(FixedSizeBufferPool());
+    m_StagingBufferPools.back().initialize(m_Device, m_Allocator, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+    m_BufferPools.emplace_back(FixedSizeBufferPool());
+    m_BufferPools.back().initialize(m_Device, m_Allocator, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+    m_SizeIndexMap.emplace(size, m_BufferPools.size() - 1);
 }
 
 UniformBuffer UniformBufferPool::request(VkDeviceSize size) {
-    unsigned int const& index = _sizeIndexMap[size];
-    Buffer stagingBuffer = _stagingBufferPools[index].request();
-    Buffer buffer = _bufferPools[index].request();
+    unsigned int const& index = m_SizeIndexMap[size];
+    Buffer stagingBuffer = m_StagingBufferPools[index].request();
+    Buffer buffer = m_BufferPools[index].request();
 
     VkDescriptorSet descriptorSet;
-    allocateDescriptorSet(_device, _layout, _descriptorPool, descriptorSet);
-    updateUniformDescriptorSet<1>(_device, descriptorSet, {buffer.buffer}, {size});
+    allocateDescriptorSet(m_Device, m_Layout, m_DescriptorPool, descriptorSet);
+    updateUniformDescriptorSet<1>(m_Device, descriptorSet, {buffer.buffer}, {size});
 
     return UniformBuffer{size, Buffer{stagingBuffer.buffer, stagingBuffer.allocation}, Buffer{buffer.buffer, buffer.allocation}, descriptorSet};
 }
 
 void UniformBufferPool::recycle(UniformBuffer buffer) {
-    unsigned int const& index = _sizeIndexMap[buffer.size];
-    _stagingBufferPools[index].recycle(buffer.stagingBuffer);
-    _bufferPools[index].recycle(buffer.buffer);
+    unsigned int const& index = m_SizeIndexMap[buffer.size];
+    m_StagingBufferPools[index].recycle(buffer.stagingBuffer);
+    m_BufferPools[index].recycle(buffer.buffer);
 
-    vkFreeDescriptorSets(_device, _descriptorPool, 1, &buffer.descriptorSet);
+    vkFreeDescriptorSets(m_Device, m_DescriptorPool, 1, &buffer.descriptorSet);
 }
 
 }  // namespace MelonFrontend

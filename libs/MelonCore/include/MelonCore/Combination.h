@@ -17,8 +17,8 @@ namespace MelonCore {
 
 class Combination {
   public:
-    static constexpr unsigned int kInvalidIndex = std::numeric_limits<unsigned int>::max();
-    static constexpr unsigned int kInvalidEntityIndex = std::numeric_limits<unsigned int>::max();
+    static constexpr unsigned int k_InvalidIndex = std::numeric_limits<unsigned int>::max();
+    static constexpr unsigned int k_InvalidEntityIndex = std::numeric_limits<unsigned int>::max();
 
     Combination(unsigned int const& index, ChunkLayout const& chunkLayout, std::vector<unsigned int> const& sharedComponentIds, std::vector<unsigned int> const& sharedComponentIndices, ObjectPool<Chunk>* chunkPool);
     Combination(Combination const&) = delete;
@@ -31,15 +31,15 @@ class Combination {
     void removeEntity(unsigned int const& entityIndexInCombination, Entity& swappedEntity, bool& chunkCountMinused);
     void setComponent(unsigned int const& entityIndexInCombination, unsigned int const& componentId, void const* component);
 
-    void filterEntities(ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
+    void filterEntities(ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
 
-    unsigned int chunkCount() const { return _chunks.size(); }
-    bool hasComponent(unsigned int const& componentId) const { return _chunkLayout.componentIndexMap.contains(componentId); }
+    unsigned int chunkCount() const { return m_Chunks.size(); }
+    bool hasComponent(unsigned int const& componentId) const { return m_ChunkLayout.componentIndexMap.contains(componentId); }
 
-    unsigned int const& index() const { return _index; }
+    unsigned int const& index() const { return m_Index; }
 
-    std::vector<unsigned int> const& sharedComponentIndices() const { return _sharedComponentIndices; }
-    unsigned int const& entityCount() const { return _entityCount; }
+    std::vector<unsigned int> const& sharedComponentIndices() const { return m_SharedComponentIndices; }
+    unsigned int const& entityCount() const { return m_EntityCount; }
 
   private:
     void requestChunk();
@@ -50,45 +50,45 @@ class Combination {
     void* componentAddress(unsigned int const& componentId, unsigned int const& entityIndex) const;
     void* componentAddress(Chunk* chunk, unsigned int const& componentIndex, unsigned int const& entityIndexInChunk) const;
 
-    unsigned int const _index;
+    unsigned int const m_Index;
 
-    ChunkLayout const& _chunkLayout;
+    ChunkLayout const& m_ChunkLayout;
 
-    std::vector<unsigned int> const& _sharedComponentIds;
-    std::vector<unsigned int> const _sharedComponentIndices;
+    std::vector<unsigned int> const& m_SharedComponentIds;
+    std::vector<unsigned int> const m_SharedComponentIndices;
 
-    ObjectPool<Chunk>* _chunkPool;
-    std::vector<Chunk*> _chunks;
+    ObjectPool<Chunk>* m_ChunkPool;
+    std::vector<Chunk*> m_Chunks;
 
-    unsigned int _entityCount{};
-    unsigned int _entityCountInCurrentChunk{};
+    unsigned int m_EntityCount{};
+    unsigned int m_EntityCountInCurrentChunk{};
 };
 
-inline void Combination::filterEntities(ObjectStore<ArchetypeMask::kMaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const {
+inline void Combination::filterEntities(ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const {
     chunkAccessors.reserve(chunkAccessors.size() + chunkCount());
-    for (Chunk* chunk : _chunks)
-        chunkAccessors.emplace_back(ChunkAccessor{reinterpret_cast<std::byte*>(chunk), _chunkLayout, chunk != _chunks.back() ? _chunkLayout.capacity : _entityCountInCurrentChunk, _sharedComponentIds, _sharedComponentIndices, sharedComponentStore});
+    for (Chunk* chunk : m_Chunks)
+        chunkAccessors.emplace_back(ChunkAccessor{reinterpret_cast<std::byte*>(chunk), m_ChunkLayout, chunk != m_Chunks.back() ? m_ChunkLayout.capacity : m_EntityCountInCurrentChunk, m_SharedComponentIds, m_SharedComponentIndices, sharedComponentStore});
 }
 
 inline Entity* Combination::entityAddress(unsigned int const& entityIndex) const {
-    Chunk* chunk = _chunks[entityIndex / _chunkLayout.capacity];
-    unsigned int const entityIndexInChunk = entityIndex % _chunkLayout.capacity;
+    Chunk* chunk = m_Chunks[entityIndex / m_ChunkLayout.capacity];
+    unsigned int const entityIndexInChunk = entityIndex % m_ChunkLayout.capacity;
     return entityAddress(chunk, entityIndexInChunk);
 }
 
 inline Entity* Combination::entityAddress(Chunk* chunk, unsigned int const& entityIndexInChunk) const {
-    return reinterpret_cast<Entity*>(reinterpret_cast<std::byte*>(chunk) + _chunkLayout.entityOffset + sizeof(Entity) * entityIndexInChunk);
+    return reinterpret_cast<Entity*>(reinterpret_cast<std::byte*>(chunk) + m_ChunkLayout.entityOffset + sizeof(Entity) * entityIndexInChunk);
 }
 
 inline void* Combination::componentAddress(unsigned int const& componentId, unsigned int const& entityIndex) const {
-    Chunk* chunk = _chunks[entityIndex / _chunkLayout.capacity];
-    unsigned int const entityIndexInChunk = entityIndex % _chunkLayout.capacity;
-    unsigned int const componentIndex = _chunkLayout.componentIndexMap.at(componentId);
+    Chunk* chunk = m_Chunks[entityIndex / m_ChunkLayout.capacity];
+    unsigned int const entityIndexInChunk = entityIndex % m_ChunkLayout.capacity;
+    unsigned int const componentIndex = m_ChunkLayout.componentIndexMap.at(componentId);
     return componentAddress(chunk, componentIndex, entityIndexInChunk);
 }
 
 inline void* Combination::componentAddress(Chunk* chunk, unsigned int const& componentIndex, unsigned int const& entityIndexInChunk) const {
-    return static_cast<void*>(reinterpret_cast<std::byte*>(chunk) + _chunkLayout.componentOffsets[componentIndex] + _chunkLayout.componentSizes[componentIndex] * entityIndexInChunk);
+    return static_cast<void*>(reinterpret_cast<std::byte*>(chunk) + m_ChunkLayout.componentOffsets[componentIndex] + m_ChunkLayout.componentSizes[componentIndex] * entityIndexInChunk);
 }
 
 }  // namespace MelonCore

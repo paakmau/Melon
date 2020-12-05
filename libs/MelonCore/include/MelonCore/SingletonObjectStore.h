@@ -9,22 +9,22 @@ class SingletonObjectStore {
   public:
     template <typename Type>
     void push(unsigned int const& typeId, Type const& object) {
-        _store[typeId] = new Type(object);
+        m_Store[typeId] = new Type(object);
     }
 
     template <typename Type>
     void pop(unsigned int const& typeId) {
-        delete _store[typeId];
-        _store[typeId] = nullptr;
+        delete m_Store[typeId];
+        m_Store[typeId] = nullptr;
     }
 
     template <typename Type>
     Type* object(unsigned int const& typeId) const {
-        return static_cast<Type*>(_store[typeId]);
+        return static_cast<Type*>(m_Store[typeId]);
     }
 
   private:
-    std::array<void*, Count> _store;
+    std::array<void*, Count> m_Store;
 };
 
 }  // namespace MelonCore

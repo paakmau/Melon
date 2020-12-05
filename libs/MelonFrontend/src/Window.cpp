@@ -5,18 +5,18 @@ namespace MelonFrontend {
 void Window::initialize(char const* title, unsigned int const& width, unsigned int const& height) {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    _extent = VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    m_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    m_Extent = VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 
-    glfwSetWindowUserPointer(_window, this);
+    glfwSetWindowUserPointer(m_Window, this);
 
     // Callbacks
-    glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
-    glfwSetWindowCloseCallback(_window, windowCloseCallback);
+    glfwSetFramebufferSizeCallback(m_Window, framebufferResizeCallback);
+    glfwSetWindowCloseCallback(m_Window, windowCloseCallback);
 }
 
 void Window::terminate() {
-    glfwDestroyWindow(_window);
+    glfwDestroyWindow(m_Window);
     glfwTerminate();
 }
 
@@ -27,11 +27,11 @@ void Window::pollEvents() {
 void Window::waitForResized() {
     int width = 0, height = 0;
     while (width == 0 || height == 0) {
-        glfwGetFramebufferSize(_window, &width, &height);
+        glfwGetFramebufferSize(m_Window, &width, &height);
         glfwWaitEvents();
     }
-    _extent = VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-    _resized = false;
+    m_Extent = VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    m_Resized = false;
 }
 
 std::vector<char const*> Window::requiredVulkanInstanceExtensions() const {
@@ -50,8 +50,8 @@ void Window::windowCloseCallback(GLFWwindow* glfwWindow) {
     window->notifyClosed();
 }
 
-void Window::notifyResized() { _resized = true; }
+void Window::notifyResized() { m_Resized = true; }
 
-void Window::notifyClosed() { _closed = true; }
+void Window::notifyClosed() { m_Closed = true; }
 
 }  // namespace MelonFrontend

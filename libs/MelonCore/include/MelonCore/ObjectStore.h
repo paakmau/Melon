@@ -13,7 +13,7 @@ namespace MelonCore {
 template <std::size_t Count>
 class ObjectStore {
   public:
-    static constexpr unsigned int kInvalidIndex = std::numeric_limits<unsigned int>::max();
+    static constexpr unsigned int k_InvalidIndex = std::numeric_limits<unsigned int>::max();
 
     template <typename Type>
     unsigned int push(unsigned int const& typeId, Type const& object);
@@ -58,86 +58,86 @@ class ObjectStore {
         delete static_cast<Type*>(object);
     }
 
-    std::array<std::size_t (*)(void const* const&), Count> _typeHashes;
-    std::array<bool (*)(void const* const&, void const* const&), Count> _typeEqualTos;
-    std::array<void (*)(void* const&), Count> _typeDeleters;
+    std::array<std::size_t (*)(void const* const&), Count> m_TypeHashes;
+    std::array<bool (*)(void const* const&, void const* const&), Count> m_TypeEqualTos;
+    std::array<void (*)(void* const&), Count> m_TypeDeleters;
 
-    unsigned int _indexCount{};
-    std::vector<unsigned int> _freeIndices;
+    unsigned int m_IndexCount{};
+    std::vector<unsigned int> m_FreeIndices;
 
-    std::vector<void*> _store;
-    std::vector<unsigned int> _referenceCounts;
+    std::vector<void*> m_Store;
+    std::vector<unsigned int> m_ReferenceCounts;
 
-    std::unordered_map<ObjectWrapper, unsigned int, ObjectWrapperHash, ObjectWrapperEqualTo> _objectIndexMap;
+    std::unordered_map<ObjectWrapper, unsigned int, ObjectWrapperHash, ObjectWrapperEqualTo> m_ObjectIndexMap;
 };
 
 template <std::size_t Count>
 template <typename Type>
 inline unsigned int ObjectStore<Count>::push(unsigned int const& typeId, Type const& object) {
-    _typeHashes[typeId] = objectWrapperHash<Type>;
-    _typeEqualTos[typeId] = objectWrapperEqualTo<Type>;
-    _typeDeleters[typeId] = objectDeleter<Type>;
+    m_TypeHashes[typeId] = objectWrapperHash<Type>;
+    m_TypeEqualTos[typeId] = objectWrapperEqualTo<Type>;
+    m_TypeDeleters[typeId] = objectDeleter<Type>;
     ObjectWrapper objectWrapper{
         typeId, static_cast<void const*>(&object),
-        _typeHashes[typeId],
-        _typeEqualTos[typeId]};
+        m_TypeHashes[typeId],
+        m_TypeEqualTos[typeId]};
     unsigned int index;
-    if (_objectIndexMap.contains(objectWrapper))
-        index = _objectIndexMap[objectWrapper];
+    if (m_ObjectIndexMap.contains(objectWrapper))
+        index = m_ObjectIndexMap[objectWrapper];
     else {
-        if (_freeIndices.empty()) {
-            index = _indexCount++;
-            _store.emplace_back(nullptr);
-            _referenceCounts.emplace_back(0U);
+        if (m_FreeIndices.empty()) {
+            index = m_IndexCount++;
+            m_Store.emplace_back(nullptr);
+            m_ReferenceCounts.emplace_back(0U);
         } else
-            index = _freeIndices.back(), _freeIndices.pop_back();
+            index = m_FreeIndices.back(), m_FreeIndices.pop_back();
         Type* objectToSave = new Type(object);
         objectWrapper.object = objectToSave;
-        _objectIndexMap.emplace(objectWrapper, index);
-        _store[index] = objectToSave;
+        m_ObjectIndexMap.emplace(objectWrapper, index);
+        m_Store[index] = objectToSave;
     }
-    _referenceCounts[index]++;
+    m_ReferenceCounts[index]++;
     return index;
 }
 
 template <std::size_t Count>
 inline void ObjectStore<Count>::pop(unsigned int const& typeId, unsigned int const& index) {
-    if (index == kInvalidIndex) return;
-    void* object = _store[index];
-    _referenceCounts[index]--;
-    bool removed = _referenceCounts[index] == 0;
+    if (index == k_InvalidIndex) return;
+    void* object = m_Store[index];
+    m_ReferenceCounts[index]--;
+    bool removed = m_ReferenceCounts[index] == 0;
     if (removed) {
-        _freeIndices.push_back(index);
+        m_FreeIndices.push_back(index);
 
         ObjectWrapper objectWrapper{
             typeId, object,
-            _typeHashes[typeId],
-            _typeEqualTos[typeId]};
-        _objectIndexMap.erase(objectWrapper);
+            m_TypeHashes[typeId],
+            m_TypeEqualTos[typeId]};
+        m_ObjectIndexMap.erase(objectWrapper);
 
-        _typeDeleters[typeId](object);
+        m_TypeDeleters[typeId](object);
     }
 }
 
 template <std::size_t Count>
 template <typename Type>
 Type const* ObjectStore<Count>::object(unsigned int const& index) const {
-    if (index == kInvalidIndex) return nullptr;
-    return static_cast<Type*>(_store[index]);
+    if (index == k_InvalidIndex) return nullptr;
+    return static_cast<Type*>(m_Store[index]);
 }
 
 template <std::size_t Count>
 unsigned int ObjectStore<Count>::objectIndex(unsigned int const& typeId, void const* object) const {
-    if (_typeHashes[typeId] == nullptr) return kInvalidIndex;
+    if (m_TypeHashes[typeId] == nullptr) return k_InvalidIndex;
     ObjectWrapper objectWrapper{
         typeId, object,
-        _typeHashes[typeId],
-        _typeEqualTos[typeId]};
+        m_TypeHashes[typeId],
+        m_TypeEqualTos[typeId]};
     unsigned int index;
-    if (_objectIndexMap.contains(objectWrapper))
-        return _objectIndexMap[objectWrapper];
+    if (m_ObjectIndexMap.contains(objectWrapper))
+        return m_ObjectIndexMap[objectWrapper];
     else
-        return kInvalidIndex;
+        return k_InvalidIndex;
 }
 
 template <std::size_t Count>
@@ -148,10 +148,10 @@ unsigned int ObjectStore<Count>::objectIndex(unsigned int const& typeId, Type co
         objectWrapperHash<Type>,
         objectWrapperEqualTo<Type>};
     unsigned int index;
-    if (_objectIndexMap.contains(objectWrapper))
-        return _objectIndexMap[objectWrapper];
+    if (m_ObjectIndexMap.contains(objectWrapper))
+        return m_ObjectIndexMap[objectWrapper];
     else
-        return kInvalidIndex;
+        return k_InvalidIndex;
 }
 
 template <std::size_t Count>

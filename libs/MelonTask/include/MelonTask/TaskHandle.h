@@ -22,15 +22,15 @@ class TaskHandle : public std::enable_shared_from_this<TaskHandle> {
     void notifyFinished();
     void notifyPredecessorFinished();
 
-    std::function<void()> _procedure;
-    std::atomic<unsigned int> _predecessorCount;
-    std::vector<std::shared_ptr<TaskHandle>> _successors;
-    std::mutex _mtx;
-    std::condition_variable _cv;
-    bool _finished{};
-    std::mutex _finishedMutex;
-    std::promise<void> _finishPromise;
-    std::shared_future<void> _finishSharedFuture;
+    std::function<void()> m_Procedure;
+    std::atomic<unsigned int> m_PredecessorCount;
+    std::vector<std::shared_ptr<TaskHandle>> m_Successors;
+    std::mutex m_Mtx;
+    std::condition_variable m_Cv;
+    bool m_Finished{};
+    std::mutex m_FinishedMutex;
+    std::promise<void> m_FinishPromise;
+    std::shared_future<void> m_FinishSharedFuture;
 
     friend class TaskManager;
     friend class TaskWorker;

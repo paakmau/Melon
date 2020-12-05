@@ -29,8 +29,8 @@ class Engine {
 
     static Engine* instance();
 
-    float windowAspectRatio() const { return _window.aspectRatio(); }
-    bool windowClosed() const { return _window.closed(); }
+    float windowAspectRatio() const { return m_Window.aspectRatio(); }
+    bool windowClosed() const { return m_Window.closed(); }
 
    private:
     Engine();
@@ -38,11 +38,11 @@ class Engine {
     void notifyWindowResized();
     void notifyWindowClosed();
 
-    Window _window;
-    bool _windowResized{};
-    bool _windowClosed{};
+    Window m_Window;
+    bool m_WindowResized{};
+    bool m_WindowClosed{};
 
-    std::unique_ptr<Renderer> _renderer;
+    std::unique_ptr<Renderer> m_Renderer;
 };
 
 }  // namespace MelonFrontend
