@@ -23,6 +23,8 @@ static VkShaderModule createShaderModule(VkDevice device, std::vector<unsigned i
 }
 
 inline void createInstance(std::vector<char const*> const& requiredVulkanInstanceExtensions, VkInstance& instance) {
+    volkInitialize();
+
     // TODO: Define the application name and engine name
 
     // TODO: Enable validation layers for debug
@@ -40,6 +42,8 @@ inline void createInstance(std::vector<char const*> const& requiredVulkanInstanc
     // Create instance
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
     assert(result == VK_SUCCESS);
+
+    volkLoadInstance(instance);
 }
 
 inline void selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface, VkPhysicalDevice& physicalDevice, uint32_t& graphicsQueueFamilyIndex, uint32_t& presentQueueFamilyIndex, VkPhysicalDeviceFeatures& features) {

@@ -15,9 +15,7 @@ namespace MelonFrontend {
 void Renderer::initialize(Window* window) {
     m_Window = window;
 
-    volkInitialize();
     createInstance(window->requiredVulkanInstanceExtensions(), m_VulkanInstance);
-    volkLoadInstance(m_VulkanInstance);
     glfwCreateWindowSurface(m_VulkanInstance, window->window(), nullptr, &m_Surface);
     selectPhysicalDevice(m_VulkanInstance, m_Surface, m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PhysicalDeviceFeatures);
     createLogicalDevice(m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PhysicalDeviceFeatures, m_Device, m_GraphicsQueue, m_PresentQueue);
