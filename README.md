@@ -53,7 +53,7 @@ Melon implement an rigorous ECS framework with multiple convenient mechanisms.
 
 ## License
 
-Melon is licensed under the Apache License, Version 2.0.
+Melon is licensed under the 3-Clause BSD License.
 
 ## Acknowledgements
 
