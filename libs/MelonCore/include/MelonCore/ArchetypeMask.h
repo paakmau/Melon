@@ -10,10 +10,10 @@ struct ArchetypeMask {
     static constexpr unsigned int kMaxComponentIdCount = 1024U;
     static constexpr unsigned int kMaxSharedComponentIdCount = 256U;
 
-    typedef std::bitset<kMaxComponentIdCount> ComponentMask;
-    typedef std::bitset<kMaxComponentIdCount> ManualComponentMask;
-    typedef std::bitset<kMaxSharedComponentIdCount> SharedComponentMask;
-    typedef std::bitset<kMaxSharedComponentIdCount> ManualSharedComponentMask;
+    using ComponentMask = std::bitset<kMaxComponentIdCount>;
+    using ManualComponentMask = std::bitset<kMaxComponentIdCount>;
+    using SharedComponentMask = std::bitset<kMaxSharedComponentIdCount>;
+    using ManualSharedComponentMask = std::bitset<kMaxSharedComponentIdCount>;
 
     struct Hash {
         std::size_t operator()(MelonCore::ArchetypeMask const& mask) const {
