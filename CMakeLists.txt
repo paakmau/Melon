@@ -9,5 +9,5 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
 include(MelonUtils)
 
 add_subdirectory(third_party)
-add_subdirectory(src)
+add_subdirectory(libs)
 add_subdirectory(examples)

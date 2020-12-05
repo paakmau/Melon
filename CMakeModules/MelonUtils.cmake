@@ -1,12 +1,6 @@
 macro(setup_library)
 
-  file(GLOB TARGET_HEADER_FILES
-       $<BUILD_INTERFACE:"${PROJECT_SOURCE_DIR}/${TARGET_NAME}/*.h">)
-
-  add_library(${TARGET_NAME} ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
-
-  target_include_directories(
-    ${TARGET_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+  add_library(${TARGET_NAME} ${TARGET_SOURCE_FILES})
 
   if(TARGET_INCLUDE_DIRS)
     target_include_directories(${TARGET_NAME} PUBLIC ${TARGET_INCLUDE_DIRS})
