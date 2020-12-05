@@ -1,6 +1,6 @@
 # Melon
 
-Melon is cross-platform data-driven game engine written in C++.
+A cross-platform data-driven game engine written in C++.
 
 **Data Driven**. Melon implement an Entity Component System (ECS) framework, which is massively multi-threaded and cache-friendly.
 
