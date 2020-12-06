@@ -36,7 +36,7 @@ Melon implement an rigorous ECS framework with multiple convenient mechanisms.
 
 > Notice that pointers are not recommanded to be stored in it, especially smart pointer, because the memory management uses memset.
 
-**System**. A system uses EntityFilters to get a set of Entities, and then conducts behaviours on the data binded to them.
+**System**. A System uses EntityFilters to get a set of Entities, and then conducts behaviours on the data binded to them.
 
 **EntityFilter**. An EntityFilter specify conditions to filter Entities, such as with or without certain types of Components.
 
@@ -44,16 +44,16 @@ Melon implement an rigorous ECS framework with multiple convenient mechanisms.
 
 **SingletonComponent**. A SingletonComponent is independent and not binded to an Entity. It is used for global data and singleton pattern.
 
-**ManualComponent**. ManualComponent will not be destroyed while Destroying the binding Entity. An well-designed EntityFilter can be used to detect the Entity destruction, and then it should be mananually destoryed.
+**ManualComponent**. A ManualComponent will not be removed when destroying the binding Entity. An well-designed EntityFilter can be used to detect the Entity destruction, and then the ManualComponent should be mananually removed.
 
-> Entity creation can be detected by filter Entities without certain type of ManualComponent, and then manually add a ManualComponent of this type to avoid multiple detection.
+> Entity creation can be detected by filtering Entities without certain type of ManualComponent, and then manually add a ManualComponent of this type to avoid duplicate detection.
 > Component additon and removement can be detected in a similar way.
 
 **ManualSharedComponent**. A ManualSharedComponent is similar to a ManualComponent
 
 ## License
 
-Melon is licensed under the 3-Clause BSD License.
+Melon is licensed under the BSD 3-Clause License.
 
 ## Acknowledgements
 
