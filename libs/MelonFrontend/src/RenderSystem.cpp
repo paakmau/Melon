@@ -142,6 +142,7 @@ void RenderSystem::onUpdate() {
         m_RenderMeshReferenceCountMap[manualRenderMesh->renderMeshIndex]--;
         if (m_RenderMeshReferenceCountMap[manualRenderMesh->renderMeshIndex] == 0) {
             m_RenderMeshReferenceCountMap.erase(manualRenderMesh->renderMeshIndex);
+            m_MeshBufferMap.erase(manualRenderMesh->renderMeshIndex);
             Engine::instance()->destroyMeshBuffer(manualRenderMesh->meshBuffer);
         }
         entityManager()->removeSharedComponent<ManualRenderMesh>(manualRenderMeshEntities[i]);
