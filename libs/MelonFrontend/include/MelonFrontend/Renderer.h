@@ -11,6 +11,7 @@
 
 #include <array>
 #include <glm/mat4x4.hpp>
+#include <memory>
 #include <vector>
 
 namespace MelonFrontend {

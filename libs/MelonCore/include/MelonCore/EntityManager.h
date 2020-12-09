@@ -307,6 +307,7 @@ EntityFilterBuilder& EntityFilterBuilder::requireSharedComponent(Type const& sha
     unsigned int const sharedComponentId = m_EntityManager->sharedComponentId<Type>();
     unsigned int const sharedComponentIndex = m_EntityManager->sharedComponentIndex(sharedComponent);
     m_EntityFilter.requiredSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
+    return *this;
 }
 
 template <typename Type>
@@ -315,6 +316,7 @@ EntityFilterBuilder& EntityFilterBuilder::rejectSharedComponent(Type const& shar
     unsigned int const sharedComponentId = m_EntityManager->sharedComponentId<Type>();
     unsigned int const sharedComponentIndex = m_EntityManager->sharedComponentIndex(sharedComponent);
     m_EntityFilter.rejectedSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
+    return *this;
 }
 
 inline EntityFilter EntityFilterBuilder::createEntityFilter() {
