@@ -14,7 +14,7 @@ bool TaskHandle::finished() {
 TaskHandle::TaskHandle(std::function<void()> const& procedure) : m_Procedure(procedure), m_FinishSharedFuture(m_FinishPromise.get_future()) {}
 
 void TaskHandle::initPredecessors(std::vector<std::shared_ptr<TaskHandle>> const& predecessors) {
-    // 用于避免前驱任务完成而导致入队
+    // To avoid unexpected enqueueing
     m_PredecessorCount = predecessors.size() + 1;
     for (std::shared_ptr<TaskHandle> predecessor : predecessors)
         if (!predecessor || !predecessor->appendSuccessor(shared_from_this()))

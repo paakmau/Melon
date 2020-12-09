@@ -21,8 +21,8 @@ class TaskManager {
     std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>> const& predecessors);
     std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>>&& predecessors);
     std::shared_ptr<TaskHandle> combine(std::vector<std::shared_ptr<TaskHandle>> const& taskHandles);
-    // 规划的任务不会执行而是存放在等待队列
-    // 调用该函数把等待队列中的任务加入执行队列
+    // Scheduled tasks won't be able to executed at once, because they are put in a waiting queue
+    // Calling this function will activate tasks in the waiting queue
     void activateWaitingTasks();
 
     static TaskManager* instance();
