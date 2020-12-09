@@ -2,6 +2,7 @@
 
 #include <MelonCore/Entity.h>
 
+#include <array>
 #include <cstddef>
 #include <cstdlib>
 #include <unordered_map>
@@ -24,7 +25,7 @@ struct Chunk {
     Chunk() {}
     Chunk(Chunk const&) = delete;
 
-    std::aligned_storage_t<k_Size, k_Align> memory;
+    alignas(k_Align) std::array<std::byte, k_Size> memory;
 };
 
 }  // namespace MelonCore

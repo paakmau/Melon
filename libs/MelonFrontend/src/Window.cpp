@@ -1,3 +1,4 @@
+#include <GLFW/glfw3.h>
 #include <MelonFrontend/Window.h>
 
 namespace MelonFrontend {

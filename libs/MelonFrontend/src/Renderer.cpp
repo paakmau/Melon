@@ -10,6 +10,9 @@
 #include <cstring>
 #include <memory>
 
+// GLFW header
+#include <GLFW/glfw3.h>
+
 namespace MelonFrontend {
 
 void Renderer::initialize(Window* window) {
@@ -131,8 +134,8 @@ MeshBuffer Renderer::createMeshBuffer(std::vector<Vertex> vertices, std::vector<
 
     return MeshBuffer{
         .vertexBuffer = vertexBuffer,
-        .vertexCount = static_cast<uint32_t>(vertices.size()),
         .indexBuffer = indexBuffer,
+        .vertexCount = static_cast<uint32_t>(vertices.size()),
         .indexCount = static_cast<uint32_t>(indices.size())};
 }
 
@@ -236,9 +239,9 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
                 allocateCommandBuffer(device, secondaryCommandBuffer->pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1, secondaryCommandBuffer->buffer);
                 VkCommandBufferInheritanceInfo inheritanceInfo{
                     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
-                    .framebuffer = framebuffer,
                     .renderPass = renderPass,
-                    .subpass = 0};
+                    .subpass = 0,
+                    .framebuffer = framebuffer};
                 VkCommandBufferBeginInfo beginInfo{
                     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
                     .flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
@@ -258,8 +261,9 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
         .renderPass = m_RenderPassClear,
         .framebuffer = m_Framebuffers[m_CurrentImageIndex],
-        .renderArea.offset = {0, 0},
-        .renderArea.extent = m_SwapChain.imageExtent(),
+        .renderArea = VkRect2D{
+            .offset = {0, 0},
+            .extent = m_SwapChain.imageExtent()},
         .clearValueCount = 1,
         .pClearValues = &clearValue};
     vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);

@@ -8,13 +8,6 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 
-#ifndef VULKAN_H_
-#ifndef VK_NO_PROTOTYPES
-#define VK_NO_PROTOTYPES
-#endif
-#include <vulkan/vulkan.h>
-#endif
-
 #include <volk.h>
 
 // Vma header must be included after volk.h

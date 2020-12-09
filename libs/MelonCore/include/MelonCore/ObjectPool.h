@@ -1,12 +1,16 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <cstdlib>
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <vector>
 
 namespace MelonCore {
 
+// ObejctPool can't be destroy util all objects are recycled
 template <typename Type>
 class ObjectPool {
   public:
@@ -14,34 +18,24 @@ class ObjectPool {
 
     ObjectPool();
     ObjectPool(ObjectPool const&) = delete;
-    ObjectPool(ObjectPool&& other);
-    // ObejctPool can't be destroy util all objects are recycled
-    ~ObjectPool();
 
     template <typename... Args>
     Type* request(Args&&... args);
     void recycle(Type* object);
 
   private:
+    struct Buffer {
+        alignas(Type) std::array<std::byte, sizeof(Type) * k_CountPerBuffer> buffer;
+    };
+
     void createBuffer();
-    std::vector<Type*> m_Buffer;
+    std::vector<std::unique_ptr<Buffer>> m_Buffers;
     std::vector<Type*> m_Pool;
 };
 
 template <typename Type>
 ObjectPool<Type>::ObjectPool() {
     createBuffer();
-}
-
-template <typename Type>
-ObjectPool<Type>::ObjectPool(ObjectPool&& other) : m_Buffer(std::move(other.m_Buffer)), m_Pool(std::move(other.m_Pool)) {}
-
-template <typename Type>
-ObjectPool<Type>::~ObjectPool() {
-    for (Type const* buffer : m_Buffer)
-        delete[] buffer;
-    m_Buffer.clear();
-    m_Pool.clear();
 }
 
 template <typename Type>
@@ -64,7 +58,7 @@ void ObjectPool<Type>::recycle(Type* object) {
 
 template <typename Type>
 void ObjectPool<Type>::createBuffer() {
-    Type* p = m_Buffer.emplace_back(reinterpret_cast<Type*>(new std::aligned_storage_t<sizeof(Type), alignof(Type)>[k_CountPerBuffer]));
+    Type* p = reinterpret_cast<Type*>(m_Buffers.emplace_back(std::make_unique<Buffer>()).get());
     for (unsigned int i = 0; i < k_CountPerBuffer; i++, p++)
         m_Pool.push_back(p);
 }

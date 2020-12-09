@@ -89,6 +89,20 @@
         "hash_set": "cpp",
         "cassert": "cpp",
         "compare": "cpp",
-        "condition_variable": "cpp"
+        "condition_variable": "cpp",
+        "xhash": "cpp",
+        "xmemory": "cpp",
+        "xstddef": "cpp",
+        "xstring": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp",
+        "*.tcc": "cpp",
+        "clocale": "cpp",
+        "concepts": "cpp",
+        "csignal": "cpp",
+        "random": "cpp",
+        "ranges": "cpp",
+        "stop_token": "cpp",
+        "cinttypes": "cpp"
     }
 }

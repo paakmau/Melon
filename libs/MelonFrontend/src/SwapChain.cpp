@@ -1,7 +1,7 @@
 #include <MelonFrontend/SwapChain.h>
 #include <MelonFrontend/VulkanUtil.h>
 
-#include <climits>
+#include <limits>
 
 namespace MelonFrontend {
 
@@ -23,7 +23,7 @@ void SwapChain::terminate() {
 }
 
 bool SwapChain::acquireNextImageContext(VkSemaphore imageAvailableSemaphore, uint32_t& imageIndex) {
-    VkResult result = vkAcquireNextImageKHR(m_Device, m_Swapchain, std::numeric_limits<uint32_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(m_Device, m_Swapchain, (std::numeric_limits<uint32_t>::max)(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
         return false;
     else

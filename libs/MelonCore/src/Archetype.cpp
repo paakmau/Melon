@@ -98,7 +98,7 @@ void Archetype::moveEntityAddingSharedComponent(EntityLocation const& srcEntityL
     std::vector<unsigned int> dstSharedComponentIndices(m_SharedComponentIds.size());
     // Assert SharedComponent ids are in ascending order
     for (unsigned int i = 0, j = 0; i < dstSharedComponentIndices.size(); i++, j++)
-        if (dstSharedComponentIds[i] == srcSharedComponentIds[j])
+        if (j < srcSharedComponentIds.size() && dstSharedComponentIds[i] == srcSharedComponentIds[j])
             dstSharedComponentIndices[i] = srcSharedComponentIndices[j];
         else
             dstSharedComponentIndices[i] = sharedComponentIndex, j--;

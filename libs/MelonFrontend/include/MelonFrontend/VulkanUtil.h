@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 #include <fstream>
+#include <limits>
 #include <set>
 #include <vector>
 
@@ -130,9 +131,9 @@ inline void createLogicalDevice(VkPhysicalDevice physicalDevice, uint32_t const&
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = static_cast<uint32_t>(deviceQueueCreateInfos.size()),
         .pQueueCreateInfos = deviceQueueCreateInfos.data(),
-        .pEnabledFeatures = &enabledFeatures,
         .enabledExtensionCount = (uint32_t)deviceExtensionNames.size(),
-        .ppEnabledExtensionNames = deviceExtensionNames.data()};
+        .ppEnabledExtensionNames = deviceExtensionNames.data(),
+        .pEnabledFeatures = &enabledFeatures};
     VkResult result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
     assert(result == VK_SUCCESS);
 
@@ -185,12 +186,12 @@ inline void createSwapchain(VkDevice device, VkExtent2D windowExtent, VkSurfaceK
 
     // Choose the extent
     VkExtent2D extent;
-    if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    if (surfaceCapabilities.currentExtent.width != (std::numeric_limits<uint32_t>::max)())
         extent = surfaceCapabilities.currentExtent;
     else {
         extent = windowExtent;
-        extent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, extent.width));
-        extent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, extent.height));
+        extent.width = (std::max)(surfaceCapabilities.minImageExtent.width, (std::min)(surfaceCapabilities.maxImageExtent.width, extent.width));
+        extent.height = (std::max)(surfaceCapabilities.minImageExtent.height, (std::min)(surfaceCapabilities.maxImageExtent.height, extent.height));
     }
 
     // Choose the image count
@@ -243,15 +244,12 @@ inline void createSwapchain(VkDevice device, VkExtent2D windowExtent, VkSurfaceK
             .image = images[i],
             .viewType = VK_IMAGE_VIEW_TYPE_2D,
             .format = imageFormat,
-            .components.r = VK_COMPONENT_SWIZZLE_IDENTITY,
-            .components.g = VK_COMPONENT_SWIZZLE_IDENTITY,
-            .components.b = VK_COMPONENT_SWIZZLE_IDENTITY,
-            .components.a = VK_COMPONENT_SWIZZLE_IDENTITY,
-            .subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .subresourceRange.baseMipLevel = 0,
-            .subresourceRange.levelCount = 1,
-            .subresourceRange.baseArrayLayer = 0,
-            .subresourceRange.layerCount = 1};
+            .components = VkComponentMapping{
+                .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+                .a = VK_COMPONENT_SWIZZLE_IDENTITY},
+            .subresourceRange = VkImageSubresourceRange{.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
         result = vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageViews[i]);
         assert(result == VK_SUCCESS);
     }
@@ -275,6 +273,7 @@ inline void createAllocator(VkInstance instance, VkPhysicalDevice physicalDevice
         .vkDestroyBuffer = vkDestroyBuffer,
         .vkCreateImage = vkCreateImage,
         .vkDestroyImage = vkDestroyImage,
+        .vkCmdCopyBuffer = vkCmdCopyBuffer,
         .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
         .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR};
     VmaAllocatorCreateInfo const createInfo{
@@ -329,8 +328,8 @@ inline void createRenderPass(VkDevice device, VkFormat imageFormat, VkRenderPass
         .srcSubpass = VK_SUBPASS_EXTERNAL,
         .dstSubpass = 0,
         .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .srcAccessMask = 0,
         .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        .srcAccessMask = 0,
         .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT};
 
     VkRenderPassCreateInfo renderPassCreateInfo{
@@ -433,9 +432,9 @@ inline void createGraphicsPipeline(VkDevice device, std::vector<uint32_t> const&
         .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
     std::array<VkVertexInputAttributeDescription, Count> vertexInputAttributeDescriptions;
     for (unsigned int i = 0; i < vertexInputAttributeDescriptions.size(); i++)
-        vertexInputAttributeDescriptions[i] = {
-            .binding = 0,
+        vertexInputAttributeDescriptions[i] = VkVertexInputAttributeDescription{
             .location = i,
+            .binding = 0,
             .format = vertexInputAttributeFormats[i],
             .offset = vertexInputAttributeOffsets[i]};
 
@@ -475,19 +474,19 @@ inline void createGraphicsPipeline(VkDevice device, std::vector<uint32_t> const&
         .depthClampEnable = VK_FALSE,
         .rasterizerDiscardEnable = VK_FALSE,
         .polygonMode = VK_POLYGON_MODE_FILL,
-        .lineWidth = 1.0f,
         .cullMode = VK_CULL_MODE_BACK_BIT,
         .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
-        .depthBiasEnable = VK_FALSE};
+        .depthBiasEnable = VK_FALSE,
+        .lineWidth = 1.0f};
 
     VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-        .sampleShadingEnable = VK_FALSE,
-        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT};
+        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
+        .sampleShadingEnable = VK_FALSE};
 
     VkPipelineColorBlendAttachmentState colorBlendAttachmentState = {
-        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
-        .blendEnable = VK_FALSE};
+        .blendEnable = VK_FALSE,
+        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT};
 
     VkPipelineColorBlendStateCreateInfo colorBlendStateCreateInfo{
         .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
@@ -572,10 +571,10 @@ inline void updateUniformDescriptorSet(VkDevice device, VkDescriptorSet descript
             .dstSet = descriptorSet,
             .dstBinding = i,
             .dstArrayElement = 0,
-            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = 1,
-            .pBufferInfo = &bufferInfos[i],
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .pImageInfo = nullptr,
+            .pBufferInfo = &bufferInfos[i],
             .pTexelBufferView = nullptr};
     }
     vkUpdateDescriptorSets(device, Count, writeDescriptorSets.data(), 0, nullptr);
