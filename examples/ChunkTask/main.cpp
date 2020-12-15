@@ -14,9 +14,9 @@ struct Speed : public MelonCore::Component {
 };
 
 class SpeedSystem : public MelonCore::SystemBase {
-   protected:
+  protected:
     class SpeedChunkTask : public MelonCore::ChunkTask {
-       public:
+      public:
         SpeedChunkTask(const unsigned int& speedComponentId, const unsigned int& translationComponentId) : _speedComponentId(speedComponentId), _translationComponentId(translationComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
             Speed* feet = chunkAccessor.componentArray<Speed>(_speedComponentId);
@@ -52,15 +52,15 @@ class SpeedSystem : public MelonCore::SystemBase {
     }
 
     void onUpdate() override {
-        printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
+        printf("Delta time : %f\n", time()->deltaTime());
         predecessor() = schedule(std::make_shared<SpeedChunkTask>(_speedComponentId, _translationComponentId), _entityFilter, predecessor());
         if (_counter++ > 1000)
-            MelonCore::Instance::instance()->quit();
+            instance()->quit();
     }
 
     void onExit() override {}
 
-   private:
+  private:
     MelonCore::EntityFilter _entityFilter;
     unsigned int _speedComponentId;
     unsigned int _translationComponentId;
@@ -68,7 +68,8 @@ class SpeedSystem : public MelonCore::SystemBase {
 };
 
 int main() {
-    MelonCore::Instance::instance()->registerSystem<SpeedSystem>();
-    MelonCore::Instance::instance()->start();
+    MelonCore::Instance instance;
+    instance.registerSystem<SpeedSystem>();
+    instance.start();
     return 0;
 }

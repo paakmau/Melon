@@ -5,6 +5,7 @@
 #include <libMelonFrontend/Renderer.h>
 #include <libMelonFrontend/SwapChain.h>
 #include <libMelonFrontend/Window.h>
+#include <libMelonTask/TaskManager.h>
 
 #include <cstddef>
 #include <glm/mat4x4.hpp>
@@ -14,8 +15,8 @@
 namespace MelonFrontend {
 
 class Engine {
-   public:
-    void initialize(char const* title, unsigned int const& width, unsigned int const& height);
+  public:
+    void initialize(MelonTask::TaskManager* taskManager, char const* title, unsigned int const& width, unsigned int const& height);
     void terminate();
 
     void beginFrame();
@@ -27,14 +28,10 @@ class Engine {
     void renderFrame(glm::mat4 const& vp);
     void endFrame();
 
-    static Engine* instance();
-
     float windowAspectRatio() const { return m_Window.aspectRatio(); }
     bool windowClosed() const { return m_Window.closed(); }
 
-   private:
-    Engine();
-
+  private:
     void notifyWindowResized();
     void notifyWindowClosed();
 

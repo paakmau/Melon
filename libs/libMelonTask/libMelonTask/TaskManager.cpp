@@ -2,25 +2,34 @@
 
 namespace MelonTask {
 
-TaskManager* TaskManager::instance() {
-    static TaskManager sInstance;
-    return &sInstance;
+TaskManager::TaskManager() {
+    for (std::unique_ptr<TaskWorker>& worker : m_Workers)
+        worker = std::make_unique<TaskWorker>(this);
+}
+
+TaskManager::~TaskManager() {
+    m_Stopped = true;
+    for (std::unique_ptr<TaskWorker> const& worker : m_Workers)
+        worker->notify_stopped();
+    m_TaskQueueConditionVariable.notify_all();
+    for (std::unique_ptr<TaskWorker> const& worker : m_Workers)
+        worker->join();
 }
 
 std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure) {
-    std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(procedure);
+    std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(this, procedure);
     m_WaitingTaskQueue.emplace(taskHandle);
     return taskHandle;
 }
 
 std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>> const& predecessors) {
-    std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(procedure);
+    std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(this, procedure);
     m_WaitingTaskAndPredecessorsQueue.emplace(std::make_pair(taskHandle, predecessors));
     return taskHandle;
 }
 
 std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>>&& predecessors) {
-    std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(procedure);
+    std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(this, procedure);
     m_WaitingTaskAndPredecessorsQueue.emplace(std::make_pair(taskHandle, std::move(predecessors)));
     return taskHandle;
 }
@@ -44,20 +53,6 @@ void TaskManager::activateWaitingTasks() {
         m_WaitingTaskAndPredecessorsQueue.pop();
     }
     m_TaskQueueConditionVariable.notify_all();
-}
-
-TaskManager::TaskManager() {
-    for (unsigned int i = 0; i < k_WorkerCount; i++)
-        m_Workers.emplace_back(std::make_unique<TaskWorker>());
-}
-
-TaskManager::~TaskManager() {
-    m_Stopped = true;
-    for (std::unique_ptr<TaskWorker> const& worker : m_Workers)
-        worker->notify_stopped();
-    m_TaskQueueConditionVariable.notify_all();
-    for (std::unique_ptr<TaskWorker> const& worker : m_Workers)
-        worker->join();
 }
 
 void TaskManager::queueTask(std::shared_ptr<TaskHandle> const& task) {

@@ -2,6 +2,7 @@
 
 #include <libMelonCore/ArchetypeMask.h>
 #include <libMelonCore/SystemBase.h>
+#include <libMelonFrontend/Engine.h>
 #include <libMelonFrontend/MeshBuffer.h>
 #include <libMelonFrontend/RenderMesh.h>
 
@@ -21,6 +22,8 @@ class RenderSystem : public MelonCore::SystemBase {
     virtual void onExit() final;
 
   private:
+    Engine m_Engine;
+
     MelonCore::EntityFilter m_CreatedRenderMeshEntityFilter;
     MelonCore::EntityFilter m_RenderMeshEntityFilter;
     MelonCore::EntityFilter m_DestroyedRenderMeshEntityFilter;

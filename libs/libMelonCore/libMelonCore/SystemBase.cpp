@@ -16,7 +16,7 @@ std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<Chun
     unsigned int chunkCounter = 0;
     unsigned int entityCounter = 0;
     for (unsigned int i = 0; i < taskCount; i++) {
-        taskHandles[i] = MelonTask::TaskManager::instance()->schedule(
+        taskHandles[i] = m_TaskManager->schedule(
             [chunkTask, accessors, chunkCountPerTask, i, chunkCounter, entityCounter]() {
                 for (unsigned int j = i * chunkCountPerTask; j < (i + 1) * chunkCountPerTask && j < accessors->size(); j++)
                     chunkTask->execute((*accessors)[j], chunkCounter, entityCounter);
@@ -26,7 +26,7 @@ std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<Chun
         for (unsigned int j = i * chunkCountPerTask; j < (i + 1) * chunkCountPerTask && j < accessors->size(); j++)
             entityCounter += (*accessors)[j].entityCount();
     }
-    return MelonTask::TaskManager::instance()->combine(taskHandles);
+    return m_TaskManager->combine(taskHandles);
 }
 
 std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor) {
@@ -39,7 +39,7 @@ std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<Enti
     unsigned int entityCounter = 0;
     for (unsigned int i = 0; i < taskCount; i++) {
         EntityCommandBuffer* entityCommandBuffer = m_EntityManager->createEntityCommandBuffer();
-        taskHandles[i] = MelonTask::TaskManager::instance()->schedule(
+        taskHandles[i] = m_TaskManager->schedule(
             [entityCommandBufferChunkTask, accessors, chunkCountPerTask, i, chunkCounter, entityCounter, entityCommandBuffer]() {
                 for (unsigned int j = i * chunkCountPerTask; j < (i + 1) * chunkCountPerTask && j < accessors->size(); j++)
                     entityCommandBufferChunkTask->execute((*accessors)[j], chunkCounter, entityCounter, entityCommandBuffer);
@@ -49,20 +49,23 @@ std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<Enti
         for (unsigned int j = i * chunkCountPerTask; j < (i + 1) * chunkCountPerTask && j < accessors->size(); j++)
             entityCounter += (*accessors)[j].entityCount();
     }
-    return MelonTask::TaskManager::instance()->combine(taskHandles);
+    return m_TaskManager->combine(taskHandles);
 }
 
-void SystemBase::enter(EntityManager* entityManager) {
+void SystemBase::enter(Instance* instance, MelonTask::TaskManager* taskManager, Time* time, EntityManager* entityManager) {
+    m_Instance = instance;
+    m_TaskManager = taskManager;
+    m_Time = time;
     m_EntityManager = entityManager;
     onEnter();
-    MelonTask::TaskManager::instance()->activateWaitingTasks();
+    m_TaskManager->activateWaitingTasks();
 }
 
 void SystemBase::update() {
     if (m_TaskHandle)
         m_TaskHandle->complete();
     onUpdate();
-    MelonTask::TaskManager::instance()->activateWaitingTasks();
+    m_TaskManager->activateWaitingTasks();
 }
 
 void SystemBase::exit() {

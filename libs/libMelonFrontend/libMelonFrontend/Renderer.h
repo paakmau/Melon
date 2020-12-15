@@ -8,6 +8,7 @@
 #include <libMelonFrontend/UniformBufferPool.h>
 #include <libMelonFrontend/VulkanPlatform.h>
 #include <libMelonFrontend/Window.h>
+#include <libMelonTask/TaskManager.h>
 
 #include <array>
 #include <glm/mat4x4.hpp>
@@ -25,7 +26,7 @@ class Renderer {
     static constexpr unsigned int k_MaxTaskCount = 4U;
     static constexpr unsigned int k_MaxUniformDescriptorCount = 2048U;
 
-    void initialize(Window* window);
+    void initialize(MelonTask::TaskManager* taskManager, Window* window);
     void terminate();
 
     void beginFrame();
@@ -47,6 +48,8 @@ class Renderer {
 
     void recordCommandBufferCopyUniformObject(void const* data, UniformBuffer memory, VkDeviceSize size);
     void recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer);
+
+    MelonTask::TaskManager* m_TaskManager;
 
     Window* m_Window;
 

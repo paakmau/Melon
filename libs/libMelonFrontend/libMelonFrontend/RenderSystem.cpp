@@ -80,7 +80,7 @@ RenderSystem::RenderSystem(unsigned int const& width, unsigned int const& height
 RenderSystem::~RenderSystem() {}
 
 void RenderSystem::onEnter() {
-    Engine::instance()->initialize(MelonCore::Instance::instance()->applicationName(), m_CurrentWidth, m_CurrentHeight);
+    m_Engine.initialize(taskManager(), instance()->applicationName(), m_CurrentWidth, m_CurrentHeight);
 
     m_CreatedRenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireSharedComponents<RenderMesh>().rejectSharedComponents<ManualRenderMesh>().createEntityFilter();
     m_RenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<MelonCore::Translation, MelonCore::Rotation, MelonCore::Scale>().requireSharedComponents<RenderMesh, ManualRenderMesh>().createEntityFilter();
@@ -109,15 +109,15 @@ void RenderSystem::onUpdate() {
     // RenderTask
     unsigned int const renderMeshCount = entityManager()->entityCount(m_RenderMeshEntityFilter);
     glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), Engine::instance()->windowAspectRatio(), 0.1f, 10.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), m_Engine.windowAspectRatio(), 0.1f, 10.0f);
     projection[1][1] *= -1;
     std::vector<glm::mat4> models(renderMeshCount);
     std::vector<ManualRenderMesh const*> manualRenderMeshes(renderMeshCount);
     std::shared_ptr<MelonTask::TaskHandle> renderMeshTaskHandle = schedule(std::make_shared<RenderTask>(models, manualRenderMeshes, m_TranslationComponentId, m_RotationComponentId, m_ScaleComponentId, m_ManualRenderMeshComponentId), m_RenderMeshEntityFilter, predecessor());
 
-    MelonTask::TaskManager::instance()->activateWaitingTasks();
+    taskManager()->activateWaitingTasks();
 
-    Engine::instance()->beginFrame();
+    m_Engine.beginFrame();
 
     // Create ManualRenderMeshes
     createdRenderMeshTaskHandle->complete();
@@ -128,7 +128,7 @@ void RenderSystem::onUpdate() {
         else {
             m_RenderMeshReferenceCountMap[createdRenderMeshIndex] = 1;
             RenderMesh const* createdRenderMesh = entityManager()->sharedComponent<RenderMesh>(createdRenderMeshIndex);
-            m_MeshBufferMap.emplace(createdRenderMeshIndex, Engine::instance()->createMeshBuffer(createdRenderMesh->vertices, createdRenderMesh->indices));
+            m_MeshBufferMap.emplace(createdRenderMeshIndex, m_Engine.createMeshBuffer(createdRenderMesh->vertices, createdRenderMesh->indices));
         }
         MeshBuffer const& meshBuffer = m_MeshBufferMap[createdRenderMeshIndex];
         entityManager()->addSharedComponent<ManualRenderMesh>(createdRenderMeshEntities[i], ManualRenderMesh{.renderMeshIndex = createdRenderMeshIndex, .meshBuffer = meshBuffer});
@@ -143,35 +143,35 @@ void RenderSystem::onUpdate() {
         if (m_RenderMeshReferenceCountMap[manualRenderMesh->renderMeshIndex] == 0) {
             m_RenderMeshReferenceCountMap.erase(manualRenderMesh->renderMeshIndex);
             m_MeshBufferMap.erase(manualRenderMesh->renderMeshIndex);
-            Engine::instance()->destroyMeshBuffer(manualRenderMesh->meshBuffer);
+            m_Engine.destroyMeshBuffer(manualRenderMesh->meshBuffer);
         }
         entityManager()->removeSharedComponent<ManualRenderMesh>(manualRenderMeshEntities[i]);
     }
 
     // Add batches
     renderMeshTaskHandle->complete();
-    Engine::instance()->beginBatches();
+    m_Engine.beginBatches();
     std::vector<glm::mat4> batchModels;
     for (unsigned int i = 0; i < renderMeshCount; i++) {
         batchModels.push_back(models[i]);
         while (i + 1 < renderMeshCount && manualRenderMeshes[i] == manualRenderMeshes[i + 1]) batchModels.push_back(models[++i]);
-        Engine::instance()->addBatch(batchModels, manualRenderMeshes[i]->meshBuffer);
+        m_Engine.addBatch(batchModels, manualRenderMeshes[i]->meshBuffer);
         batchModels.clear();
     }
-    Engine::instance()->endBatches();
+    m_Engine.endBatches();
 
     // Draw frame
-    Engine::instance()->renderFrame(projection * view);
+    m_Engine.renderFrame(projection * view);
 
-    Engine::instance()->endFrame();
-    if (Engine::instance()->windowClosed())
-        MelonCore::Instance::instance()->quit();
+    m_Engine.endFrame();
+    if (m_Engine.windowClosed())
+        instance()->quit();
 }
 
 void RenderSystem::onExit() {
     for (std::pair<unsigned int, MeshBuffer> const& entry : m_MeshBufferMap)
-        Engine::instance()->destroyMeshBuffer(entry.second);
-    Engine::instance()->terminate();
+        m_Engine.destroyMeshBuffer(entry.second);
+    m_Engine.terminate();
 }
 
 }  // namespace MelonFrontend

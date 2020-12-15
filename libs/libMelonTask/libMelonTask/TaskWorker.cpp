@@ -8,13 +8,13 @@
 
 namespace MelonTask {
 
-TaskWorker::TaskWorker() {
+TaskWorker::TaskWorker(TaskManager* taskManager) : m_TaskManager(taskManager) {
     m_Thread = std::thread(&TaskWorker::threadEntryPoint, this);
 }
 
 void TaskWorker::threadEntryPoint() {
     while (!m_Stopped) {
-        std::shared_ptr<TaskHandle> task = TaskManager::instance()->getNextTask();
+        std::shared_ptr<TaskHandle> task = m_TaskManager->getNextTask();
         if (task) {
             task->execute();
             task->notifyFinished();

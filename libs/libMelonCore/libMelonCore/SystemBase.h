@@ -3,11 +3,15 @@
 #include <libMelonCore/ChunkAccessor.h>
 #include <libMelonCore/EntityFilter.h>
 #include <libMelonCore/EntityManager.h>
+#include <libMelonCore/Time.h>
 #include <libMelonTask/TaskHandle.h>
+#include <libMelonTask/TaskManager.h>
 
 #include <memory>
 
 namespace MelonCore {
+
+class Instance;
 
 class ChunkTask {
   public:
@@ -34,17 +38,29 @@ class SystemBase {
     std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<ChunkTask> const& chunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
     std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, EntityFilter const& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
 
+    Instance* const& instance() const { return m_Instance; }
+    Instance*& instance() { return m_Instance; }
+    MelonTask::TaskManager* const& taskManager() const { return m_TaskManager; }
+    MelonTask::TaskManager*& taskManager() { return m_TaskManager; }
+    Time* const& time() const { return m_Time; }
+    Time*& time() { return m_Time; }
+    EntityManager* const& entityManager() const { return m_EntityManager; }
+    EntityManager*& entityManager() { return m_EntityManager; }
+
     std::shared_ptr<MelonTask::TaskHandle> const& predecessor() const { return m_TaskHandle; }
     std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return m_TaskHandle; }
-    EntityManager* entityManager() const { return m_EntityManager; }
 
   private:
-    void enter(EntityManager* entityManager);
+    void enter(Instance* instance, MelonTask::TaskManager* taskManager, Time* time, EntityManager* entityManager);
     void update();
     void exit();
 
-    std::shared_ptr<MelonTask::TaskHandle> m_TaskHandle;
+    Instance* m_Instance;
+    MelonTask::TaskManager* m_TaskManager;
+    Time* m_Time;
     EntityManager* m_EntityManager;
+
+    std::shared_ptr<MelonTask::TaskHandle> m_TaskHandle;
 
     friend class World;
 };

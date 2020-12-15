@@ -15,7 +15,8 @@
 
 namespace MelonFrontend {
 
-void Renderer::initialize(Window* window) {
+void Renderer::initialize(MelonTask::TaskManager* taskManager, Window* window) {
+    m_TaskManager = taskManager;
     m_Window = window;
 
     createInstance(window->requiredVulkanInstanceExtensions(), m_VulkanInstance);
@@ -234,7 +235,7 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
         secondaryCommandBuffer->pool = m_CommandPools[i];
         Subrenderer* subrenderer = m_Subrenderer.get();
         unsigned int swapChainImageIndex = m_CurrentImageIndex;
-        subrendererHandles[i] = MelonTask::TaskManager::instance()->schedule(
+        subrendererHandles[i] = m_TaskManager->schedule(
             [device, framebuffer, renderPass, secondaryCommandBuffer, subrenderer, swapChainImageIndex, i, &cameraUniformBuffer, &renderBatches, batchCountPerTask]() {
                 allocateCommandBuffer(device, secondaryCommandBuffer->pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1, secondaryCommandBuffer->buffer);
                 VkCommandBufferInheritanceInfo inheritanceInfo{
@@ -252,7 +253,7 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
                 vkEndCommandBuffer(secondaryCommandBuffer->buffer);
             });
     }
-    MelonTask::TaskManager::instance()->activateWaitingTasks();
+    m_TaskManager->activateWaitingTasks();
     for (std::shared_ptr<MelonTask::TaskHandle> taskHandle : subrendererHandles)
         taskHandle->complete();
 

@@ -2,11 +2,11 @@
 
 namespace MelonFrontend {
 
-void Engine::initialize(char const* title, unsigned int const& width, unsigned int const& height) {
+void Engine::initialize(MelonTask::TaskManager* taskManager, char const* title, unsigned int const& width, unsigned int const& height) {
     m_Window.initialize(title, width, height);
 
     m_Renderer = std::make_unique<Renderer>();
-    m_Renderer->initialize(&m_Window);
+    m_Renderer->initialize(taskManager, &m_Window);
 }
 
 void Engine::terminate() {
@@ -37,13 +37,6 @@ void Engine::endBatches() { m_Renderer->endBatches(); }
 void Engine::renderFrame(/* TODO: Implement the Camera */ glm::mat4 const& vp) { m_Renderer->renderFrame(vp); }
 
 void Engine::endFrame() { m_Renderer->endFrame(); }
-
-Engine* Engine::instance() {
-    static Engine sInstance;
-    return &sInstance;
-}
-
-Engine::Engine() {}
 
 void Engine::notifyWindowResized() {
     m_WindowResized = true;

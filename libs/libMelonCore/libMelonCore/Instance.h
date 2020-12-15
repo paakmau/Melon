@@ -1,7 +1,9 @@
 #pragma once
 
 #include <libMelonCore/EntityManager.h>
+#include <libMelonCore/Time.h>
 #include <libMelonCore/World.h>
+#include <libMelonTask/TaskManager.h>
 
 #include <memory>
 
@@ -12,8 +14,7 @@ class World;
 
 class Instance {
   public:
-    char const* const& applicationName() const { return m_ApplicationName; }
-    char const*& applicationName() { return m_ApplicationName; }
+    Instance();
 
     template <typename Type, typename... Args>
     void registerSystem(Args&&... args);
@@ -21,16 +22,18 @@ class Instance {
     void start();
     void quit();
 
-    static Instance* instance();
+    char const* const& applicationName() const { return m_ApplicationName; }
+    char const*& applicationName() { return m_ApplicationName; }
 
   private:
-    Instance();
-
     void mainLoop();
 
     char const* m_ApplicationName{};
 
-    std::unique_ptr<EntityManager> m_EntityManager;
+    MelonTask::TaskManager m_TaskManager;
+
+    Time m_Time;
+
     std::unique_ptr<World> m_DefaultWorld;
 
     bool m_ShouldQuit{};

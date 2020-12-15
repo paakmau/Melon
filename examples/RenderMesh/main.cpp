@@ -74,7 +74,7 @@ class RotationSystem : public MelonCore::SystemBase {
     }
 
     virtual void onUpdate() override {
-        std::shared_ptr<RotationTask> rotationChunkTask = std::make_shared<RotationTask>(_rotationComponentId, _rotationSpeedComponentId, _destructionTimeComponentId, MelonCore::Time::instance()->deltaTime());
+        std::shared_ptr<RotationTask> rotationChunkTask = std::make_shared<RotationTask>(_rotationComponentId, _rotationSpeedComponentId, _destructionTimeComponentId, time()->deltaTime());
         predecessor() = schedule(rotationChunkTask, _rotationEntityFilter, predecessor());
     }
 
@@ -87,9 +87,10 @@ class RotationSystem : public MelonCore::SystemBase {
 };
 
 int main() {
-    MelonCore::Instance::instance()->applicationName() = "Rotation";
-    MelonCore::Instance::instance()->registerSystem<MelonFrontend::RenderSystem>(800, 600);
-    MelonCore::Instance::instance()->registerSystem<RotationSystem>();
-    MelonCore::Instance::instance()->start();
+    MelonCore::Instance instance;
+    instance.applicationName() = "Rotation";
+    instance.registerSystem<MelonFrontend::RenderSystem>(800, 600);
+    instance.registerSystem<RotationSystem>();
+    instance.start();
     return 0;
 }

@@ -11,8 +11,6 @@ bool TaskHandle::finished() {
     return m_Finished;
 }
 
-TaskHandle::TaskHandle(std::function<void()> const& procedure) : m_Procedure(procedure), m_FinishSharedFuture(m_FinishPromise.get_future()) {}
-
 void TaskHandle::initPredecessors(std::vector<std::shared_ptr<TaskHandle>> const& predecessors) {
     // To avoid unexpected enqueueing
     m_PredecessorCount = predecessors.size() + 1;
@@ -46,7 +44,7 @@ void TaskHandle::notifyFinished() {
 
 void TaskHandle::notifyPredecessorFinished() {
     if (--m_PredecessorCount == 0)
-        TaskManager::instance()->queueTask(shared_from_this());
+        m_TaskManager->queueTask(shared_from_this());
 }
 
 }  // namespace MelonTask

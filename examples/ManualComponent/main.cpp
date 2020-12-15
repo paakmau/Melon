@@ -27,9 +27,9 @@ struct ManualDamageCounter : public MelonCore::ManualComponent {
 };
 
 class MonsterDamageCounterSystem : public MelonCore::SystemBase {
-   protected:
+  protected:
     class DamageEntityCommandBufferChunkTask : public MelonCore::EntityCommandBufferChunkTask {
-       public:
+      public:
         DamageEntityCommandBufferChunkTask(const unsigned int& monsterHealthComponentId, const unsigned int& persistentDamageComponentId, const unsigned int& manualDamageCounterComponentId) : _monsterHealthComponentId(monsterHealthComponentId), _persistentDamageComponentId(persistentDamageComponentId), _manualDamageCounterComponentId(manualDamageCounterComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, MelonCore::EntityCommandBuffer* entityCommandBuffer) override {
             const MelonCore::Entity* entities = chunkAccessor.entityArray();
@@ -51,7 +51,7 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
     };
 
     class CollectCounterCommandBufferChunkTask : public MelonCore::EntityCommandBufferChunkTask {
-       public:
+      public:
         CollectCounterCommandBufferChunkTask(const unsigned int& manualDamageCounterComponentId, std::vector<unsigned int>& damageTakenCounts) : _manualDamageCounterComponentId(manualDamageCounterComponentId), _damageTakenCounts(damageTakenCounts) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, MelonCore::EntityCommandBuffer* entityCommandBuffer) override {
             const MelonCore::Entity* entities = chunkAccessor.entityArray();
@@ -100,22 +100,22 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
     }
 
     void onUpdate() override {
-        printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
+        printf("Delta time : %f\n", time()->deltaTime());
         std::shared_ptr<MelonTask::TaskHandle> damageTaskHandle = schedule(std::make_shared<DamageEntityCommandBufferChunkTask>(_monsterHealthComponentId, _persistentDamageComponentId, _manualDamageCounterComponentId), _monsterEntityFilter, predecessor());
         std::shared_ptr<MelonTask::TaskHandle> counterTaskHandle = schedule(std::make_shared<CollectCounterCommandBufferChunkTask>(_manualDamageCounterComponentId, _damageTakenCounts), _collectCounterEntityFilter, predecessor());
-        predecessor() = MelonTask::TaskManager::instance()->combine({damageTaskHandle, counterTaskHandle});
+        predecessor() = taskManager()->combine({damageTaskHandle, counterTaskHandle});
         if (entityManager()->entityCount(_monsterEntityFilter) == 0 && entityManager()->entityCount(_collectCounterEntityFilter) == 0) {
             printf("Damage taken counts: ");
             for (const unsigned int& damageTakenCount : _damageTakenCounts)
                 printf("%d ", damageTakenCount);
             puts("");
-            MelonCore::Instance::instance()->quit();
+            instance()->quit();
         }
     }
 
     void onExit() override {}
 
-   private:
+  private:
     MelonCore::EntityFilter _monsterEntityFilter;
     MelonCore::EntityFilter _collectCounterEntityFilter;
     unsigned int _monsterHealthComponentId;
@@ -126,7 +126,8 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
 };
 
 int main() {
-    MelonCore::Instance::instance()->registerSystem<MonsterDamageCounterSystem>();
-    MelonCore::Instance::instance()->start();
+    MelonCore::Instance instance;
+    instance.registerSystem<MonsterDamageCounterSystem>();
+    instance.start();
     return 0;
 }

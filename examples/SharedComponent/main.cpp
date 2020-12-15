@@ -32,9 +32,9 @@ struct Money : public MelonCore::Component {
 };
 
 class GroupSystem : public MelonCore::SystemBase {
-   protected:
+  protected:
     class GroupChunkTask : public MelonCore::ChunkTask {
-       public:
+      public:
         GroupChunkTask(const unsigned int& moneyComponentId, const unsigned int& groupSharedComponentId) : _moneyComponentId(moneyComponentId), _groupSharedComponentId(groupSharedComponentId) {}
         virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
             Money* moneys = chunkAccessor.componentArray<Money>(_moneyComponentId);
@@ -71,15 +71,15 @@ class GroupSystem : public MelonCore::SystemBase {
     }
 
     void onUpdate() override {
-        printf("Delta time : %f\n", MelonCore::Time::instance()->deltaTime());
+        printf("Delta time : %f\n", time()->deltaTime());
         predecessor() = schedule(std::make_shared<GroupChunkTask>(_moneyComponentId, _groupSharedComponentId), _entityFilter, predecessor());
         if (_counter++ > 1000)
-            MelonCore::Instance::instance()->quit();
+            instance()->quit();
     }
 
     void onExit() override {}
 
-   private:
+  private:
     MelonCore::EntityFilter _entityFilter;
     unsigned int _moneyComponentId;
     unsigned int _groupSharedComponentId;
@@ -87,7 +87,8 @@ class GroupSystem : public MelonCore::SystemBase {
 };
 
 int main() {
-    MelonCore::Instance::instance()->registerSystem<GroupSystem>();
-    MelonCore::Instance::instance()->start();
+    MelonCore::Instance instance;
+    instance.registerSystem<GroupSystem>();
+    instance.start();
     return 0;
 }

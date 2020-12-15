@@ -6,11 +6,11 @@ namespace MelonCore {
 
 class Time {
   public:
-    static Time* instance();
-
     float const& deltaTime() const;
 
   private:
+    Time() {}
+
     void initialize();
     void update();
 

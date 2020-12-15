@@ -9,9 +9,11 @@
 
 namespace MelonTask {
 
+class TaskManager;
+
 class TaskHandle : public std::enable_shared_from_this<TaskHandle> {
   public:
-    TaskHandle(std::function<void()> const& procedure);
+    TaskHandle(TaskManager* taskManager, std::function<void()> const& procedure) : m_TaskManager(taskManager), m_Procedure(procedure), m_FinishSharedFuture(m_FinishPromise.get_future()) {}
     void complete();
     bool finished();
 
@@ -22,6 +24,7 @@ class TaskHandle : public std::enable_shared_from_this<TaskHandle> {
     void notifyFinished();
     void notifyPredecessorFinished();
 
+    TaskManager* const m_TaskManager;
     std::function<void()> m_Procedure;
     std::atomic<unsigned int> m_PredecessorCount;
     std::vector<std::shared_ptr<TaskHandle>> m_Successors;

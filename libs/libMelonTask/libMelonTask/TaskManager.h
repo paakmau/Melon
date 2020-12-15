@@ -3,6 +3,7 @@
 #include <libMelonTask/TaskHandle.h>
 #include <libMelonTask/TaskWorker.h>
 
+#include <array>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -15,6 +16,9 @@ class TaskWorker;
 
 class TaskManager {
   public:
+    TaskManager();
+    ~TaskManager();
+
     static constexpr unsigned int k_WorkerCount = 8;
 
     std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure);
@@ -25,12 +29,7 @@ class TaskManager {
     // Calling this function will activate tasks in the waiting queue
     void activateWaitingTasks();
 
-    static TaskManager* instance();
-
   private:
-    TaskManager();
-    ~TaskManager();
-
     void queueTask(std::shared_ptr<TaskHandle> const& taskHandle);
     std::shared_ptr<TaskHandle> getNextTask();
 
@@ -40,7 +39,7 @@ class TaskManager {
     std::queue<std::shared_ptr<TaskHandle>> m_TaskQueue;
     std::mutex m_TaskQueueMutex;
     std::condition_variable m_TaskQueueConditionVariable;
-    std::vector<std::unique_ptr<TaskWorker>> m_Workers;
+    std::array<std::unique_ptr<TaskWorker>, k_WorkerCount> m_Workers;
 
     friend class TaskHandle;
     friend class TaskWorker;

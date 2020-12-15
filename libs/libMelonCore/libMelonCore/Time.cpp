@@ -2,11 +2,6 @@
 
 namespace MelonCore {
 
-Time* Time::instance() {
-    static Time sInstance;
-    return &sInstance;
-}
-
 float const& Time::deltaTime() const {
     return m_DeltaTime;
 }
