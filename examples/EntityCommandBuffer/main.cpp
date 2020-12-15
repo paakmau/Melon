@@ -1,12 +1,12 @@
-#include <MelonCore/Archetype.h>
-#include <MelonCore/Entity.h>
-#include <MelonCore/EntityManager.h>
-#include <MelonCore/Instance.h>
-#include <MelonCore/SystemBase.h>
-#include <MelonCore/Time.h>
-#include <MelonCore/Translation.h>
-#include <MelonTask/TaskHandle.h>
-#include <MelonTask/TaskManager.h>
+#include <libMelonCore/Archetype.h>
+#include <libMelonCore/Entity.h>
+#include <libMelonCore/EntityManager.h>
+#include <libMelonCore/Instance.h>
+#include <libMelonCore/SystemBase.h>
+#include <libMelonCore/Time.h>
+#include <libMelonCore/Translation.h>
+#include <libMelonTask/TaskHandle.h>
+#include <libMelonTask/TaskManager.h>
 
 #include <array>
 #include <cstdio>
