@@ -3,6 +3,7 @@
 #include <libMelonFrontend/VulkanPlatform.h>
 
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstring>
 #include <fstream>

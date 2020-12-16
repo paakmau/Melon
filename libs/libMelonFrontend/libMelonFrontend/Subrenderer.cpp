@@ -5,6 +5,7 @@
 #include <libMelonFrontend/VertexShader.h>
 #include <libMelonFrontend/VulkanUtils.h>
 
+#include <cassert>
 #include <glm/mat4x4.hpp>
 
 namespace Melon {

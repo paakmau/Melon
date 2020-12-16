@@ -1,6 +1,7 @@
 #include <libMelonFrontend/SwapChain.h>
 #include <libMelonFrontend/VulkanUtils.h>
 
+#include <cassert>
 #include <limits>
 
 namespace Melon {
