@@ -1,5 +1,8 @@
 # Melon
 
+![Ubuntu](https://github.com/HeBomou/Melon/workflows/Ubuntu/badge.svg)
+![macOS](https://github.com/HeBomou/Melon/workflows/macOS/badge.svg)
+
 A cross-platform data-driven game engine written in C++.
 
 **Data Driven**. Melon implement an Entity Component System (ECS) framework, which is massively multi-threaded and cache-friendly.
