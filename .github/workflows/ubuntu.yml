@@ -31,8 +31,7 @@ jobs:
         env:
           CC: gcc-10
           CXX: g++-10
-        working-directory: ${{runner.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        run: cmake -S $GITHUB_WORKSPACE -B $GITHUB_WORKSPACE/build -D CMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build
         shell: bash
