@@ -1,5 +1,5 @@
 #include <libMelonFrontend/SwapChain.h>
-#include <libMelonFrontend/VulkanUtil.h>
+#include <libMelonFrontend/VulkanUtils.h>
 
 #include <limits>
 

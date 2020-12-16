@@ -1,6 +1,6 @@
 #include <libMelonFrontend/Renderer.h>
 #include <libMelonFrontend/SwapChain.h>
-#include <libMelonFrontend/VulkanUtil.h>
+#include <libMelonFrontend/VulkanUtils.h>
 #include <libMelonTask/TaskHandle.h>
 #include <libMelonTask/TaskManager.h>
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libMelonFrontend/SpirvUtil.h>
 #include <libMelonFrontend/VulkanPlatform.h>
 
 #include <array>

@@ -1,9 +1,9 @@
 #include <libMelonFrontend/FragmentShader.h>
-#include <libMelonFrontend/SpirvUtil.h>
+#include <libMelonFrontend/SpirvUtils.h>
 #include <libMelonFrontend/Subrenderer.h>
 #include <libMelonFrontend/UniformBuffer.h>
 #include <libMelonFrontend/VertexShader.h>
-#include <libMelonFrontend/VulkanUtil.h>
+#include <libMelonFrontend/VulkanUtils.h>
 
 #include <glm/mat4x4.hpp>
 

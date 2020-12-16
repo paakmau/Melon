@@ -2,7 +2,7 @@
 
 #include <libMelonFrontend/UniformBuffer.h>
 #include <libMelonFrontend/VulkanPlatform.h>
-#include <libMelonFrontend/VulkanUtil.h>
+#include <libMelonFrontend/VulkanUtils.h>
 
 #include <array>
 #include <unordered_map>

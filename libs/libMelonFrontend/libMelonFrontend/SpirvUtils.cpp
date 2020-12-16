@@ -1,4 +1,4 @@
-#include <libMelonFrontend/SpirvUtil.h>
+#include <libMelonFrontend/SpirvUtils.h>
 
 namespace MelonFrontend {
 
