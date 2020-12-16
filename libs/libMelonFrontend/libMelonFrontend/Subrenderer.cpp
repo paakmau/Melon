@@ -1,4 +1,5 @@
 #include <libMelonFrontend/FragmentShader.h>
+#include <libMelonFrontend/SpirvUtil.h>
 #include <libMelonFrontend/Subrenderer.h>
 #include <libMelonFrontend/UniformBuffer.h>
 #include <libMelonFrontend/VertexShader.h>
@@ -12,8 +13,15 @@ void Subrenderer::initialize(VkDevice device, VkExtent2D swapChainExtent, VkDesc
     m_Device = device;
     m_SwapChainExtent = swapChainExtent;
 
+    std::vector<uint32_t> vertexShaderSpirv;
+    bool result = glslToSpirv(VK_SHADER_STAGE_VERTEX_BIT, k_VertexShader, vertexShaderSpirv);
+    assert(result);
+    std::vector<uint32_t> fragmentShaderSpirv;
+    result = glslToSpirv(VK_SHADER_STAGE_FRAGMENT_BIT, k_FragmentShader, fragmentShaderSpirv);
+    assert(result);
+
     createPipelineLayout<2>(m_Device, {cameraDescriptorSetLayout, entityDescriptorSetLayout}, m_PipelineLayout);
-    createGraphicsPipeline(m_Device, k_VertexShader, k_FragmentShader, sizeof(Vertex), Vertex::formats(), Vertex::offsets(), m_SwapChainExtent, m_PipelineLayout, renderPass, m_Pipeline);
+    createGraphicsPipeline(m_Device, vertexShaderSpirv, fragmentShaderSpirv, sizeof(Vertex), Vertex::formats(), Vertex::offsets(), m_SwapChainExtent, m_PipelineLayout, renderPass, m_Pipeline);
 }
 
 void Subrenderer::terminate() {
