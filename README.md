@@ -1,5 +1,6 @@
 # Melon
 
+[![Windows](https://github.com/HeBomou/Melon/workflows/Windows/badge.svg)](https://github.com/HeBomou/Melon/actions?query=workflow%3AWindows)
 [![Ubuntu](https://github.com/HeBomou/Melon/workflows/Ubuntu/badge.svg)](https://github.com/HeBomou/Melon/actions?query=workflow%3AUbuntu)
 [![macOS](https://github.com/HeBomou/Melon/workflows/macOS/badge.svg)](https://github.com/HeBomou/Melon/actions?query=workflow%3AmacOS)
 
