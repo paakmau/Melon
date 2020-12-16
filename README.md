@@ -1,7 +1,7 @@
 # Melon
 
-![Ubuntu](https://github.com/HeBomou/Melon/workflows/Ubuntu/badge.svg)
-![macOS](https://github.com/HeBomou/Melon/workflows/macOS/badge.svg)
+[![Ubuntu](https://github.com/HeBomou/Melon/workflows/Ubuntu/badge.svg)](https://github.com/HeBomou/Melon/actions?query=workflow%3AUbuntu)
+[![macOS](https://github.com/HeBomou/Melon/workflows/macOS/badge.svg)](https://github.com/HeBomou/Melon/actions?query=workflow%3AmacOS)
 
 A cross-platform data-driven game engine written in C++.
 
