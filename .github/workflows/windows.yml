@@ -21,9 +21,8 @@ jobs:
 
       - name: Configure CMake
         shell: powershell
-        run: cmake.exe -S $Env:GITHUB_WORKSPACE -B $Env:GITHUB_WORKSPACE\build -D CMAKE_BUILD_TYPE=$Env:BUILD_TYPE
+        run: cmake.exe -S $Env:GITHUB_WORKSPACE -B ${{runner.workspace}}/build -D CMAKE_BUILD_TYPE=$Env:BUILD_TYPE
 
       - name: Build
         shell: powershell
-        working-directory: ${{runner.workspace}}\build
-        run: cmake.exe --build . --config $Env:BUILD_TYPE
+        run: cmake.exe --build ${{runner.workspace}}/build --config $Env:BUILD_TYPE
