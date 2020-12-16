@@ -16,14 +16,14 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Create Build Environment
-        shell: zsh
+        shell: bash
         run: cmake -E make_directory ${{runner.workspace}}/build
 
       - name: Configure CMake
-        shell: zsh
+        shell: bash
         run: cmake -S $GITHUB_WORKSPACE -B $GITHUB_WORKSPACE/build -D CMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build
-        shell: zsh
+        shell: bash
         working-directory: ${{runner.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
