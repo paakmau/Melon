@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace MelonCore {
+namespace Melon {
 
 Archetype::Archetype(
     unsigned int const& id,
@@ -188,4 +188,4 @@ void Archetype::filterEntities(EntityFilter const& entityFilter, ObjectStore<Arc
             combination->filterEntities(sharedComponentStore, chunkAccessors);
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

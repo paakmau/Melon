@@ -15,6 +15,6 @@
 
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
-}  // namespace MelonFrontend
+}  // namespace Melon

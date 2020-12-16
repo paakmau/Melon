@@ -6,7 +6,7 @@
 #include <glm/mat4x4.hpp>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 class Subrenderer {
   public:
@@ -22,4 +22,4 @@ class Subrenderer {
     VkPipeline m_Pipeline;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

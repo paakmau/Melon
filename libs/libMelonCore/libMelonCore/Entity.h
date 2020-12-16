@@ -2,7 +2,7 @@
 
 #include <climits>
 
-namespace MelonCore {
+namespace Melon {
 
 class Archetype;
 
@@ -20,4 +20,4 @@ struct Entity {
     unsigned int id;
 };
 
-}  // namespace MelonCore
+}  // namespace Melon

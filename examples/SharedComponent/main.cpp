@@ -11,7 +11,7 @@
 #include <memory>
 #include <utility>
 
-struct Group : public MelonCore::SharedComponent {
+struct Group : public Melon::SharedComponent {
     bool operator==(const Group& other) const {
         return id == other.id && salary == other.salary;
     }
@@ -27,16 +27,16 @@ struct std::hash<Group> {
     }
 };
 
-struct Money : public MelonCore::Component {
+struct Money : public Melon::Component {
     unsigned int value;
 };
 
-class GroupSystem : public MelonCore::SystemBase {
+class GroupSystem : public Melon::SystemBase {
   protected:
-    class GroupChunkTask : public MelonCore::ChunkTask {
+    class GroupChunkTask : public Melon::ChunkTask {
       public:
         GroupChunkTask(const unsigned int& moneyComponentId, const unsigned int& groupSharedComponentId) : _moneyComponentId(moneyComponentId), _groupSharedComponentId(groupSharedComponentId) {}
-        virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
+        virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
             Money* moneys = chunkAccessor.componentArray<Money>(_moneyComponentId);
             const Group* group = chunkAccessor.sharedComponent<Group>(_groupSharedComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
@@ -50,9 +50,9 @@ class GroupSystem : public MelonCore::SystemBase {
     };
 
     void onEnter() override {
-        MelonCore::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<Money>().markSharedComponents<Group>().createArchetype();
+        Melon::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<Money>().markSharedComponents<Group>().createArchetype();
 
-        std::array<MelonCore::Entity, 1024> entities;
+        std::array<Melon::Entity, 1024> entities;
         for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(archetype);
 
@@ -80,14 +80,14 @@ class GroupSystem : public MelonCore::SystemBase {
     void onExit() override {}
 
   private:
-    MelonCore::EntityFilter _entityFilter;
+    Melon::EntityFilter _entityFilter;
     unsigned int _moneyComponentId;
     unsigned int _groupSharedComponentId;
     unsigned int _counter{};
 };
 
 int main() {
-    MelonCore::Instance instance;
+    Melon::Instance instance;
     instance.registerSystem<GroupSystem>();
     instance.start();
     return 0;

@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 class Engine {
   public:
@@ -42,4 +42,4 @@ class Engine {
     std::unique_ptr<Renderer> m_Renderer;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

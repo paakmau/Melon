@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 class TaskHandle;
 class Instance;
@@ -37,4 +37,4 @@ void World::registerSystem(Args&&... args) {
     m_Systems.emplace_back(std::make_unique<Type>(std::forward<Args>(args)...));
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

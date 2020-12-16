@@ -13,7 +13,7 @@
 // GLFW header
 #include <GLFW/glfw3.h>
 
-namespace MelonFrontend {
+namespace Melon {
 
 void Renderer::initialize(MelonTask::TaskManager* taskManager, Window* window) {
     m_TaskManager = taskManager;
@@ -273,4 +273,4 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
     vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

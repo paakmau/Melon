@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <functional>
 
-namespace MelonFrontend {
+namespace Melon {
 
 struct Buffer {
     bool operator==(Buffer const& other) const {
@@ -16,11 +16,11 @@ struct Buffer {
     VmaAllocation allocation;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon
 
 template <>
-struct std::hash<MelonFrontend::Buffer> {
-    std::size_t operator()(MelonFrontend::Buffer const& buffer) {
+struct std::hash<Melon::Buffer> {
+    std::size_t operator()(Melon::Buffer const& buffer) {
         return std::hash<void*>()(static_cast<void*>(buffer.buffer)) ^ std::hash<void*>()(static_cast<void*>(buffer.allocation));
     }
 };

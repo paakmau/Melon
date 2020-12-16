@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 class Combination {
   public:
@@ -91,4 +91,4 @@ inline void* Combination::componentAddress(Chunk* chunk, unsigned int const& com
     return static_cast<void*>(reinterpret_cast<std::byte*>(chunk) + m_ChunkLayout.componentOffsets[componentIndex] + m_ChunkLayout.componentSizes[componentIndex] * entityIndexInChunk);
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

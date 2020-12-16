@@ -13,12 +13,12 @@
 #include <glm/mat4x4.hpp>
 #include <memory>
 
-namespace MelonFrontend {
+namespace Melon {
 
-class CreatedRenderMeshTask : public MelonCore::ChunkTask {
+class CreatedRenderMeshTask : public ChunkTask {
   public:
-    CreatedRenderMeshTask(unsigned int const& renderMeshComponentId, std::vector<MelonCore::Entity>& entities, std::vector<unsigned int>& renderMeshIndices) : m_RenderMeshComponentId(renderMeshComponentId), m_Entities(entities), m_RenderMeshIndices(renderMeshIndices) {}
-    virtual void execute(MelonCore::ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
+    CreatedRenderMeshTask(unsigned int const& renderMeshComponentId, std::vector<Entity>& entities, std::vector<unsigned int>& renderMeshIndices) : m_RenderMeshComponentId(renderMeshComponentId), m_Entities(entities), m_RenderMeshIndices(renderMeshIndices) {}
+    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
             m_Entities[firstEntityIndex + i] = chunkAccessor.entityArray()[i];
             m_RenderMeshIndices[firstEntityIndex + i] = chunkAccessor.sharedComponentIndex(m_RenderMeshComponentId);
@@ -27,18 +27,18 @@ class CreatedRenderMeshTask : public MelonCore::ChunkTask {
 
     unsigned int const& m_RenderMeshComponentId;
 
-    std::vector<MelonCore::Entity>& m_Entities;
+    std::vector<Entity>& m_Entities;
     std::vector<unsigned int>& m_RenderMeshIndices;
 };
 
-class RenderTask : public MelonCore::ChunkTask {
+class RenderTask : public ChunkTask {
   public:
     RenderTask(std::vector<glm::mat4>& models, std::vector<ManualRenderMesh const*>& manualRenderMeshes, unsigned int const& translationComponentId, unsigned int const& rotationComponentId, unsigned int const& scaleComponentId, unsigned int const& manualRenderMeshComponentId) : m_Models(models), m_ManualRenderMeshes(manualRenderMeshes), m_TranslationComponentId(translationComponentId), m_RotationComponentId(rotationComponentId), m_ScaleComponentId(scaleComponentId), m_ManualRenderMeshComponentId(manualRenderMeshComponentId){};
 
-    virtual void execute(MelonCore::ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
-        MelonCore::Translation* translations = chunkAccessor.componentArray<MelonCore::Translation>(m_TranslationComponentId);
-        MelonCore::Rotation* rotations = chunkAccessor.componentArray<MelonCore::Rotation>(m_RotationComponentId);
-        MelonCore::Scale* scales = chunkAccessor.componentArray<MelonCore::Scale>(m_ScaleComponentId);
+    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
+        Translation* translations = chunkAccessor.componentArray<Translation>(m_TranslationComponentId);
+        Rotation* rotations = chunkAccessor.componentArray<Rotation>(m_RotationComponentId);
+        Scale* scales = chunkAccessor.componentArray<Scale>(m_ScaleComponentId);
         ManualRenderMesh const* manualRenderMesh = chunkAccessor.sharedComponent<ManualRenderMesh>(m_ManualRenderMeshComponentId);
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
             glm::mat4 model = glm::scale(glm::mat4(1.0f), scales[i].value);
@@ -59,10 +59,10 @@ class RenderTask : public MelonCore::ChunkTask {
     unsigned int const& m_ManualRenderMeshComponentId;
 };
 
-class DestroyedRenderMeshTask : public MelonCore::ChunkTask {
+class DestroyedRenderMeshTask : public ChunkTask {
   public:
-    DestroyedRenderMeshTask(unsigned int const& manualRenderMeshComponentId, std::vector<MelonCore::Entity>& entities, std::vector<unsigned int>& manualRenderMeshIndices) : m_ManualRenderMeshComponentId(manualRenderMeshComponentId), m_Entities(entities), m_ManualRenderMeshIndices(manualRenderMeshIndices) {}
-    virtual void execute(MelonCore::ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
+    DestroyedRenderMeshTask(unsigned int const& manualRenderMeshComponentId, std::vector<Entity>& entities, std::vector<unsigned int>& manualRenderMeshIndices) : m_ManualRenderMeshComponentId(manualRenderMeshComponentId), m_Entities(entities), m_ManualRenderMeshIndices(manualRenderMeshIndices) {}
+    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
             m_Entities[firstEntityIndex + i] = chunkAccessor.entityArray()[i];
             m_ManualRenderMeshIndices[firstEntityIndex + i] = chunkAccessor.sharedComponentIndex(m_ManualRenderMeshComponentId);
@@ -71,7 +71,7 @@ class DestroyedRenderMeshTask : public MelonCore::ChunkTask {
 
     unsigned int const& m_ManualRenderMeshComponentId;
 
-    std::vector<MelonCore::Entity>& m_Entities;
+    std::vector<Entity>& m_Entities;
     std::vector<unsigned int>& m_ManualRenderMeshIndices;
 };
 
@@ -83,12 +83,12 @@ void RenderSystem::onEnter() {
     m_Engine.initialize(taskManager(), instance()->applicationName(), m_CurrentWidth, m_CurrentHeight);
 
     m_CreatedRenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireSharedComponents<RenderMesh>().rejectSharedComponents<ManualRenderMesh>().createEntityFilter();
-    m_RenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<MelonCore::Translation, MelonCore::Rotation, MelonCore::Scale>().requireSharedComponents<RenderMesh, ManualRenderMesh>().createEntityFilter();
+    m_RenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Translation, Rotation, Scale>().requireSharedComponents<RenderMesh, ManualRenderMesh>().createEntityFilter();
     m_DestroyedRenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireSharedComponents<ManualRenderMesh>().rejectSharedComponents<RenderMesh>().createEntityFilter();
 
-    m_TranslationComponentId = entityManager()->componentId<MelonCore::Translation>();
-    m_RotationComponentId = entityManager()->componentId<MelonCore::Rotation>();
-    m_ScaleComponentId = entityManager()->componentId<MelonCore::Scale>();
+    m_TranslationComponentId = entityManager()->componentId<Translation>();
+    m_RotationComponentId = entityManager()->componentId<Rotation>();
+    m_ScaleComponentId = entityManager()->componentId<Scale>();
     m_RenderMeshComponentId = entityManager()->sharedComponentId<RenderMesh>();
     m_ManualRenderMeshComponentId = entityManager()->sharedComponentId<ManualRenderMesh>();
 }
@@ -96,13 +96,13 @@ void RenderSystem::onEnter() {
 void RenderSystem::onUpdate() {
     // CreatedRenderMeshTask
     unsigned int const createdRenderMeshCount = entityManager()->entityCount(m_CreatedRenderMeshEntityFilter);
-    std::vector<MelonCore::Entity> createdRenderMeshEntities(createdRenderMeshCount);
+    std::vector<Entity> createdRenderMeshEntities(createdRenderMeshCount);
     std::vector<unsigned int> createdRenderMeshIndices(createdRenderMeshCount);
     std::shared_ptr<MelonTask::TaskHandle> createdRenderMeshTaskHandle = schedule(std::make_shared<CreatedRenderMeshTask>(m_RenderMeshComponentId, createdRenderMeshEntities, createdRenderMeshIndices), m_CreatedRenderMeshEntityFilter, predecessor());
 
     // DestroyedRenderMeshTask
     unsigned int const destroyedRenderMeshCount = entityManager()->entityCount(m_DestroyedRenderMeshEntityFilter);
-    std::vector<MelonCore::Entity> manualRenderMeshEntities(destroyedRenderMeshCount);
+    std::vector<Entity> manualRenderMeshEntities(destroyedRenderMeshCount);
     std::vector<unsigned int> manualRenderMeshIndices(destroyedRenderMeshCount);
     std::shared_ptr<MelonTask::TaskHandle> destroyedRenderMeshTaskHandle = schedule(std::make_shared<DestroyedRenderMeshTask>(m_ManualRenderMeshComponentId, manualRenderMeshEntities, manualRenderMeshIndices), m_DestroyedRenderMeshEntityFilter, predecessor());
 
@@ -174,4 +174,4 @@ void RenderSystem::onExit() {
     m_Engine.terminate();
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

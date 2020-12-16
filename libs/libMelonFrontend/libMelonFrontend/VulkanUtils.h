@@ -9,7 +9,7 @@
 #include <set>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 static VkShaderModule createShaderModule(VkDevice device, std::vector<unsigned int> const& spirv) {
     VkShaderModuleCreateInfo createInfo{
@@ -599,4 +599,4 @@ inline void copyBuffer(VmaAllocator allocator, VkCommandBuffer commandBuffer, Vk
     vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

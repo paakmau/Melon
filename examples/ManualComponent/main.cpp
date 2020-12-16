@@ -12,27 +12,27 @@
 #include <cstdio>
 #include <memory>
 
-struct MonsterHealth : public MelonCore::Component {
+struct MonsterHealth : public Melon::Component {
     unsigned int value;
 };
 
-struct PersistentDamage : public MelonCore::Component {
+struct PersistentDamage : public Melon::Component {
     unsigned int value;
 };
 
-struct ManualDamageCounter : public MelonCore::ManualComponent {
+struct ManualDamageCounter : public Melon::ManualComponent {
     unsigned int index;
     // The count of damage taken
     unsigned int damageTakenCount;
 };
 
-class MonsterDamageCounterSystem : public MelonCore::SystemBase {
+class MonsterDamageCounterSystem : public Melon::SystemBase {
   protected:
-    class DamageEntityCommandBufferChunkTask : public MelonCore::EntityCommandBufferChunkTask {
+    class DamageEntityCommandBufferChunkTask : public Melon::EntityCommandBufferChunkTask {
       public:
         DamageEntityCommandBufferChunkTask(const unsigned int& monsterHealthComponentId, const unsigned int& persistentDamageComponentId, const unsigned int& manualDamageCounterComponentId) : _monsterHealthComponentId(monsterHealthComponentId), _persistentDamageComponentId(persistentDamageComponentId), _manualDamageCounterComponentId(manualDamageCounterComponentId) {}
-        virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, MelonCore::EntityCommandBuffer* entityCommandBuffer) override {
-            const MelonCore::Entity* entities = chunkAccessor.entityArray();
+        virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
+            const Melon::Entity* entities = chunkAccessor.entityArray();
             MonsterHealth* monsterHealths = chunkAccessor.componentArray<MonsterHealth>(_monsterHealthComponentId);
             PersistentDamage* persistentDamages = chunkAccessor.componentArray<PersistentDamage>(_persistentDamageComponentId);
             ManualDamageCounter* manualDamageCounters = chunkAccessor.componentArray<ManualDamageCounter>(_manualDamageCounterComponentId);
@@ -50,11 +50,11 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
         const unsigned int& _manualDamageCounterComponentId;
     };
 
-    class CollectCounterCommandBufferChunkTask : public MelonCore::EntityCommandBufferChunkTask {
+    class CollectCounterCommandBufferChunkTask : public Melon::EntityCommandBufferChunkTask {
       public:
         CollectCounterCommandBufferChunkTask(const unsigned int& manualDamageCounterComponentId, std::vector<unsigned int>& damageTakenCounts) : _manualDamageCounterComponentId(manualDamageCounterComponentId), _damageTakenCounts(damageTakenCounts) {}
-        virtual void execute(const MelonCore::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, MelonCore::EntityCommandBuffer* entityCommandBuffer) override {
-            const MelonCore::Entity* entities = chunkAccessor.entityArray();
+        virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
+            const Melon::Entity* entities = chunkAccessor.entityArray();
             ManualDamageCounter* manualDamageCounters = chunkAccessor.componentArray<ManualDamageCounter>(_manualDamageCounterComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
                 _damageTakenCounts[manualDamageCounters[i].index] = manualDamageCounters[i].damageTakenCount;
@@ -68,9 +68,9 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
     };
 
     void onEnter() override {
-        MelonCore::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<MonsterHealth, PersistentDamage, ManualDamageCounter>().createArchetype();
+        Melon::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<MonsterHealth, PersistentDamage, ManualDamageCounter>().createArchetype();
 
-        std::array<MelonCore::Entity, 4> entities;
+        std::array<Melon::Entity, 4> entities;
         for (unsigned int i = 0; i < entities.size(); i++)
             entities[i] = entityManager()->createEntity(archetype);
 
@@ -116,8 +116,8 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
     void onExit() override {}
 
   private:
-    MelonCore::EntityFilter _monsterEntityFilter;
-    MelonCore::EntityFilter _collectCounterEntityFilter;
+    Melon::EntityFilter _monsterEntityFilter;
+    Melon::EntityFilter _collectCounterEntityFilter;
     unsigned int _monsterHealthComponentId;
     unsigned int _persistentDamageComponentId;
     unsigned int _manualDamageCounterComponentId;
@@ -126,7 +126,7 @@ class MonsterDamageCounterSystem : public MelonCore::SystemBase {
 };
 
 int main() {
-    MelonCore::Instance instance;
+    Melon::Instance instance;
     instance.registerSystem<MonsterDamageCounterSystem>();
     instance.start();
     return 0;

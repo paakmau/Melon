@@ -3,7 +3,7 @@
 #include <libMelonCore/World.h>
 #include <libMelonTask/TaskManager.h>
 
-namespace MelonCore {
+namespace Melon {
 
 World::World(MelonTask::TaskManager* taskManager) : m_TaskManager(taskManager) {
     EntityManager* entityManager = &m_EntityManager;
@@ -36,4 +36,4 @@ void World::exit() {
         system->exit();
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

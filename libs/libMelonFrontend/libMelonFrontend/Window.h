@@ -6,7 +6,7 @@
 
 struct GLFWwindow;
 
-namespace MelonFrontend {
+namespace Melon {
 
 // TODO: Process window events
 class Window {
@@ -44,4 +44,4 @@ class Window {
     bool m_Closed{};
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

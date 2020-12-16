@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace MelonCore {
+namespace Melon {
 
 class Instance;
 
@@ -65,4 +65,4 @@ class SystemBase {
     friend class World;
 };
 
-}  // namespace MelonCore
+}  // namespace Melon

@@ -28,7 +28,7 @@
 #include <utility>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 class EntityManager;
 
@@ -628,4 +628,4 @@ void EntityManager::setSingletonComponentImmediately(Type const& singletonCompon
     *m_SingletonComponentStore.object(registerSingletonComponent<Type>()) = singletonComponent;
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

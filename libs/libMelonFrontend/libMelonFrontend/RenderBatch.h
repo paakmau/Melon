@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 struct RenderBatch {
     Buffer const& vertexBuffer() const { return meshBuffer.vertexBuffer; }
@@ -18,4 +18,4 @@ struct RenderBatch {
     MeshBuffer meshBuffer;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

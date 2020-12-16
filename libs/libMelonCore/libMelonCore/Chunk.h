@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 struct ChunkLayout {
     unsigned int capacity;
@@ -28,4 +28,4 @@ struct Chunk {
     alignas(k_Align) std::array<std::byte, k_Size> memory;
 };
 
-}  // namespace MelonCore
+}  // namespace Melon

@@ -5,7 +5,7 @@
 #include <bitset>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 struct EntityFilter {
     bool satisfied(ArchetypeMask const& mask) const;
@@ -59,4 +59,4 @@ inline bool EntityFilter::satisfied(std::vector<unsigned int> const& sharedCompo
     return true;
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

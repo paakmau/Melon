@@ -1,7 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <libMelonFrontend/Window.h>
 
-namespace MelonFrontend {
+namespace Melon {
 
 void Window::initialize(char const* title, unsigned int const& width, unsigned int const& height) {
     glfwInit();
@@ -55,4 +55,4 @@ void Window::notifyResized() { m_Resized = true; }
 
 void Window::notifyClosed() { m_Closed = true; }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

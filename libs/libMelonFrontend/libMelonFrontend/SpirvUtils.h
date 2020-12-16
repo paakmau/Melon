@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 static constexpr TBuiltInResource k_DefaultResources{
     .maxLights = 32,
@@ -113,4 +113,4 @@ static constexpr TBuiltInResource k_DefaultResources{
 
 bool glslToSpirv(VkShaderStageFlagBits stageFlag, char const* shaderCode, std::vector<unsigned int>& spirv);
 
-}  // namespace MelonFrontend
+}  // namespace Melon

@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace MelonCore {
+namespace Melon {
 
 template <std::size_t Count>
 class SingletonObjectStore {
@@ -27,4 +27,4 @@ class SingletonObjectStore {
     std::array<void*, Count> m_Store;
 };
 
-}  // namespace MelonCore
+}  // namespace Melon

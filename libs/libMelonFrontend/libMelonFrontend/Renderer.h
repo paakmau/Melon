@@ -15,7 +15,7 @@
 #include <memory>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 class SwapChain;
 struct SwapchainImageContext;
@@ -90,4 +90,4 @@ class Renderer {
     std::array<UniformBuffer, k_MaxInFlightFrameCount> m_CameraUniformMemories;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

@@ -15,7 +15,7 @@
 #include <utility>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 class Archetype {
   public:
@@ -160,4 +160,4 @@ inline void Archetype::destroyCombination(unsigned int const& combinationIndex, 
     m_ChunkCount--;
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

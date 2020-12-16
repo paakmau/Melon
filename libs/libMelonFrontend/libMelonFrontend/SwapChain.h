@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 class SwapChain {
   public:
@@ -40,4 +40,4 @@ class SwapChain {
 
 inline unsigned int SwapChain::imageCount() const { return m_Images.size(); }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

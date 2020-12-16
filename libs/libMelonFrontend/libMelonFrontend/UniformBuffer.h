@@ -5,7 +5,7 @@
 
 #include <glm/mat4x4.hpp>
 
-namespace MelonFrontend {
+namespace Melon {
 
 struct CameraUniformObject {
     glm::mat4 vp;
@@ -22,4 +22,4 @@ struct UniformBuffer {
     VkDescriptorSet descriptorSet;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

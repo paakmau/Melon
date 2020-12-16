@@ -1,6 +1,6 @@
 #include <libMelonCore/Time.h>
 
-namespace MelonCore {
+namespace Melon {
 
 float const& Time::deltaTime() const {
     return m_DeltaTime;
@@ -17,4 +17,4 @@ void Time::update() {
     m_PreviousTimePoint = now;
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

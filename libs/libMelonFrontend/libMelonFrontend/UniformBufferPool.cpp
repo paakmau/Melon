@@ -1,6 +1,6 @@
 #include <libMelonFrontend/UniformBufferPool.h>
 
-namespace MelonFrontend {
+namespace Melon {
 
 void FixedSizeBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage) {
     m_Device = device;
@@ -75,4 +75,4 @@ void UniformBufferPool::recycle(UniformBuffer buffer) {
     vkFreeDescriptorSets(m_Device, m_DescriptorPool, 1, &buffer.descriptorSet);
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

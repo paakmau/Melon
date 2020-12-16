@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace MelonCore {
+namespace Melon {
 
 Instance::Instance() {
     m_DefaultWorld = std::make_unique<World>(&m_TaskManager);
@@ -26,4 +26,4 @@ void Instance::mainLoop() {
     }
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

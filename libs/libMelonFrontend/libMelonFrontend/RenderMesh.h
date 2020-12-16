@@ -8,9 +8,9 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
-struct RenderMesh : public MelonCore::SharedComponent {
+struct RenderMesh : public SharedComponent {
     bool operator==(RenderMesh const& other) const {
         return vertices == other.vertices && indices == other.indices;
     }
@@ -19,7 +19,7 @@ struct RenderMesh : public MelonCore::SharedComponent {
     std::vector<uint16_t> indices;
 };
 
-struct ManualRenderMesh : public MelonCore::ManualSharedComponent {
+struct ManualRenderMesh : public ManualSharedComponent {
     bool operator==(ManualRenderMesh const& other) const {
         return meshBuffer == other.meshBuffer;
     }
@@ -29,14 +29,14 @@ struct ManualRenderMesh : public MelonCore::ManualSharedComponent {
     MeshBuffer meshBuffer;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon
 
 template <>
-struct std::hash<MelonFrontend::RenderMesh> {
-    std::size_t operator()(MelonFrontend::RenderMesh const& renderMesh) {
+struct std::hash<Melon::RenderMesh> {
+    std::size_t operator()(Melon::RenderMesh const& renderMesh) {
         std::size_t hash{};
-        for (MelonFrontend::Vertex const& vertex : renderMesh.vertices)
-            hash ^= std::hash<MelonFrontend::Vertex>()(vertex);
+        for (Melon::Vertex const& vertex : renderMesh.vertices)
+            hash ^= std::hash<Melon::Vertex>()(vertex);
         for (unsigned int const& index : renderMesh.indices)
             hash ^= std::hash<unsigned int>()(index);
         return hash;
@@ -44,8 +44,8 @@ struct std::hash<MelonFrontend::RenderMesh> {
 };
 
 template <>
-struct std::hash<MelonFrontend::ManualRenderMesh> {
-    std::size_t operator()(MelonFrontend::ManualRenderMesh const& manualRenderMesh) {
-        return std::hash<MelonFrontend::MeshBuffer>()(manualRenderMesh.meshBuffer);
+struct std::hash<Melon::ManualRenderMesh> {
+    std::size_t operator()(Melon::ManualRenderMesh const& manualRenderMesh) {
+        return std::hash<Melon::MeshBuffer>()(manualRenderMesh.meshBuffer);
     }
 };

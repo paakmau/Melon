@@ -4,7 +4,7 @@
 #include <cstring>
 #include <functional>
 
-namespace MelonCore {
+namespace Melon {
 
 Combination::Combination(unsigned int const& index, ChunkLayout const& chunkLayout, std::vector<unsigned int> const& sharedComponentIds, std::vector<unsigned int> const& sharedComponentIndices, ObjectPool<Chunk>* chunkPool) : m_Index(index), m_ChunkLayout(chunkLayout), m_SharedComponentIds(sharedComponentIds), m_SharedComponentIndices(sharedComponentIndices), m_ChunkPool(chunkPool), m_EntityCountInCurrentChunk(0) {
     // TODO: We should not request a Chunk here
@@ -113,4 +113,4 @@ void Combination::recycleChunk() {
     m_EntityCountInCurrentChunk = m_ChunkLayout.capacity;
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 struct ArchetypeMask {
     static constexpr unsigned int k_MaxComponentIdCount = 1024U;
@@ -16,7 +16,7 @@ struct ArchetypeMask {
     using ManualSharedComponentMask = std::bitset<k_MaxSharedComponentIdCount>;
 
     struct Hash {
-        std::size_t operator()(MelonCore::ArchetypeMask const& mask) const {
+        std::size_t operator()(ArchetypeMask const& mask) const {
             return std::hash<ComponentMask>()(mask.componentMask) ^ std::hash<SharedComponentMask>()(mask.sharedComponentMask);
         }
     };
@@ -76,4 +76,4 @@ struct ArchetypeMask {
     ManualSharedComponentMask manualSharedComponentMask;
 };
 
-}  // namespace MelonCore
+}  // namespace Melon

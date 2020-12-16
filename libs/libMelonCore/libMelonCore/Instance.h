@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace MelonCore {
+namespace Melon {
 
 class EntityManager;
 class World;
@@ -44,4 +44,4 @@ void Instance::registerSystem(Args&&... args) {
     m_DefaultWorld->registerSystem<Type>(std::forward<Args>(args)...);
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

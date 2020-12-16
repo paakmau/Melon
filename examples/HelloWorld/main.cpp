@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <memory>
 
-class HelloWorldSystem : public MelonCore::SystemBase {
+class HelloWorldSystem : public Melon::SystemBase {
   public:
     HelloWorldSystem(const unsigned int& a, const unsigned int& b) : _a(a), _b(b), _sum(a + b) {}
 
@@ -32,7 +32,7 @@ class HelloWorldSystem : public MelonCore::SystemBase {
 };
 
 int main() {
-    MelonCore::Instance instance;
+    Melon::Instance instance;
     instance.registerSystem<HelloWorldSystem>(1U, 2U);
     instance.start();
     return 0;

@@ -1,6 +1,6 @@
 #include <libMelonFrontend/SpirvUtils.h>
 
-namespace MelonFrontend {
+namespace Melon {
 
 static EShLanguage findLanguage(VkShaderStageFlagBits stage) {
     switch (stage) {
@@ -61,4 +61,4 @@ bool glslToSpirv(VkShaderStageFlagBits stageFlag, char const* shaderCode, std::v
     return true;
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

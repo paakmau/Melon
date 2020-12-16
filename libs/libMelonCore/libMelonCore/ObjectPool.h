@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 // ObejctPool can't be destroy util all objects are recycled
 template <typename Type>
@@ -63,4 +63,4 @@ void ObjectPool<Type>::createBuffer() {
         m_Pool.push_back(p);
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

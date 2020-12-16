@@ -7,7 +7,7 @@
 
 #include <glm/mat4x4.hpp>
 
-namespace MelonFrontend {
+namespace Melon {
 
 void Subrenderer::initialize(VkDevice device, VkExtent2D swapChainExtent, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorSetLayout entityDescriptorSetLayout, VkRenderPass renderPass, unsigned int const& swapChainImageCount) {
     m_Device = device;
@@ -41,4 +41,4 @@ void Subrenderer::draw(VkCommandBuffer commandBuffer, unsigned int const& swapCh
     }
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

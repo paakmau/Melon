@@ -3,7 +3,7 @@
 
 #include <limits>
 
-namespace MelonFrontend {
+namespace Melon {
 
 void SwapChain::initialize(VkExtent2D extent, VkSurfaceKHR surface, VkPhysicalDevice physicalDevice, VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex, VkQueue presentQueue) {
     m_Surface = surface;
@@ -56,4 +56,4 @@ void SwapChain::recreateSwapchain(VkExtent2D extent) {
     createSwapchain(m_Device, extent, m_Surface, m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_Swapchain, m_ImageFormat, m_ImageExtent, m_Images, m_ImageViews);
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

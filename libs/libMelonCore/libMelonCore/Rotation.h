@@ -4,10 +4,10 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-namespace MelonCore {
+namespace Melon {
 
 struct Rotation : public Component {
     glm::quat value;
 };
 
-}  // namespace MelonCore
+}  // namespace Melon

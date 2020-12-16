@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace MelonCore {
+namespace Melon {
 
 template <std::size_t Count>
 class ObjectStore {
@@ -166,4 +166,4 @@ bool ObjectStore<Count>::objectWrapperEqualTo(void const* const& lhs, void const
     return std::equal_to<Type>()(*static_cast<Type const*>(lhs), *static_cast<Type const*>(rhs));
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

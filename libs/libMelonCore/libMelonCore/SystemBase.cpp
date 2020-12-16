@@ -1,7 +1,7 @@
 #include <libMelonCore/SystemBase.h>
 #include <libMelonTask/TaskManager.h>
 
-namespace MelonCore {
+namespace Melon {
 
 SystemBase::SystemBase() {}
 
@@ -72,4 +72,4 @@ void SystemBase::exit() {
     onExit();
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

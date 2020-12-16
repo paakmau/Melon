@@ -2,7 +2,7 @@
 
 #include <typeindex>
 
-namespace MelonCore {
+namespace Melon {
 
 EntityCommandBuffer::EntityCommandBuffer(EntityManager* entityManager) noexcept : m_EntityManager(entityManager) {}
 
@@ -220,4 +220,4 @@ void EntityManager::executeEntityCommandBuffers() {
     m_TaskEntityCommandBuffers.clear();
 }
 
-}  // namespace MelonCore
+}  // namespace Melon

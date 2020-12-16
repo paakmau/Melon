@@ -3,6 +3,6 @@
 #include <libMelonCore/ChunkAccessor.h>
 #include <libMelonCore/EntityManager.h>
 
-namespace MelonCore {
+namespace Melon {
 
-}  // namespace MelonCore
+}  // namespace Melon

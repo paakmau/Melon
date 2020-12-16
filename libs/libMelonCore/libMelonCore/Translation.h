@@ -4,10 +4,10 @@
 
 #include <glm/vec3.hpp>
 
-namespace MelonCore {
+namespace Melon {
 
 struct Translation : public Component {
     glm::vec3 value;
 };
 
-}  // namespace MelonCore
+}  // namespace Melon

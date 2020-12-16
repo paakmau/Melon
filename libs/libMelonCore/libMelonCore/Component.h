@@ -1,9 +1,9 @@
 #pragma once
 
-namespace MelonCore {
+namespace Melon {
 
 struct Component {};
 
 struct ManualComponent : public Component {};
 
-}  // namespace MelonCore
+}  // namespace Melon

@@ -9,7 +9,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 struct Vertex {
     static constexpr unsigned int k_AttributeCount = 2;
@@ -45,18 +45,18 @@ struct MeshBuffer {
     uint32_t indexCount;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon
 
 template <>
-struct std::hash<MelonFrontend::Vertex> {
-    std::size_t operator()(MelonFrontend::Vertex const& vertex) {
+struct std::hash<Melon::Vertex> {
+    std::size_t operator()(Melon::Vertex const& vertex) {
         return std::hash<glm::vec3>()(vertex.position) ^ std::hash<glm::vec3>()(vertex.normal);
     }
 };
 
 template <>
-struct std::hash<MelonFrontend::MeshBuffer> {
-    std::size_t operator()(MelonFrontend::MeshBuffer const& meshBuffer) {
-        return std::hash<MelonFrontend::Buffer>()(meshBuffer.vertexBuffer) ^ std::hash<MelonFrontend::Buffer>()(meshBuffer.indexBuffer);
+struct std::hash<Melon::MeshBuffer> {
+    std::size_t operator()(Melon::MeshBuffer const& meshBuffer) {
+        return std::hash<Melon::Buffer>()(meshBuffer.vertexBuffer) ^ std::hash<Melon::Buffer>()(meshBuffer.indexBuffer);
     }
 };

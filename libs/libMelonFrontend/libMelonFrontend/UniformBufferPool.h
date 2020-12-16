@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
 class FixedSizeBufferPool {
   public:
@@ -58,4 +58,4 @@ class UniformBufferPool {
     VkDescriptorPool m_DescriptorPool;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

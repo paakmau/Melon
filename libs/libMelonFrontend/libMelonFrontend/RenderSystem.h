@@ -9,9 +9,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace MelonFrontend {
+namespace Melon {
 
-class RenderSystem : public MelonCore::SystemBase {
+class RenderSystem : public SystemBase {
   public:
     RenderSystem(unsigned int const& width, unsigned int const& height);
     virtual ~RenderSystem();
@@ -24,9 +24,9 @@ class RenderSystem : public MelonCore::SystemBase {
   private:
     Engine m_Engine;
 
-    MelonCore::EntityFilter m_CreatedRenderMeshEntityFilter;
-    MelonCore::EntityFilter m_RenderMeshEntityFilter;
-    MelonCore::EntityFilter m_DestroyedRenderMeshEntityFilter;
+    EntityFilter m_CreatedRenderMeshEntityFilter;
+    EntityFilter m_RenderMeshEntityFilter;
+    EntityFilter m_DestroyedRenderMeshEntityFilter;
     unsigned int m_TranslationComponentId;
     unsigned int m_RotationComponentId;
     unsigned int m_ScaleComponentId;
@@ -40,4 +40,4 @@ class RenderSystem : public MelonCore::SystemBase {
     std::unordered_map<unsigned int, MeshBuffer> m_MeshBufferMap;
 };
 
-}  // namespace MelonFrontend
+}  // namespace Melon

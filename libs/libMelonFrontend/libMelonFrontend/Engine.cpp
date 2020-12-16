@@ -1,6 +1,6 @@
 #include <libMelonFrontend/Engine.h>
 
-namespace MelonFrontend {
+namespace Melon {
 
 void Engine::initialize(MelonTask::TaskManager* taskManager, char const* title, unsigned int const& width, unsigned int const& height) {
     m_Window.initialize(title, width, height);
@@ -46,4 +46,4 @@ void Engine::notifyWindowClosed() {
     m_WindowClosed = true;
 }
 
-}  // namespace MelonFrontend
+}  // namespace Melon

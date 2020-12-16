@@ -7,7 +7,7 @@
 #include <libMelonCore/ObjectStore.h>
 #include <libMelonCore/SharedComponent.h>
 
-namespace MelonCore {
+namespace Melon {
 
 class ChunkAccessor {
   public:
@@ -59,4 +59,4 @@ inline Type const* ChunkAccessor::sharedComponent(unsigned int const& sharedComp
 
 inline ChunkAccessor::ChunkAccessor(std::byte* chunk, ChunkLayout const& chunkLayout, unsigned int const& entityCount, std::vector<unsigned int> const& sharedComponentIds, std::vector<unsigned int> const& sharedComponentIndices, ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore) : m_Chunk(chunk), m_ChunkLayout(chunkLayout), m_EntityCount(entityCount), m_SharedComponentIds(sharedComponentIds), m_SharedComponentIndices(sharedComponentIndices), m_SharedComponentStore(sharedComponentStore) {}
 
-}  // namespace MelonCore
+}  // namespace Melon
