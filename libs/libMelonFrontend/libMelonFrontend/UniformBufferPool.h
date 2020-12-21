@@ -1,8 +1,8 @@
 #pragma once
 
+#include <libMelonFrontend/Buffer.h>
 #include <libMelonFrontend/UniformBuffer.h>
 #include <libMelonFrontend/VulkanPlatform.h>
-#include <libMelonFrontend/VulkanUtils.h>
 
 #include <array>
 #include <unordered_map>
@@ -15,25 +15,22 @@ class FixedSizeBufferPool {
   public:
     static constexpr unsigned int k_PoolSize = 2048U;
 
-    void initialize(VkDevice device, VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage);
+    void initialize(VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage);
     // FixedSizeBufferPool can't terminate util all buffers are recycled
     void terminate();
 
     Buffer request();
     void recycle(Buffer const& buffer);
 
-    VkDevice const& device() const { return m_Device; }
     VkDeviceSize const& size() const { return m_Size; }
 
   private:
-    VkDevice m_Device;
     VmaAllocator m_Allocator;
     VkDeviceSize m_Size;
     VkBufferUsageFlags m_BufferUsage;
     VmaMemoryUsage m_MemoryUsage;
 
     std::array<Buffer, k_PoolSize> m_Pool;
-    // std::vector<Buffer> m_ExtendedPool;
     unsigned int m_PoolCount = k_PoolSize;
 };
 

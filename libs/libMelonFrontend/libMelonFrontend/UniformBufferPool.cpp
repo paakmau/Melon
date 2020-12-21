@@ -1,9 +1,9 @@
 #include <libMelonFrontend/UniformBufferPool.h>
+#include <libMelonFrontend/VulkanUtils.h>
 
 namespace Melon {
 
-void FixedSizeBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage) {
-    m_Device = device;
+void FixedSizeBufferPool::initialize(VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage) {
     m_Allocator = allocator;
     m_Size = size;
     m_BufferUsage = bufferUsage;
@@ -49,9 +49,9 @@ void UniformBufferPool::terminate() {
 void UniformBufferPool::registerUniformObjectSize(VkDeviceSize size) {
     if (m_SizeIndexMap.contains(size)) return;
     m_StagingBufferPools.emplace_back(FixedSizeBufferPool());
-    m_StagingBufferPools.back().initialize(m_Device, m_Allocator, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+    m_StagingBufferPools.back().initialize(m_Allocator, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
     m_BufferPools.emplace_back(FixedSizeBufferPool());
-    m_BufferPools.back().initialize(m_Device, m_Allocator, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+    m_BufferPools.back().initialize(m_Allocator, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
     m_SizeIndexMap.emplace(size, m_BufferPools.size() - 1);
 }
 
