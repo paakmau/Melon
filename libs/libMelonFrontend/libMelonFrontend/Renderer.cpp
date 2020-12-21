@@ -55,12 +55,10 @@ void Renderer::initialize(MelonTask::TaskManager* taskManager, Window* window) {
 void Renderer::terminate() {
     vkDeviceWaitIdle(m_Device);
 
-    for (std::vector<MeshBuffer> destoryingMeshBuffers : m_DestroyingMeshBufferArrays) {
-        for (MeshBuffer const& meshBuffer : destoryingMeshBuffers) {
-            vmaDestroyBuffer(m_Allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
-            vmaDestroyBuffer(m_Allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
-        }
-        destoryingMeshBuffers.clear();
+    for (std::vector<Buffer> destoryingBuffers : m_DestroyingBufferArrays) {
+        for (Buffer const& buffer : destoryingBuffers)
+            vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
+        destoryingBuffers.clear();
     }
 
     // Recycle the buffers
@@ -104,11 +102,9 @@ void Renderer::beginFrame() {
         vkFreeCommandBuffers(m_Device, secondaryCommandBuffer.pool, 1, &secondaryCommandBuffer.buffer);
     m_SecondaryCommandBufferArrays[m_CurrentFrame].clear();
 
-    for (MeshBuffer const& meshBuffer : m_DestroyingMeshBufferArrays[m_CurrentFrame]) {
-        vmaDestroyBuffer(m_Allocator, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
-        vmaDestroyBuffer(m_Allocator, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
-    }
-    m_DestroyingMeshBufferArrays[m_CurrentFrame].clear();
+    for (Buffer const& buffer : m_DestroyingBufferArrays[m_CurrentFrame])
+        vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
+    m_DestroyingBufferArrays[m_CurrentFrame].clear();
 
     allocateCommandBuffer(m_Device, m_CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1, m_CommandBuffers[m_CurrentFrame]);
 
@@ -141,7 +137,8 @@ MeshBuffer Renderer::createMeshBuffer(std::vector<Vertex> vertices, std::vector<
 }
 
 void Renderer::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
-    m_DestroyingMeshBufferArrays[m_CurrentFrame].emplace_back(meshBuffer);
+    m_DestroyingBufferArrays[m_CurrentFrame].push_back(meshBuffer.vertexBuffer);
+    m_DestroyingBufferArrays[m_CurrentFrame].push_back(meshBuffer.indexBuffer);
 }
 
 void Renderer::beginBatches() {

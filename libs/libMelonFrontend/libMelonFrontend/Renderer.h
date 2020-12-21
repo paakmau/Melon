@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libMelonFrontend/Buffer.h>
 #include <libMelonFrontend/MeshBuffer.h>
 #include <libMelonFrontend/RenderBatch.h>
 #include <libMelonFrontend/Subrenderer.h>
@@ -77,7 +78,7 @@ class Renderer {
     std::array<VkFence, k_MaxInFlightFrameCount> m_InFlightFences;
     std::array<VkCommandBuffer, k_MaxInFlightFrameCount> m_CommandBuffers;
     std::array<std::vector<SecondaryCommandBuffer>, k_MaxInFlightFrameCount> m_SecondaryCommandBufferArrays;
-    std::array<std::vector<MeshBuffer>, k_MaxInFlightFrameCount> m_DestroyingMeshBufferArrays;
+    std::array<std::vector<Buffer>, k_MaxInFlightFrameCount> m_DestroyingBufferArrays;
 
     VkDescriptorSetLayout m_CameraDescriptorSetLayout;
     VkDescriptorSetLayout m_EntityDescriptorSetLayout;
