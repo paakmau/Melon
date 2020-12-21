@@ -3,6 +3,7 @@
 #include <libMelonFrontend/Buffer.h>
 #include <libMelonFrontend/MeshBuffer.h>
 #include <libMelonFrontend/RenderBatch.h>
+#include <libMelonFrontend/StagingMeshBufferPool.h>
 #include <libMelonFrontend/Subrenderer.h>
 #include <libMelonFrontend/SwapChain.h>
 #include <libMelonFrontend/UniformBuffer.h>
@@ -47,7 +48,8 @@ class Renderer {
 
     void recreateSwapChain();
 
-    void recordCommandBufferCopyUniformObject(void const* data, UniformBuffer memory, VkDeviceSize size);
+    void recordCommandBufferCopyMeshData(std::vector<Vertex> const& vertices, std::vector<uint16_t> const& indices, StagingMeshBuffer stagingMeshBuffer, MeshBuffer meshBuffer);
+    void recordCommandBufferCopyUniformObject(VkDeviceSize size, UniformBuffer memory);
     void recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer);
 
     MelonTask::TaskManager* m_TaskManager;
@@ -78,6 +80,8 @@ class Renderer {
     std::array<VkFence, k_MaxInFlightFrameCount> m_InFlightFences;
     std::array<VkCommandBuffer, k_MaxInFlightFrameCount> m_CommandBuffers;
     std::array<std::vector<SecondaryCommandBuffer>, k_MaxInFlightFrameCount> m_SecondaryCommandBufferArrays;
+
+    std::array<std::vector<StagingMeshBuffer>, k_MaxInFlightFrameCount> m_RecyclingStagingMeshBufferArrays;
     std::array<std::vector<Buffer>, k_MaxInFlightFrameCount> m_DestroyingBufferArrays;
 
     VkDescriptorSetLayout m_CameraDescriptorSetLayout;
@@ -87,6 +91,8 @@ class Renderer {
     VmaAllocator m_Allocator;
     VkDescriptorPool m_UniformDescriptorPool;
     UniformBufferPool m_UniformMemoryPool;
+    StagingMeshBufferPool m_StagingMeshBufferPool;
+
     std::array<std::vector<RenderBatch>, k_MaxInFlightFrameCount> m_RenderBatchArrays;
     std::array<UniformBuffer, k_MaxInFlightFrameCount> m_CameraUniformMemories;
 };

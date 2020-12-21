@@ -47,6 +47,7 @@ void Renderer::initialize(MelonTask::TaskManager* taskManager, Window* window) {
     m_UniformMemoryPool.initialize(m_Device, m_Allocator, m_CameraDescriptorSetLayout, m_UniformDescriptorPool);
     m_UniformMemoryPool.registerUniformObjectSize(sizeof(CameraUniformObject));
     m_UniformMemoryPool.registerUniformObjectSize(sizeof(EntityUniformObject));
+    m_StagingMeshBufferPool.initialize(m_Allocator);
 
     for (unsigned int i = 0; i < m_CameraUniformMemories.size(); i++)
         m_CameraUniformMemories[i] = m_UniformMemoryPool.request(sizeof(CameraUniformObject));
@@ -55,13 +56,20 @@ void Renderer::initialize(MelonTask::TaskManager* taskManager, Window* window) {
 void Renderer::terminate() {
     vkDeviceWaitIdle(m_Device);
 
-    for (std::vector<Buffer> destoryingBuffers : m_DestroyingBufferArrays) {
+    for (std::vector<Buffer>& destoryingBuffers : m_DestroyingBufferArrays) {
         for (Buffer const& buffer : destoryingBuffers)
             vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
         destoryingBuffers.clear();
     }
 
-    // Recycle the buffers
+    for (std::vector<StagingMeshBuffer>& recyclingBuffers : m_RecyclingStagingMeshBufferArrays) {
+        for (StagingMeshBuffer const& buffer : recyclingBuffers)
+            m_StagingMeshBufferPool.recycle(buffer);
+        recyclingBuffers.clear();
+    }
+    m_StagingMeshBufferPool.terminate();
+
+    // Recycle the uniform buffers
     for (std::vector<RenderBatch> const& renderBatches : m_RenderBatchArrays)
         for (RenderBatch const& renderBatch : renderBatches)
             for (UniformBuffer const& buffer : renderBatch.entityUniformMemories)
@@ -97,10 +105,17 @@ void Renderer::terminate() {
 void Renderer::beginFrame() {
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, std::numeric_limits<uint32_t>::max());
 
+    // Perform a garbage collection per frame
+    m_StagingMeshBufferPool.collectGarbage();
+
     vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &m_CommandBuffers[m_CurrentFrame]);
     for (SecondaryCommandBuffer const& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
         vkFreeCommandBuffers(m_Device, secondaryCommandBuffer.pool, 1, &secondaryCommandBuffer.buffer);
     m_SecondaryCommandBufferArrays[m_CurrentFrame].clear();
+
+    for (StagingMeshBuffer const& buffer : m_RecyclingStagingMeshBufferArrays[m_CurrentFrame])
+        m_StagingMeshBufferPool.recycle(buffer);
+    m_RecyclingStagingMeshBufferArrays[m_CurrentFrame].clear();
 
     for (Buffer const& buffer : m_DestroyingBufferArrays[m_CurrentFrame])
         vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
@@ -113,27 +128,29 @@ void Renderer::beginFrame() {
 }
 
 MeshBuffer Renderer::createMeshBuffer(std::vector<Vertex> vertices, std::vector<uint16_t> indices) {
-    // TODO: Use VMA_MEMORY_USAGE_GPU_ONLY instead
-    VkDeviceSize bufferSize = vertices.size() * sizeof(Vertex);
-    Buffer vertexBuffer;
-    createBuffer(m_Allocator, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, vertexBuffer.buffer, vertexBuffer.allocation);
-    void* mappedData;
-    vmaMapMemory(m_Allocator, vertexBuffer.allocation, &mappedData);
-    memcpy(mappedData, vertices.data(), bufferSize);
-    vmaUnmapMemory(m_Allocator, vertexBuffer.allocation);
+    VkDeviceSize vertexBufferSize = vertices.size() * sizeof(Vertex);
+    VkDeviceSize indexBufferSize = indices.size() * sizeof(uint16_t);
 
-    bufferSize = indices.size() * sizeof(uint16_t);
-    Buffer indexBuffer;
-    createBuffer(m_Allocator, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, indexBuffer.buffer, indexBuffer.allocation);
-    vmaMapMemory(m_Allocator, indexBuffer.allocation, &mappedData);
-    memcpy(mappedData, indices.data(), bufferSize);
-    vmaUnmapMemory(m_Allocator, indexBuffer.allocation);
+    StagingMeshBuffer stagingMeshBuffer = m_StagingMeshBufferPool.request(vertexBufferSize, indexBufferSize);
 
-    return MeshBuffer{
-        .vertexBuffer = vertexBuffer,
-        .indexBuffer = indexBuffer,
+    // Copy vertex data and index data to the staging buffer
+    copyBuffer(m_Allocator, stagingMeshBuffer.vertexBuffer.buffer.buffer, stagingMeshBuffer.vertexBuffer.buffer.allocation, vertices.data(), vertices.size() * sizeof(Vertex));
+    copyBuffer(m_Allocator, stagingMeshBuffer.indexBuffer.buffer.buffer, stagingMeshBuffer.indexBuffer.buffer.allocation, indices.data(), indices.size() * sizeof(uint16_t));
+
+    // Create MeshBuffer
+    MeshBuffer meshBuffer{
         .vertexCount = static_cast<uint32_t>(vertices.size()),
         .indexCount = static_cast<uint32_t>(indices.size())};
+    createBuffer(m_Allocator, vertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY, meshBuffer.vertexBuffer.buffer, meshBuffer.vertexBuffer.allocation);
+    createBuffer(m_Allocator, indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY, meshBuffer.indexBuffer.buffer, meshBuffer.indexBuffer.allocation);
+
+    // Record command buffer to copy data from staging buffer
+    recordCommandBufferCopyMeshData(vertices, indices, stagingMeshBuffer, meshBuffer);
+
+    // A Staging buffer will be consumed this frame, so it should be recyled at once
+    m_RecyclingStagingMeshBufferArrays[m_CurrentFrame].push_back(stagingMeshBuffer);
+
+    return meshBuffer;
 }
 
 void Renderer::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
@@ -153,7 +170,8 @@ void Renderer::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& 
     for (glm::mat4 const& model : models) {
         UniformBuffer const& buffer = memories.emplace_back(m_UniformMemoryPool.request(sizeof(EntityUniformObject)));
         EntityUniformObject uniformObject{model};
-        recordCommandBufferCopyUniformObject(&uniformObject, buffer, sizeof(EntityUniformObject));
+        copyBuffer(m_Allocator, buffer.stagingBuffer.buffer, buffer.stagingBuffer.allocation, &uniformObject, sizeof(EntityUniformObject));
+        recordCommandBufferCopyUniformObject(sizeof(EntityUniformObject), buffer);
     }
     m_RenderBatchArrays[m_CurrentFrame].emplace_back(RenderBatch{std::move(memories), meshBuffer});
 }
@@ -168,7 +186,8 @@ void Renderer::renderFrame(/* TODO: Implement Camera */ glm::mat4 const& vp) {
     }
 
     CameraUniformObject uniformObject{vp};
-    recordCommandBufferCopyUniformObject(&uniformObject, m_CameraUniformMemories[m_CurrentFrame], sizeof(CameraUniformObject));
+    copyBuffer(m_Allocator, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.buffer, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.allocation, &uniformObject, sizeof(CameraUniformObject));
+    recordCommandBufferCopyUniformObject(sizeof(CameraUniformObject), m_CameraUniformMemories[m_CurrentFrame]);
 
     recordCommandBufferDraw(m_RenderBatchArrays[m_CurrentFrame], m_CameraUniformMemories[m_CurrentFrame]);
 
@@ -214,8 +233,13 @@ void Renderer::recreateSwapChain() {
     m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
 }
 
-void Renderer::recordCommandBufferCopyUniformObject(void const* data, UniformBuffer buffer, VkDeviceSize size) {
-    copyBuffer(m_Allocator, m_CommandBuffers[m_CurrentFrame], buffer.stagingBuffer.buffer, buffer.stagingBuffer.allocation, data, size, buffer.buffer.buffer);
+void Renderer::recordCommandBufferCopyMeshData(std::vector<Vertex> const& vertices, std::vector<uint16_t> const& indices, StagingMeshBuffer stagingMeshBuffer, MeshBuffer meshBuffer) {
+    copyBuffer(m_CommandBuffers[m_CurrentFrame], stagingMeshBuffer.vertexBuffer.buffer.buffer, vertices.size() * sizeof(Vertex), meshBuffer.vertexBuffer.buffer);
+    copyBuffer(m_CommandBuffers[m_CurrentFrame], stagingMeshBuffer.indexBuffer.buffer.buffer, indices.size() * sizeof(uint16_t), meshBuffer.indexBuffer.buffer);
+}
+
+void Renderer::recordCommandBufferCopyUniformObject(VkDeviceSize size, UniformBuffer buffer) {
+    copyBuffer(m_CommandBuffers[m_CurrentFrame], buffer.stagingBuffer.buffer, size, buffer.buffer.buffer);
 }
 
 void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer) {

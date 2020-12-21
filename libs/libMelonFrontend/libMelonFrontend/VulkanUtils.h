@@ -30,6 +30,7 @@ inline void createInstance(std::vector<char const*> const& requiredVulkanInstanc
     // TODO: Define the application name and engine name
 
     // TODO: Enable validation layers for debug
+    std::vector<const char*> layerNames{};
 
     // Application info
     VkApplicationInfo applicationInfo{
@@ -39,6 +40,8 @@ inline void createInstance(std::vector<char const*> const& requiredVulkanInstanc
     VkInstanceCreateInfo createInfo{
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pApplicationInfo = &applicationInfo,
+        .enabledLayerCount = static_cast<uint32_t>(layerNames.size()),
+        .ppEnabledLayerNames = layerNames.data(),
         .enabledExtensionCount = static_cast<uint32_t>(requiredVulkanInstanceExtensions.size()),
         .ppEnabledExtensionNames = requiredVulkanInstanceExtensions.data()};
     // Create instance
@@ -581,13 +584,15 @@ inline void updateUniformDescriptorSet(VkDevice device, VkDescriptorSet descript
     vkUpdateDescriptorSets(device, Count, writeDescriptorSets.data(), 0, nullptr);
 }
 
-inline void copyBuffer(VmaAllocator allocator, VkCommandBuffer commandBuffer, VkBuffer stagingBuffer, VmaAllocation stagingAllocation, void const* data, VkDeviceSize size, VkBuffer dstBuffer) {
+inline void copyBuffer(VmaAllocator allocator, VkBuffer stagingBuffer, VmaAllocation stagingAllocation, void const* data, VkDeviceSize size) {
     void* mappedData;
     vmaMapMemory(allocator, stagingAllocation, &mappedData);
     memcpy(mappedData, data, size);
     vmaUnmapMemory(allocator, stagingAllocation);
     vmaFlushAllocation(allocator, stagingAllocation, 0, size);
+}
 
+inline void copyBuffer(VkCommandBuffer commandBuffer, VkBuffer stagingBuffer, VkDeviceSize size, VkBuffer dstBuffer) {
     VkBufferCopy region{.size = size};
     vkCmdCopyBuffer(commandBuffer, stagingBuffer, dstBuffer, 1, &region);
     VkBufferMemoryBarrier barrier{
