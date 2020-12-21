@@ -29,13 +29,13 @@ inline void createInstance(std::vector<char const*> const& requiredVulkanInstanc
 
     // TODO: Define the application name and engine name
 
-    // TODO: Enable validation layers for debug
+    // TODO: Enable validation layers for debug, i.e. VK_LAYER_KHRONOS_validation
     std::vector<const char*> layerNames{};
 
     // Application info
     VkApplicationInfo applicationInfo{
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .apiVersion = VK_API_VERSION_1_0};
+        .apiVersion = VK_API_VERSION_1_2};
     // Instance create info
     VkInstanceCreateInfo createInfo{
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,

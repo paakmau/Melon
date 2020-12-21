@@ -35,8 +35,8 @@ bool glslToSpirv(VkShaderStageFlagBits stageFlag, char const* shaderCode, std::v
     shaderStrings[0] = shaderCode;
     shader.setStrings(shaderStrings, 1);
     shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
-    shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_1);
-    shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_3);
+    shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_2);
+    shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_2);
 
     if (!shader.parse(&k_DefaultResources, 100, false, messages)) {
         puts(shader.getInfoLog());
