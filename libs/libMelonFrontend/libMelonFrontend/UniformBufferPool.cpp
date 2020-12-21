@@ -9,32 +9,32 @@ void FixedSizeBufferPool::initialize(VmaAllocator allocator, VkDeviceSize size, 
     m_BufferUsage = bufferUsage;
     m_MemoryUsage = memoryUsage;
 
-    for (unsigned int i = 0; i < m_Pool.size(); i++) {
+    for (unsigned int i = 0; i < m_FreeBuffers.size(); i++) {
         Buffer buffer;
         createBuffer(m_Allocator, m_Size, m_BufferUsage, m_MemoryUsage, buffer.buffer, buffer.allocation);
-        m_Pool[i] = buffer;
+        m_FreeBuffers[i] = buffer;
     }
 }
 
 void FixedSizeBufferPool::terminate() {
-    for (Buffer const& buffer : m_Pool)
+    for (Buffer const& buffer : m_FreeBuffers)
         vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
 }
 
 Buffer FixedSizeBufferPool::request() {
-    if (m_PoolCount == 0) {
+    if (m_FreeBufferCount == 0) {
         Buffer buffer;
         createBuffer(m_Allocator, m_Size, m_BufferUsage, m_MemoryUsage, buffer.buffer, buffer.allocation);
         return buffer;
     }
-    return m_Pool[--m_PoolCount];
+    return m_FreeBuffers[--m_FreeBufferCount];
 }
 
 void FixedSizeBufferPool::recycle(Buffer const& buffer) {
-    if (m_PoolCount == m_Pool.size())
+    if (m_FreeBufferCount == m_FreeBuffers.size())
         vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
     else
-        m_Pool[m_PoolCount++] = buffer;
+        m_FreeBuffers[m_FreeBufferCount++] = buffer;
 }
 
 void UniformBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDescriptorSetLayout layout, VkDescriptorPool descriptorPool) { m_Device = device, m_Allocator = allocator, m_Layout = layout, m_DescriptorPool = descriptorPool; }

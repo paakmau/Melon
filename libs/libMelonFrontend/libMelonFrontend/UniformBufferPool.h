@@ -13,7 +13,7 @@ namespace Melon {
 
 class FixedSizeBufferPool {
   public:
-    static constexpr unsigned int k_PoolSize = 2048U;
+    static constexpr unsigned int k_MaxFreeBufferCount = 2048U;
 
     void initialize(VmaAllocator allocator, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage);
     // FixedSizeBufferPool can't terminate util all buffers are recycled
@@ -30,8 +30,8 @@ class FixedSizeBufferPool {
     VkBufferUsageFlags m_BufferUsage;
     VmaMemoryUsage m_MemoryUsage;
 
-    std::array<Buffer, k_PoolSize> m_Pool;
-    unsigned int m_PoolCount = k_PoolSize;
+    std::array<Buffer, k_MaxFreeBufferCount> m_FreeBuffers;
+    unsigned int m_FreeBufferCount = k_MaxFreeBufferCount;
 };
 
 class UniformBufferPool {
