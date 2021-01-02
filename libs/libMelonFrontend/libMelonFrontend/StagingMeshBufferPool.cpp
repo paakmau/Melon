@@ -6,14 +6,14 @@ namespace Melon {
 void VariableSizeBufferPool::initialize(VmaAllocator allocator, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memoryUsage) { m_Allocator = allocator, m_BufferUsage = bufferUsage, m_MemoryUsage = memoryUsage; }
 
 void VariableSizeBufferPool::terminate() {
-    for (const std::pair<VkDeviceSize, VariableSizeBuffer>& entry : m_FreeBuffers)
-        vmaDestroyBuffer(m_Allocator, entry.second.buffer.buffer, entry.second.buffer.allocation);
+    for (const auto& [bufferSize, buffer] : m_FreeBuffers)
+        vmaDestroyBuffer(m_Allocator, buffer.buffer.buffer, buffer.buffer.allocation);
 }
 
 VariableSizeBuffer VariableSizeBufferPool::request(VkDeviceSize size) {
     VariableSizeBuffer buffer;
     // Check if a buffer with a sufficiently large size exists
-    std::multimap<VkDeviceSize, VariableSizeBuffer>::iterator iter = m_FreeBuffers.lower_bound(size);
+    auto iter = m_FreeBuffers.lower_bound(size);
     if (iter != m_FreeBuffers.end()) {
         buffer = iter->second;
         m_FreeBuffers.erase(iter);
@@ -35,11 +35,11 @@ void VariableSizeBufferPool::collectGarbage() {
     m_CurrentFrame++;
     std::multimap<VkDeviceSize, VariableSizeBuffer> buffers;
     buffers.swap(m_FreeBuffers);
-    for (const std::pair<VkDeviceSize, VariableSizeBuffer>& entry : buffers)
-        if (entry.second.lastAccessedFrame + k_MaxSurvivalFrameCount < m_CurrentFrame)
-            vmaDestroyBuffer(m_Allocator, entry.second.buffer.buffer, entry.second.buffer.allocation);
+    for (const auto& [bufferSize, buffer] : buffers)
+        if (buffer.lastAccessedFrame + k_MaxSurvivalFrameCount < m_CurrentFrame)
+            vmaDestroyBuffer(m_Allocator, buffer.buffer.buffer, buffer.buffer.allocation);
         else
-            m_FreeBuffers.insert(entry);
+            m_FreeBuffers.emplace(bufferSize, buffer);
 }
 
 void StagingMeshBufferPool::initialize(VmaAllocator allocator) {

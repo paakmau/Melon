@@ -24,13 +24,13 @@ std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& p
 
 std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>> const& predecessors) {
     std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(this, procedure);
-    m_WaitingTaskAndPredecessorsQueue.emplace(std::make_pair(taskHandle, predecessors));
+    m_WaitingTaskAndPredecessorsQueue.emplace(taskHandle, predecessors);
     return taskHandle;
 }
 
 std::shared_ptr<TaskHandle> TaskManager::schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>>&& predecessors) {
     std::shared_ptr<TaskHandle> taskHandle = std::make_shared<TaskHandle>(this, procedure);
-    m_WaitingTaskAndPredecessorsQueue.emplace(std::make_pair(taskHandle, std::move(predecessors)));
+    m_WaitingTaskAndPredecessorsQueue.emplace(taskHandle, std::move(predecessors));
     return taskHandle;
 }
 

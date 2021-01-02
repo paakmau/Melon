@@ -169,8 +169,8 @@ void RenderSystem::onUpdate() {
 }
 
 void RenderSystem::onExit() {
-    for (std::pair<unsigned int, MeshBuffer> const& entry : m_MeshBufferMap)
-        m_Engine.destroyMeshBuffer(entry.second);
+    for (auto const& [index, meshBuffer] : m_MeshBufferMap)
+        m_Engine.destroyMeshBuffer(meshBuffer);
     m_Engine.terminate();
 }
 

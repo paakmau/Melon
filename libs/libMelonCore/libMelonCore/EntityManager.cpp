@@ -50,28 +50,28 @@ void EntityManager::destroyEntity(Entity const& entity) {
 
 std::vector<ChunkAccessor> EntityManager::filterEntities(EntityFilter const& entityFilter) {
     std::vector<ChunkAccessor> accessors;
-    for (std::pair<ArchetypeMask, Archetype*> const& entry : m_ArchetypeMap)
-        if (entityFilter.satisfied(entry.first))
-            if (entry.second->entityCount() != 0)
-                entry.second->filterEntities(entityFilter, m_SharedComponentStore, accessors);
+    for (auto const& [mask, archetype] : m_ArchetypeMap)
+        if (entityFilter.satisfied(mask))
+            if (archetype->entityCount() != 0)
+                archetype->filterEntities(entityFilter, m_SharedComponentStore, accessors);
     return accessors;
 }
 
 unsigned int EntityManager::chunkCount(EntityFilter const& entityFilter) const {
     unsigned int count = 0;
-    for (std::pair<ArchetypeMask, Archetype*> const& entry : m_ArchetypeMap)
-        if (entityFilter.satisfied(entry.first))
-            if (entry.second->entityCount() != 0)
-                count += entry.second->chunkCount();
+    for (auto const& [mask, archetype] : m_ArchetypeMap)
+        if (entityFilter.satisfied(mask))
+            if (archetype->entityCount() != 0)
+                count += archetype->chunkCount();
     return count;
 };
 
 unsigned int EntityManager::entityCount(EntityFilter const& entityFilter) const {
     unsigned int count = 0;
-    for (std::pair<ArchetypeMask, Archetype*> const& entry : m_ArchetypeMap)
-        if (entityFilter.satisfied(entry.first))
-            if (entry.second->entityCount() != 0)
-                count += entry.second->entityCount();
+    for (auto const& [mask, archetype] : m_ArchetypeMap)
+        if (entityFilter.satisfied(mask))
+            if (archetype->entityCount() != 0)
+                count += archetype->entityCount();
     return count;
 };
 

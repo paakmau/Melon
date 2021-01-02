@@ -23,19 +23,19 @@ Archetype::Archetype(
     for (unsigned int i = 0; i < componentAligns.size(); i++)
         alignAndIndices[i] = {componentAligns[i], i};
     alignAndIndices.back() = {alignof(Entity), -1};
-    std::sort(alignAndIndices.begin(), alignAndIndices.end(), std::greater<std::pair<unsigned int, unsigned int>>());
+    std::sort(alignAndIndices.begin(), alignAndIndices.end(), std::greater<>());
 
     m_ChunkLayout.componentIndexMap.reserve(componentIds.size());
     m_ChunkLayout.componentOffsets.resize(componentIds.size());
     std::size_t offset{};
-    for (std::pair<unsigned int, unsigned int> const& alignAndIndex : alignAndIndices) {
-        if (alignAndIndex.second == -1) {
+    for (auto const& [align, index] : alignAndIndices) {
+        if (index == -1) {
             m_ChunkLayout.entityOffset = offset;
             offset += sizeof(Entity) * m_ChunkLayout.capacity;
         } else {
-            m_ChunkLayout.componentIndexMap.emplace(componentIds[alignAndIndex.second], alignAndIndex.second);
-            m_ChunkLayout.componentOffsets[alignAndIndex.second] = offset;
-            offset += m_ChunkLayout.componentSizes[alignAndIndex.second] * m_ChunkLayout.capacity;
+            m_ChunkLayout.componentIndexMap.emplace(componentIds[index], index);
+            m_ChunkLayout.componentOffsets[index] = offset;
+            offset += m_ChunkLayout.componentSizes[index] * m_ChunkLayout.capacity;
         }
     }
 

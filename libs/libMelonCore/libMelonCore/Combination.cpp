@@ -28,11 +28,11 @@ void Combination::moveEntityAddingComponent(unsigned int const& entityIndexInSrc
     Chunk* dstChunk = m_Chunks.back();
     unsigned int entityIndexInDstChunk = m_EntityCountInCurrentChunk - 1;
 
-    for (std::pair<unsigned int, unsigned int> const& idAndIndex : m_ChunkLayout.componentIndexMap) {
-        if (idAndIndex.first == componentId) continue;
-        std::size_t const& size = m_ChunkLayout.componentSizes[idAndIndex.second];
-        void* dstAddress = componentAddress(dstChunk, idAndIndex.second, entityIndexInDstChunk);
-        void* srcAddress = srcCombination->componentAddress(idAndIndex.first, entityIndexInSrcCombination);
+    for (auto const& [id, index] : m_ChunkLayout.componentIndexMap) {
+        if (id == componentId) continue;
+        std::size_t const& size = m_ChunkLayout.componentSizes[index];
+        void* dstAddress = componentAddress(dstChunk, index, entityIndexInDstChunk);
+        void* srcAddress = srcCombination->componentAddress(id, entityIndexInSrcCombination);
         memcpy(dstAddress, srcAddress, size);
     }
 
@@ -48,10 +48,10 @@ void Combination::moveEntityRemovingComponent(unsigned int const& entityIndexInS
     Chunk* dstChunk = m_Chunks.back();
     unsigned int entityIndexInDstChunk = m_EntityCountInCurrentChunk - 1;
 
-    for (std::pair<unsigned int, unsigned int> const& idAndIndex : m_ChunkLayout.componentIndexMap) {
-        std::size_t const& size = m_ChunkLayout.componentSizes[idAndIndex.second];
-        void* dstAddress = componentAddress(dstChunk, idAndIndex.second, entityIndexInDstChunk);
-        void* srcAddress = srcCombination->componentAddress(idAndIndex.first, entityIndexInSrcCombination);
+    for (auto const& [id, index] : m_ChunkLayout.componentIndexMap) {
+        std::size_t const& size = m_ChunkLayout.componentSizes[index];
+        void* dstAddress = componentAddress(dstChunk, index, entityIndexInDstChunk);
+        void* srcAddress = srcCombination->componentAddress(id, entityIndexInSrcCombination);
         memcpy(dstAddress, srcAddress, size);
     }
 
@@ -68,10 +68,10 @@ void Combination::removeEntity(unsigned int const& entityIndexInCombination, Ent
     Chunk* srcChunk = m_Chunks.back();
     unsigned int const srcEntityIndexInChunk = m_EntityCountInCurrentChunk - 1;
 
-    for (std::pair<unsigned int, unsigned int> const& idAndIndex : m_ChunkLayout.componentIndexMap) {
-        std::size_t const& size = m_ChunkLayout.componentSizes[idAndIndex.second];
-        void* dstAddress = componentAddress(dstChunk, idAndIndex.second, dstEntityIndexInChunk);
-        void* srcAddress = componentAddress(srcChunk, idAndIndex.second, srcEntityIndexInChunk);
+    for (auto const& [id, index] : m_ChunkLayout.componentIndexMap) {
+        std::size_t const& size = m_ChunkLayout.componentSizes[index];
+        void* dstAddress = componentAddress(dstChunk, index, dstEntityIndexInChunk);
+        void* srcAddress = componentAddress(srcChunk, index, srcEntityIndexInChunk);
         if (dstChunk != srcChunk || dstEntityIndexInChunk != srcEntityIndexInChunk)
             memcpy(dstAddress, srcAddress, size);
         memset(srcAddress, 0, size);

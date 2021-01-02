@@ -306,7 +306,7 @@ EntityFilterBuilder& EntityFilterBuilder::requireSharedComponent(Type const& sha
     static_assert(std::is_base_of_v<SharedComponent, Type>);
     unsigned int const sharedComponentId = m_EntityManager->sharedComponentId<Type>();
     unsigned int const sharedComponentIndex = m_EntityManager->sharedComponentIndex(sharedComponent);
-    m_EntityFilter.requiredSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
+    m_EntityFilter.requiredSharedComponentIdAndIndices.emplace_back(sharedComponentId, sharedComponentIndex);
     return *this;
 }
 
@@ -315,7 +315,7 @@ EntityFilterBuilder& EntityFilterBuilder::rejectSharedComponent(Type const& shar
     static_assert(std::is_base_of_v<SharedComponent, Type>);
     unsigned int const sharedComponentId = m_EntityManager->sharedComponentId<Type>();
     unsigned int const sharedComponentIndex = m_EntityManager->sharedComponentIndex(sharedComponent);
-    m_EntityFilter.rejectedSharedComponentIdAndIndices.emplace_back(std::make_pair(sharedComponentId, sharedComponentIndex));
+    m_EntityFilter.rejectedSharedComponentIdAndIndices.emplace_back(sharedComponentId, sharedComponentIndex);
     return *this;
 }
 
