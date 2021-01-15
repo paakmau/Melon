@@ -6,7 +6,7 @@ namespace Melon {
 
 class Time {
   public:
-    float const& deltaTime() const;
+    const float& deltaTime() const;
 
   private:
     Time() {}

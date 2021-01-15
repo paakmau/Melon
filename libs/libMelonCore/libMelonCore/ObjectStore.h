@@ -16,50 +16,50 @@ class ObjectStore {
     static constexpr unsigned int k_InvalidIndex = std::numeric_limits<unsigned int>::max();
 
     template <typename Type>
-    unsigned int push(unsigned int const& typeId, Type const& object);
-    void pop(unsigned int const& typeId, unsigned int const& index);
+    unsigned int push(const unsigned int& typeId, const Type& object);
+    void pop(const unsigned int& typeId, const unsigned int& index);
 
     template <typename Type>
-    Type const* object(unsigned int const& index) const;
+    const Type* object(const unsigned int& index) const;
 
-    unsigned int objectIndex(unsigned int const& typeId, void const* object) const;
+    unsigned int objectIndex(const unsigned int& typeId, const void* object) const;
 
     template <typename Type>
-    unsigned int objectIndex(unsigned int const& typeId, Type const& object) const;
+    unsigned int objectIndex(const unsigned int& typeId, const Type& object) const;
 
   private:
     struct ObjectWrapper {
         unsigned int typeId;
-        void const* object;
-        std::size_t (*hash)(void const* const&);
-        bool (*equalTo)(void const* const&, void const* const&);
+        const void* object;
+        std::size_t (*hash)(const void* const&);
+        bool (*equalTo)(const void* const&, const void* const&);
     };
 
     struct ObjectWrapperHash {
-        std::size_t operator()(ObjectWrapper const& objectWrapper) const {
+        std::size_t operator()(const ObjectWrapper& objectWrapper) const {
             return objectWrapper.typeId ^ objectWrapper.hash(objectWrapper.object);
         }
     };
 
     struct ObjectWrapperEqualTo {
-        bool operator()(ObjectWrapper const& lhs, ObjectWrapper const& rhs) const {
+        bool operator()(const ObjectWrapper& lhs, const ObjectWrapper& rhs) const {
             return lhs.typeId == rhs.typeId && lhs.equalTo(lhs.object, rhs.object);
         }
     };
 
     template <typename Type>
-    static std::size_t objectWrapperHash(void const* const& object);
+    static std::size_t objectWrapperHash(const void* const& object);
 
     template <typename Type>
-    static bool objectWrapperEqualTo(void const* const& lhs, void const* const& rhs);
+    static bool objectWrapperEqualTo(const void* const& lhs, const void* const& rhs);
 
     template <typename Type>
     static void objectDeleter(void* const& object) {
         delete static_cast<Type*>(object);
     }
 
-    std::array<std::size_t (*)(void const* const&), Count> m_TypeHashes;
-    std::array<bool (*)(void const* const&, void const* const&), Count> m_TypeEqualTos;
+    std::array<std::size_t (*)(const void* const&), Count> m_TypeHashes;
+    std::array<bool (*)(const void* const&, const void* const&), Count> m_TypeEqualTos;
     std::array<void (*)(void* const&), Count> m_TypeDeleters;
 
     unsigned int m_IndexCount{};
@@ -73,12 +73,12 @@ class ObjectStore {
 
 template <std::size_t Count>
 template <typename Type>
-inline unsigned int ObjectStore<Count>::push(unsigned int const& typeId, Type const& object) {
+inline unsigned int ObjectStore<Count>::push(const unsigned int& typeId, const Type& object) {
     m_TypeHashes[typeId] = objectWrapperHash<Type>;
     m_TypeEqualTos[typeId] = objectWrapperEqualTo<Type>;
     m_TypeDeleters[typeId] = objectDeleter<Type>;
     ObjectWrapper objectWrapper{
-        typeId, static_cast<void const*>(&object),
+        typeId, static_cast<const void*>(&object),
         m_TypeHashes[typeId],
         m_TypeEqualTos[typeId]};
     unsigned int index;
@@ -101,7 +101,7 @@ inline unsigned int ObjectStore<Count>::push(unsigned int const& typeId, Type co
 }
 
 template <std::size_t Count>
-inline void ObjectStore<Count>::pop(unsigned int const& typeId, unsigned int const& index) {
+inline void ObjectStore<Count>::pop(const unsigned int& typeId, const unsigned int& index) {
     if (index == k_InvalidIndex) return;
     void* object = m_Store[index];
     m_ReferenceCounts[index]--;
@@ -121,13 +121,13 @@ inline void ObjectStore<Count>::pop(unsigned int const& typeId, unsigned int con
 
 template <std::size_t Count>
 template <typename Type>
-Type const* ObjectStore<Count>::object(unsigned int const& index) const {
+const Type* ObjectStore<Count>::object(const unsigned int& index) const {
     if (index == k_InvalidIndex) return nullptr;
     return static_cast<Type*>(m_Store[index]);
 }
 
 template <std::size_t Count>
-unsigned int ObjectStore<Count>::objectIndex(unsigned int const& typeId, void const* object) const {
+unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const void* object) const {
     if (m_TypeHashes[typeId] == nullptr) return k_InvalidIndex;
     ObjectWrapper objectWrapper{
         typeId, object,
@@ -142,9 +142,9 @@ unsigned int ObjectStore<Count>::objectIndex(unsigned int const& typeId, void co
 
 template <std::size_t Count>
 template <typename Type>
-unsigned int ObjectStore<Count>::objectIndex(unsigned int const& typeId, Type const& object) const {
+unsigned int ObjectStore<Count>::objectIndex(const unsigned int& typeId, const Type& object) const {
     ObjectWrapper objectWrapper{
-        typeId, static_cast<void const*>(&object),
+        typeId, static_cast<const void*>(&object),
         objectWrapperHash<Type>,
         objectWrapperEqualTo<Type>};
     unsigned int index;
@@ -156,14 +156,14 @@ unsigned int ObjectStore<Count>::objectIndex(unsigned int const& typeId, Type co
 
 template <std::size_t Count>
 template <typename Type>
-std::size_t ObjectStore<Count>::objectWrapperHash(void const* const& object) {
-    return std::hash<Type>()(*static_cast<Type const*>(object));
+std::size_t ObjectStore<Count>::objectWrapperHash(const void* const& object) {
+    return std::hash<Type>()(*static_cast<const Type*>(object));
 }
 
 template <std::size_t Count>
 template <typename Type>
-bool ObjectStore<Count>::objectWrapperEqualTo(void const* const& lhs, void const* const& rhs) {
-    return std::equal_to<Type>()(*static_cast<Type const*>(lhs), *static_cast<Type const*>(rhs));
+bool ObjectStore<Count>::objectWrapperEqualTo(const void* const& lhs, const void* const& rhs) {
+    return std::equal_to<Type>()(*static_cast<const Type*>(lhs), *static_cast<const Type*>(rhs));
 }
 
 }  // namespace Melon

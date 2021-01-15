@@ -21,13 +21,13 @@ static EShLanguage findLanguage(VkShaderStageFlagBits stage) {
     }
 }
 
-bool glslToSpirv(VkShaderStageFlagBits stageFlag, char const* shaderCode, std::vector<unsigned int>& spirv) {
+bool glslToSpirv(VkShaderStageFlagBits stageFlag, const char* shaderCode, std::vector<unsigned int>& spirv) {
     glslang::InitializeProcess();
 
     EShLanguage stage = findLanguage(stageFlag);
     glslang::TShader shader(stage);
     glslang::TProgram program;
-    char const* shaderStrings[1];
+    const char* shaderStrings[1];
 
     // Enable SPIR-V and Vulkan rules when parsing GLSL
     EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);

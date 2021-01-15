@@ -9,10 +9,10 @@
 namespace Melon {
 
 struct RenderBatch {
-    Buffer const& vertexBuffer() const { return meshBuffer.vertexBuffer; }
-    Buffer const& indexBuffer() const { return meshBuffer.indexBuffer; }
-    uint32_t const& vertexCount() const { return meshBuffer.vertexCount; }
-    uint32_t const& indexCount() const { return meshBuffer.indexCount; }
+    const Buffer& vertexBuffer() const { return meshBuffer.vertexBuffer; }
+    const Buffer& indexBuffer() const { return meshBuffer.indexBuffer; }
+    const uint32_t& vertexCount() const { return meshBuffer.vertexCount; }
+    const uint32_t& indexCount() const { return meshBuffer.indexCount; }
 
     std::vector<UniformBuffer> entityUniformMemories;
     MeshBuffer meshBuffer;

@@ -11,7 +11,7 @@
 namespace Melon {
 
 struct RenderMesh : public SharedComponent {
-    bool operator==(RenderMesh const& other) const {
+    bool operator==(const RenderMesh& other) const {
         return vertices == other.vertices && indices == other.indices;
     }
 
@@ -20,7 +20,7 @@ struct RenderMesh : public SharedComponent {
 };
 
 struct ManualRenderMesh : public ManualSharedComponent {
-    bool operator==(ManualRenderMesh const& other) const {
+    bool operator==(const ManualRenderMesh& other) const {
         return meshBuffer == other.meshBuffer;
     }
 
@@ -33,11 +33,11 @@ struct ManualRenderMesh : public ManualSharedComponent {
 
 template <>
 struct std::hash<Melon::RenderMesh> {
-    std::size_t operator()(Melon::RenderMesh const& renderMesh) {
+    std::size_t operator()(const Melon::RenderMesh& renderMesh) {
         std::size_t hash{};
-        for (Melon::Vertex const& vertex : renderMesh.vertices)
+        for (const Melon::Vertex& vertex : renderMesh.vertices)
             hash ^= std::hash<Melon::Vertex>()(vertex);
-        for (unsigned int const& index : renderMesh.indices)
+        for (const unsigned int& index : renderMesh.indices)
             hash ^= std::hash<unsigned int>()(index);
         return hash;
     }
@@ -45,7 +45,7 @@ struct std::hash<Melon::RenderMesh> {
 
 template <>
 struct std::hash<Melon::ManualRenderMesh> {
-    std::size_t operator()(Melon::ManualRenderMesh const& manualRenderMesh) {
+    std::size_t operator()(const Melon::ManualRenderMesh& manualRenderMesh) {
         return std::hash<Melon::MeshBuffer>()(manualRenderMesh.meshBuffer);
     }
 };

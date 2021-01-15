@@ -7,7 +7,7 @@ namespace Melon {
 EntityCommandBuffer::EntityCommandBuffer(EntityManager* entityManager) noexcept : m_EntityManager(entityManager) {}
 
 Entity EntityCommandBuffer::createEntity() {
-    Entity const entity = m_EntityManager->assignEntity();
+    const Entity entity = m_EntityManager->assignEntity();
     m_Procedures.emplace_back([this, entity]() {
         m_EntityManager->createEntityImmediately(entity);
     });
@@ -15,14 +15,14 @@ Entity EntityCommandBuffer::createEntity() {
 }
 
 Entity EntityCommandBuffer::createEntity(Archetype* archetype) {
-    Entity const entity = m_EntityManager->assignEntity();
+    const Entity entity = m_EntityManager->assignEntity();
     m_Procedures.emplace_back([this, entity, archetype]() {
         m_EntityManager->createEntityImmediately(entity, archetype);
     });
     return entity;
 }
 
-void EntityCommandBuffer::destroyEntity(Entity const& entity) {
+void EntityCommandBuffer::destroyEntity(const Entity& entity) {
     m_Procedures.emplace_back([this, entity]() {
         m_EntityManager->destroyEntityImmediately(entity);
     });
@@ -44,52 +44,52 @@ Entity EntityManager::createEntity(Archetype* archetype) {
     return m_MainEntityCommandBuffer.createEntity(archetype);
 }
 
-void EntityManager::destroyEntity(Entity const& entity) {
+void EntityManager::destroyEntity(const Entity& entity) {
     m_MainEntityCommandBuffer.destroyEntity(entity);
 }
 
-std::vector<ChunkAccessor> EntityManager::filterEntities(EntityFilter const& entityFilter) {
+std::vector<ChunkAccessor> EntityManager::filterEntities(const EntityFilter& entityFilter) {
     std::vector<ChunkAccessor> accessors;
-    for (auto const& [mask, archetype] : m_ArchetypeMap)
+    for (const auto& [mask, archetype] : m_ArchetypeMap)
         if (entityFilter.satisfied(mask))
             if (archetype->entityCount() != 0)
                 archetype->filterEntities(entityFilter, m_SharedComponentStore, accessors);
     return accessors;
 }
 
-unsigned int EntityManager::chunkCount(EntityFilter const& entityFilter) const {
+unsigned int EntityManager::chunkCount(const EntityFilter& entityFilter) const {
     unsigned int count = 0;
-    for (auto const& [mask, archetype] : m_ArchetypeMap)
+    for (const auto& [mask, archetype] : m_ArchetypeMap)
         if (entityFilter.satisfied(mask))
             if (archetype->entityCount() != 0)
                 count += archetype->chunkCount();
     return count;
 };
 
-unsigned int EntityManager::entityCount(EntityFilter const& entityFilter) const {
+unsigned int EntityManager::entityCount(const EntityFilter& entityFilter) const {
     unsigned int count = 0;
-    for (auto const& [mask, archetype] : m_ArchetypeMap)
+    for (const auto& [mask, archetype] : m_ArchetypeMap)
         if (entityFilter.satisfied(mask))
             if (archetype->entityCount() != 0)
                 count += archetype->entityCount();
     return count;
 };
 
-unsigned int EntityManager::registerComponent(std::type_index const& typeIndex) {
+unsigned int EntityManager::registerComponent(const std::type_index& typeIndex) {
     return m_ComponentIdMap.try_emplace(typeIndex, m_ComponentIdMap.size()).first->second;
 }
 
-unsigned int EntityManager::registerSharedComponent(std::type_index const& typeIndex) {
+unsigned int EntityManager::registerSharedComponent(const std::type_index& typeIndex) {
     return m_SharedComponentIdMap.try_emplace(typeIndex, m_SharedComponentIdMap.size()).first->second;
 }
 
-unsigned int EntityManager::registerSingletonComponent(std::type_index const& typeIndex) {
+unsigned int EntityManager::registerSingletonComponent(const std::type_index& typeIndex) {
     return m_SingletonComponentIdMap.try_emplace(typeIndex, m_SingletonComponentIdMap.size()).first->second;
 }
 
 Archetype* EntityManager::createArchetype(ArchetypeMask&& mask, std::vector<unsigned int>&& componentIds, std::vector<std::size_t>&& componentSizes, std::vector<std::size_t>&& componentAligns, std::vector<unsigned int>&& sharedComponentIds) {
     if (m_ArchetypeMap.contains(mask)) return m_ArchetypeMap[mask];
-    unsigned int const archetypeId = m_ArchetypeIdCounter++;
+    const unsigned int archetypeId = m_ArchetypeIdCounter++;
     Archetype* archetype = m_Archetypes.emplace_back(std::make_unique<Archetype>(archetypeId, mask, componentIds, componentSizes, componentAligns, sharedComponentIds, &m_ChunkPool)).get();
     m_ArchetypeMap.emplace(mask, archetype);
     return archetype;
@@ -106,27 +106,27 @@ Entity EntityManager::assignEntity() {
     return Entity{m_EntityIdCounter++};
 }
 
-void EntityManager::createEntityImmediately(Entity const& entity) {
+void EntityManager::createEntityImmediately(const Entity& entity) {
     Archetype* const archetype = createArchetypeBuilder().createArchetype();
     createEntityImmediately(entity, archetype);
 }
 
-void EntityManager::createEntityImmediately(Entity const& entity, Archetype* archetype) {
+void EntityManager::createEntityImmediately(const Entity& entity, Archetype* archetype) {
     Archetype::EntityLocation location;
     archetype->addEntity(entity, location);
     m_EntityLocations[entity.id] = location;
 }
 
-void EntityManager::destroyEntityImmediately(Entity const& entity) {
-    Archetype::EntityLocation const location = m_EntityLocations[entity.id];
+void EntityManager::destroyEntityImmediately(const Entity& entity) {
+    const Archetype::EntityLocation location = m_EntityLocations[entity.id];
     Archetype* archetype = m_Archetypes[location.archetypeId].get();
     // If the archetype is partially manual, we should remove all the components not manual instead
     if (archetype->partiallyManual()) {
         std::vector<unsigned int> const notManualComponentIds = archetype->notManualComponentIds();
-        for (unsigned int const& componentId : notManualComponentIds)
+        for (const unsigned int& componentId : notManualComponentIds)
             removeComponentWithoutCheck(entity, componentId, false);
         std::vector<unsigned int> const notManualSharedComponentIds = archetype->notManualSharedComponentIds();
-        for (unsigned int const& sharedComponentId : notManualSharedComponentIds)
+        for (const unsigned int& sharedComponentId : notManualSharedComponentIds)
             removeSharedComponentWithoutCheck(entity, sharedComponentId, false);
         return;
     }
@@ -136,7 +136,7 @@ void EntityManager::destroyEntityImmediately(Entity const& entity) {
     destroyEntityWithoutCheck(entity, archetype, location);
 }
 
-void EntityManager::destroyEntityWithoutCheck(Entity const& entity, Archetype* archetype, Archetype::EntityLocation const& location) {
+void EntityManager::destroyEntityWithoutCheck(const Entity& entity, Archetype* archetype, const Archetype::EntityLocation& location) {
     std::vector<unsigned int> const& sharedComponentIds = archetype->sharedComponentIds();
     std::vector<unsigned int> sharedComponentIndices;
     Entity swappedEntity;
@@ -148,8 +148,8 @@ void EntityManager::destroyEntityWithoutCheck(Entity const& entity, Archetype* a
     m_EntityLocations[entity.id] = Archetype::EntityLocation::invalidEntityLocation();
 }
 
-void EntityManager::removeComponentWithoutCheck(Entity const& entity, unsigned int const& componentId, bool const& manual) {
-    Archetype::EntityLocation const srcLocation = m_EntityLocations[entity.id];
+void EntityManager::removeComponentWithoutCheck(const Entity& entity, const unsigned int& componentId, const bool& manual) {
+    const Archetype::EntityLocation srcLocation = m_EntityLocations[entity.id];
     Archetype* const srcArchetype = m_Archetypes[srcLocation.archetypeId].get();
     ArchetypeMask mask = srcArchetype->mask();
     mask.markComponent(componentId, manual, false);
@@ -180,8 +180,8 @@ void EntityManager::removeComponentWithoutCheck(Entity const& entity, unsigned i
         m_EntityLocations[srcSwappedEntity.id] = srcLocation;
 }
 
-void EntityManager::removeSharedComponentWithoutCheck(Entity const& entity, unsigned int const& sharedComponentId, bool const& manual) {
-    Archetype::EntityLocation const srcLocation = m_EntityLocations[entity.id];
+void EntityManager::removeSharedComponentWithoutCheck(const Entity& entity, const unsigned int& sharedComponentId, const bool& manual) {
+    const Archetype::EntityLocation srcLocation = m_EntityLocations[entity.id];
     Archetype* const srcArchetype = m_Archetypes[srcLocation.archetypeId].get();
     ArchetypeMask mask = srcArchetype->mask();
     mask.markSharedComponent(sharedComponentId, manual, false);

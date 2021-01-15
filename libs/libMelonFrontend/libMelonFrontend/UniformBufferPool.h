@@ -20,9 +20,9 @@ class FixedSizeBufferPool {
     void terminate();
 
     Buffer request();
-    void recycle(Buffer const& buffer);
+    void recycle(const Buffer& buffer);
 
-    VkDeviceSize const& size() const { return m_Size; }
+    const VkDeviceSize& size() const { return m_Size; }
 
   private:
     VmaAllocator m_Allocator;

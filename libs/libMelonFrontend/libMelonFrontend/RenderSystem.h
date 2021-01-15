@@ -13,7 +13,7 @@ namespace Melon {
 
 class RenderSystem : public SystemBase {
   public:
-    RenderSystem(unsigned int const& width, unsigned int const& height);
+    RenderSystem(const unsigned int& width, const unsigned int& height);
     virtual ~RenderSystem();
 
   protected:

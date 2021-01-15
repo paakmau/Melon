@@ -2,7 +2,7 @@
 
 namespace Melon {
 
-float const& Time::deltaTime() const {
+const float& Time::deltaTime() const {
     return m_DeltaTime;
 }
 

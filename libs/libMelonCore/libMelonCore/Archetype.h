@@ -34,36 +34,36 @@ class Archetype {
     struct SharedComponentIndexHash {
         std::size_t operator()(std::vector<unsigned int> const& sharedComponentIndices) const {
             std::size_t hash = sharedComponentIndices.size();
-            for (unsigned int const& sharedComponentIndex : sharedComponentIndices)
+            for (const unsigned int& sharedComponentIndex : sharedComponentIndices)
                 hash ^= (hash << 8) + sharedComponentIndex;
             return hash;
         }
     };
 
     Archetype(
-        unsigned int const& id,
-        ArchetypeMask const& mask,
+        const unsigned int& id,
+        const ArchetypeMask& mask,
         std::vector<unsigned int> const& componentIds,
         std::vector<std::size_t> const& componentSizes,
         std::vector<std::size_t> const& componentAligns,
         std::vector<unsigned int> const& sharedComponentIds,
         ObjectPool<Chunk>* chunkPool);
-    Archetype(Archetype const&) = delete;
+    Archetype(const Archetype&) = delete;
 
-    void addEntity(Entity const& entity, EntityLocation& location);
+    void addEntity(const Entity& entity, EntityLocation& location);
     // Move an Entity when adding a Component
-    void moveEntityAddingComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, unsigned int const& componentId, void const* component, EntityLocation& dstLocation, Entity& srcSwappedEntity);
+    void moveEntityAddingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& componentId, const void* component, EntityLocation& dstLocation, Entity& srcSwappedEntity);
     // Move an Entity when removing a Component
-    void moveEntityRemovingComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, EntityLocation& dstLocation, Entity& srcSwappedEntity);
+    void moveEntityRemovingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, EntityLocation& dstLocation, Entity& srcSwappedEntity);
     // Move an Entity when adding a SharedComponent
-    void moveEntityAddingSharedComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, unsigned int const& sharedComponentId, unsigned int const& sharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity);
+    void moveEntityAddingSharedComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& sharedComponentId, const unsigned int& sharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity);
     // Move an Entity when removing a SharedComponent
-    void moveEntityRemovingSharedComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity);
-    void removeEntity(EntityLocation const& location, std::vector<unsigned int>& sharedComponentIndices, Entity& swappedEntity);
-    void setComponent(EntityLocation const& location, unsigned int const& componentId, void const* component);
-    void setSharedComponent(EntityLocation const& location, unsigned int const& sharedComponentId, unsigned int const& sharedComponentIndex, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& swappedEntity);
+    void moveEntityRemovingSharedComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity);
+    void removeEntity(const EntityLocation& location, std::vector<unsigned int>& sharedComponentIndices, Entity& swappedEntity);
+    void setComponent(const EntityLocation& location, const unsigned int& componentId, const void* component);
+    void setSharedComponent(const EntityLocation& location, const unsigned int& sharedComponentId, const unsigned int& sharedComponentIndex, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& swappedEntity);
 
-    void filterEntities(EntityFilter const& entityFilter, ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
+    void filterEntities(const EntityFilter& entityFilter, ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
 
     bool single() const { return m_Mask.single(); }
     bool fullyManual() const { return m_Mask.fullyManual(); }
@@ -75,8 +75,8 @@ class Archetype {
     unsigned int componentCount() const { return m_Mask.componentCount(); }
     unsigned int sharedComponentCount() const { return m_Mask.sharedComponentCount(); }
 
-    unsigned int const& id() const { return m_Id; }
-    ArchetypeMask const& mask() const { return m_Mask; }
+    const unsigned int& id() const { return m_Id; }
+    const ArchetypeMask& mask() const { return m_Mask; }
 
     std::vector<unsigned int> const& componentIds() const { return m_ComponentIds; }
     std::vector<std::size_t> const& componentSizes() const { return m_ComponentSizes; }
@@ -84,16 +84,16 @@ class Archetype {
 
     std::vector<unsigned int> const& sharedComponentIds() const { return m_SharedComponentIds; }
 
-    unsigned int const& chunkCount() const { return m_ChunkCount; }
-    unsigned int const& entityCount() const { return m_EntityCount; }
+    const unsigned int& chunkCount() const { return m_ChunkCount; }
+    const unsigned int& entityCount() const { return m_EntityCount; }
 
   private:
     Combination* createCombination();
     Combination* createCombination(std::vector<unsigned int> const& sharedComponentIndices);
-    void destroyCombination(Combination const* combination);
+    void destroyCombination(const Combination* combination);
 
-    unsigned int const m_Id;
-    ArchetypeMask const m_Mask;
+    const unsigned int m_Id;
+    const ArchetypeMask m_Mask;
 
     ChunkLayout m_ChunkLayout;
     std::vector<unsigned int> m_ComponentIds;
@@ -116,7 +116,7 @@ class Archetype {
 
 inline std::vector<unsigned int> Archetype::notManualComponentIds() const {
     std::vector<unsigned int> componentIds;
-    for (unsigned int const& componentId : m_ComponentIds)
+    for (const unsigned int& componentId : m_ComponentIds)
         if (!m_Mask.manualComponent(componentId))
             componentIds.push_back(componentId);
     return componentIds;
@@ -124,7 +124,7 @@ inline std::vector<unsigned int> Archetype::notManualComponentIds() const {
 
 inline std::vector<unsigned int> Archetype::notManualSharedComponentIds() const {
     std::vector<unsigned int> sharedComponentIds;
-    for (unsigned int const& sharedComponentId : m_SharedComponentIds)
+    for (const unsigned int& sharedComponentId : m_SharedComponentIds)
         if (!m_Mask.manualSharedComponent(sharedComponentId))
             sharedComponentIds.push_back(sharedComponentId);
     return sharedComponentIds;
@@ -149,7 +149,7 @@ inline Combination* Archetype::createCombination(std::vector<unsigned int> const
     return m_Combinations[combinationIndex].get();
 }
 
-inline void Archetype::destroyCombination(Combination const* combination) {
+inline void Archetype::destroyCombination(const Combination* combination) {
     m_CombinationIndexMap.erase(combination->sharedComponentIndices());
     m_FreeCombinationIndices.push_back(combination->index());
     m_Combinations[combination->index()].reset();

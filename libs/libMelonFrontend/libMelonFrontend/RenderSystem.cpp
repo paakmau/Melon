@@ -17,15 +17,15 @@ namespace Melon {
 
 class CreatedRenderMeshTask : public ChunkTask {
   public:
-    CreatedRenderMeshTask(unsigned int const& renderMeshComponentId, std::vector<Entity>& entities, std::vector<unsigned int>& renderMeshIndices) : m_RenderMeshComponentId(renderMeshComponentId), m_Entities(entities), m_RenderMeshIndices(renderMeshIndices) {}
-    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
+    CreatedRenderMeshTask(const unsigned int& renderMeshComponentId, std::vector<Entity>& entities, std::vector<unsigned int>& renderMeshIndices) : m_RenderMeshComponentId(renderMeshComponentId), m_Entities(entities), m_RenderMeshIndices(renderMeshIndices) {}
+    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
             m_Entities[firstEntityIndex + i] = chunkAccessor.entityArray()[i];
             m_RenderMeshIndices[firstEntityIndex + i] = chunkAccessor.sharedComponentIndex(m_RenderMeshComponentId);
         }
     }
 
-    unsigned int const& m_RenderMeshComponentId;
+    const unsigned int& m_RenderMeshComponentId;
 
     std::vector<Entity>& m_Entities;
     std::vector<unsigned int>& m_RenderMeshIndices;
@@ -33,13 +33,13 @@ class CreatedRenderMeshTask : public ChunkTask {
 
 class RenderTask : public ChunkTask {
   public:
-    RenderTask(std::vector<glm::mat4>& models, std::vector<ManualRenderMesh const*>& manualRenderMeshes, unsigned int const& translationComponentId, unsigned int const& rotationComponentId, unsigned int const& scaleComponentId, unsigned int const& manualRenderMeshComponentId) : m_Models(models), m_ManualRenderMeshes(manualRenderMeshes), m_TranslationComponentId(translationComponentId), m_RotationComponentId(rotationComponentId), m_ScaleComponentId(scaleComponentId), m_ManualRenderMeshComponentId(manualRenderMeshComponentId){};
+    RenderTask(std::vector<glm::mat4>& models, std::vector<const ManualRenderMesh*>& manualRenderMeshes, const unsigned int& translationComponentId, const unsigned int& rotationComponentId, const unsigned int& scaleComponentId, const unsigned int& manualRenderMeshComponentId) : m_Models(models), m_ManualRenderMeshes(manualRenderMeshes), m_TranslationComponentId(translationComponentId), m_RotationComponentId(rotationComponentId), m_ScaleComponentId(scaleComponentId), m_ManualRenderMeshComponentId(manualRenderMeshComponentId){};
 
-    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
+    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
         Translation* translations = chunkAccessor.componentArray<Translation>(m_TranslationComponentId);
         Rotation* rotations = chunkAccessor.componentArray<Rotation>(m_RotationComponentId);
         Scale* scales = chunkAccessor.componentArray<Scale>(m_ScaleComponentId);
-        ManualRenderMesh const* manualRenderMesh = chunkAccessor.sharedComponent<ManualRenderMesh>(m_ManualRenderMeshComponentId);
+        const ManualRenderMesh* manualRenderMesh = chunkAccessor.sharedComponent<ManualRenderMesh>(m_ManualRenderMeshComponentId);
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
             glm::mat4 model = glm::scale(glm::mat4(1.0f), scales[i].value);
             model = glm::mat4_cast(rotations[i].value) * model;
@@ -51,31 +51,31 @@ class RenderTask : public ChunkTask {
     }
 
     std::vector<glm::mat4>& m_Models;
-    std::vector<ManualRenderMesh const*>& m_ManualRenderMeshes;
+    std::vector<const ManualRenderMesh*>& m_ManualRenderMeshes;
 
-    unsigned int const& m_TranslationComponentId;
-    unsigned int const& m_RotationComponentId;
-    unsigned int const& m_ScaleComponentId;
-    unsigned int const& m_ManualRenderMeshComponentId;
+    const unsigned int& m_TranslationComponentId;
+    const unsigned int& m_RotationComponentId;
+    const unsigned int& m_ScaleComponentId;
+    const unsigned int& m_ManualRenderMeshComponentId;
 };
 
 class DestroyedRenderMeshTask : public ChunkTask {
   public:
-    DestroyedRenderMeshTask(unsigned int const& manualRenderMeshComponentId, std::vector<Entity>& entities, std::vector<unsigned int>& manualRenderMeshIndices) : m_ManualRenderMeshComponentId(manualRenderMeshComponentId), m_Entities(entities), m_ManualRenderMeshIndices(manualRenderMeshIndices) {}
-    virtual void execute(ChunkAccessor const& chunkAccessor, unsigned int const& chunkIndex, unsigned int const& firstEntityIndex) override {
+    DestroyedRenderMeshTask(const unsigned int& manualRenderMeshComponentId, std::vector<Entity>& entities, std::vector<unsigned int>& manualRenderMeshIndices) : m_ManualRenderMeshComponentId(manualRenderMeshComponentId), m_Entities(entities), m_ManualRenderMeshIndices(manualRenderMeshIndices) {}
+    virtual void execute(const ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
         for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
             m_Entities[firstEntityIndex + i] = chunkAccessor.entityArray()[i];
             m_ManualRenderMeshIndices[firstEntityIndex + i] = chunkAccessor.sharedComponentIndex(m_ManualRenderMeshComponentId);
         }
     }
 
-    unsigned int const& m_ManualRenderMeshComponentId;
+    const unsigned int& m_ManualRenderMeshComponentId;
 
     std::vector<Entity>& m_Entities;
     std::vector<unsigned int>& m_ManualRenderMeshIndices;
 };
 
-RenderSystem::RenderSystem(unsigned int const& width, unsigned int const& height) : SystemBase(), m_CurrentWidth(width), m_CurrentHeight(height) {}
+RenderSystem::RenderSystem(const unsigned int& width, const unsigned int& height) : SystemBase(), m_CurrentWidth(width), m_CurrentHeight(height) {}
 
 RenderSystem::~RenderSystem() {}
 
@@ -95,24 +95,24 @@ void RenderSystem::onEnter() {
 
 void RenderSystem::onUpdate() {
     // CreatedRenderMeshTask
-    unsigned int const createdRenderMeshCount = entityManager()->entityCount(m_CreatedRenderMeshEntityFilter);
+    const unsigned int createdRenderMeshCount = entityManager()->entityCount(m_CreatedRenderMeshEntityFilter);
     std::vector<Entity> createdRenderMeshEntities(createdRenderMeshCount);
     std::vector<unsigned int> createdRenderMeshIndices(createdRenderMeshCount);
     std::shared_ptr<MelonTask::TaskHandle> createdRenderMeshTaskHandle = schedule(std::make_shared<CreatedRenderMeshTask>(m_RenderMeshComponentId, createdRenderMeshEntities, createdRenderMeshIndices), m_CreatedRenderMeshEntityFilter, predecessor());
 
     // DestroyedRenderMeshTask
-    unsigned int const destroyedRenderMeshCount = entityManager()->entityCount(m_DestroyedRenderMeshEntityFilter);
+    const unsigned int destroyedRenderMeshCount = entityManager()->entityCount(m_DestroyedRenderMeshEntityFilter);
     std::vector<Entity> manualRenderMeshEntities(destroyedRenderMeshCount);
     std::vector<unsigned int> manualRenderMeshIndices(destroyedRenderMeshCount);
     std::shared_ptr<MelonTask::TaskHandle> destroyedRenderMeshTaskHandle = schedule(std::make_shared<DestroyedRenderMeshTask>(m_ManualRenderMeshComponentId, manualRenderMeshEntities, manualRenderMeshIndices), m_DestroyedRenderMeshEntityFilter, predecessor());
 
     // RenderTask
-    unsigned int const renderMeshCount = entityManager()->entityCount(m_RenderMeshEntityFilter);
+    const unsigned int renderMeshCount = entityManager()->entityCount(m_RenderMeshEntityFilter);
     glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), m_Engine.windowAspectRatio(), 0.1f, 10.0f);
     projection[1][1] *= -1;
     std::vector<glm::mat4> models(renderMeshCount);
-    std::vector<ManualRenderMesh const*> manualRenderMeshes(renderMeshCount);
+    std::vector<const ManualRenderMesh*> manualRenderMeshes(renderMeshCount);
     std::shared_ptr<MelonTask::TaskHandle> renderMeshTaskHandle = schedule(std::make_shared<RenderTask>(models, manualRenderMeshes, m_TranslationComponentId, m_RotationComponentId, m_ScaleComponentId, m_ManualRenderMeshComponentId), m_RenderMeshEntityFilter, predecessor());
 
     taskManager()->activateWaitingTasks();
@@ -122,23 +122,23 @@ void RenderSystem::onUpdate() {
     // Create ManualRenderMeshes
     createdRenderMeshTaskHandle->complete();
     for (unsigned int i = 0; i < createdRenderMeshIndices.size(); i++) {
-        unsigned int const& createdRenderMeshIndex = createdRenderMeshIndices[i];
+        const unsigned int& createdRenderMeshIndex = createdRenderMeshIndices[i];
         if (m_RenderMeshReferenceCountMap.contains(createdRenderMeshIndex))
             m_RenderMeshReferenceCountMap[createdRenderMeshIndex]++;
         else {
             m_RenderMeshReferenceCountMap[createdRenderMeshIndex] = 1;
-            RenderMesh const* createdRenderMesh = entityManager()->sharedComponent<RenderMesh>(createdRenderMeshIndex);
+            const RenderMesh* createdRenderMesh = entityManager()->sharedComponent<RenderMesh>(createdRenderMeshIndex);
             m_MeshBufferMap.emplace(createdRenderMeshIndex, m_Engine.createMeshBuffer(createdRenderMesh->vertices, createdRenderMesh->indices));
         }
-        MeshBuffer const& meshBuffer = m_MeshBufferMap[createdRenderMeshIndex];
+        const MeshBuffer& meshBuffer = m_MeshBufferMap[createdRenderMeshIndex];
         entityManager()->addSharedComponent<ManualRenderMesh>(createdRenderMeshEntities[i], ManualRenderMesh{.renderMeshIndex = createdRenderMeshIndex, .meshBuffer = meshBuffer});
     }
 
     // Destroy ManualRenderMeshes
     destroyedRenderMeshTaskHandle->complete();
     for (unsigned int i = 0; i < manualRenderMeshIndices.size(); i++) {
-        unsigned int const& manualRenderMeshIndex = manualRenderMeshIndices[i];
-        ManualRenderMesh const* manualRenderMesh = entityManager()->sharedComponent<ManualRenderMesh>(manualRenderMeshIndex);
+        const unsigned int& manualRenderMeshIndex = manualRenderMeshIndices[i];
+        const ManualRenderMesh* manualRenderMesh = entityManager()->sharedComponent<ManualRenderMesh>(manualRenderMeshIndex);
         m_RenderMeshReferenceCountMap[manualRenderMesh->renderMeshIndex]--;
         if (m_RenderMeshReferenceCountMap[manualRenderMesh->renderMeshIndex] == 0) {
             m_RenderMeshReferenceCountMap.erase(manualRenderMesh->renderMeshIndex);
@@ -169,7 +169,7 @@ void RenderSystem::onUpdate() {
 }
 
 void RenderSystem::onExit() {
-    for (auto const& [index, meshBuffer] : m_MeshBufferMap)
+    for (const auto& [index, meshBuffer] : m_MeshBufferMap)
         m_Engine.destroyMeshBuffer(meshBuffer);
     m_Engine.terminate();
 }

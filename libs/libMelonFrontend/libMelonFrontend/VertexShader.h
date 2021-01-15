@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <vector>
 
-constexpr char const* k_VertexShader =
+constexpr const char* k_VertexShader =
     "#version 450\n"
     "\n"
     "    layout(set = 0, binding = 0) uniform CameraUniformObject {\n"

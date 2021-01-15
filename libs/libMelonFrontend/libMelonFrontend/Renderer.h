@@ -33,11 +33,11 @@ class Renderer {
 
     void beginFrame();
     MeshBuffer createMeshBuffer(std::vector<Vertex> vertices, std::vector<uint16_t> indices);
-    void destroyMeshBuffer(MeshBuffer const& meshBuffer);
+    void destroyMeshBuffer(const MeshBuffer& meshBuffer);
     void beginBatches();
-    void addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer);
+    void addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& meshBuffer);
     void endBatches();
-    void renderFrame(glm::mat4 const& vp);
+    void renderFrame(const glm::mat4& vp);
     void endFrame();
 
   private:
@@ -50,7 +50,7 @@ class Renderer {
 
     void recordCommandBufferCopyMeshData(std::vector<Vertex> const& vertices, std::vector<uint16_t> const& indices, StagingMeshBuffer stagingMeshBuffer, MeshBuffer meshBuffer);
     void recordCommandBufferCopyUniformObject(VkDeviceSize size, UniformBuffer memory);
-    void recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer);
+    void recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, const UniformBuffer& cameraUniformBuffer);
 
     MelonTask::TaskManager* m_TaskManager;
 

@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <vector>
 
-constexpr char const* k_FragmentShader =
+constexpr const char* k_FragmentShader =
     "#version 450\n"
     "#extension GL_ARB_separate_shader_objects : enable\n"
     "\n"

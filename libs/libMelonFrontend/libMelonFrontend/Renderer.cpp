@@ -57,13 +57,13 @@ void Renderer::terminate() {
     vkDeviceWaitIdle(m_Device);
 
     for (std::vector<Buffer>& destoryingBuffers : m_DestroyingBufferArrays) {
-        for (Buffer const& buffer : destoryingBuffers)
+        for (const Buffer& buffer : destoryingBuffers)
             vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
         destoryingBuffers.clear();
     }
 
     for (std::vector<StagingMeshBuffer>& recyclingBuffers : m_RecyclingStagingMeshBufferArrays) {
-        for (StagingMeshBuffer const& buffer : recyclingBuffers)
+        for (const StagingMeshBuffer& buffer : recyclingBuffers)
             m_StagingMeshBufferPool.recycle(buffer);
         recyclingBuffers.clear();
     }
@@ -71,8 +71,8 @@ void Renderer::terminate() {
 
     // Recycle the uniform buffers
     for (std::vector<RenderBatch> const& renderBatches : m_RenderBatchArrays)
-        for (RenderBatch const& renderBatch : renderBatches)
-            for (UniformBuffer const& buffer : renderBatch.entityUniformMemories)
+        for (const RenderBatch& renderBatch : renderBatches)
+            for (const UniformBuffer& buffer : renderBatch.entityUniformMemories)
                 m_UniformMemoryPool.recycle(buffer);
     m_UniformMemoryPool.terminate();
     vkDestroyDescriptorPool(m_Device, m_UniformDescriptorPool, nullptr);
@@ -109,15 +109,15 @@ void Renderer::beginFrame() {
     m_StagingMeshBufferPool.collectGarbage();
 
     vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &m_CommandBuffers[m_CurrentFrame]);
-    for (SecondaryCommandBuffer const& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
+    for (const SecondaryCommandBuffer& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
         vkFreeCommandBuffers(m_Device, secondaryCommandBuffer.pool, 1, &secondaryCommandBuffer.buffer);
     m_SecondaryCommandBufferArrays[m_CurrentFrame].clear();
 
-    for (StagingMeshBuffer const& buffer : m_RecyclingStagingMeshBufferArrays[m_CurrentFrame])
+    for (const StagingMeshBuffer& buffer : m_RecyclingStagingMeshBufferArrays[m_CurrentFrame])
         m_StagingMeshBufferPool.recycle(buffer);
     m_RecyclingStagingMeshBufferArrays[m_CurrentFrame].clear();
 
-    for (Buffer const& buffer : m_DestroyingBufferArrays[m_CurrentFrame])
+    for (const Buffer& buffer : m_DestroyingBufferArrays[m_CurrentFrame])
         vmaDestroyBuffer(m_Allocator, buffer.buffer, buffer.allocation);
     m_DestroyingBufferArrays[m_CurrentFrame].clear();
 
@@ -153,22 +153,22 @@ MeshBuffer Renderer::createMeshBuffer(std::vector<Vertex> vertices, std::vector<
     return meshBuffer;
 }
 
-void Renderer::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
+void Renderer::destroyMeshBuffer(const MeshBuffer& meshBuffer) {
     m_DestroyingBufferArrays[m_CurrentFrame].push_back(meshBuffer.vertexBuffer);
     m_DestroyingBufferArrays[m_CurrentFrame].push_back(meshBuffer.indexBuffer);
 }
 
 void Renderer::beginBatches() {
-    for (RenderBatch const& renderBatch : m_RenderBatchArrays[m_CurrentFrame])
-        for (UniformBuffer const& buffer : renderBatch.entityUniformMemories)
+    for (const RenderBatch& renderBatch : m_RenderBatchArrays[m_CurrentFrame])
+        for (const UniformBuffer& buffer : renderBatch.entityUniformMemories)
             m_UniformMemoryPool.recycle(buffer);
     m_RenderBatchArrays[m_CurrentFrame].clear();
 }
 
-void Renderer::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer) {
+void Renderer::addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& meshBuffer) {
     std::vector<UniformBuffer> memories;
-    for (glm::mat4 const& model : models) {
-        UniformBuffer const& buffer = memories.emplace_back(m_UniformMemoryPool.request(sizeof(EntityUniformObject)));
+    for (const glm::mat4& model : models) {
+        const UniformBuffer& buffer = memories.emplace_back(m_UniformMemoryPool.request(sizeof(EntityUniformObject)));
         EntityUniformObject uniformObject{model};
         copyBuffer(m_Allocator, buffer.stagingBuffer.buffer, buffer.stagingBuffer.allocation, &uniformObject, sizeof(EntityUniformObject));
         recordCommandBufferCopyUniformObject(sizeof(EntityUniformObject), buffer);
@@ -178,7 +178,7 @@ void Renderer::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& 
 
 void Renderer::endBatches() {}
 
-void Renderer::renderFrame(/* TODO: Implement Camera */ glm::mat4 const& vp) {
+void Renderer::renderFrame(/* TODO: Implement Camera */ const glm::mat4& vp) {
     bool result = m_SwapChain.acquireNextImageContext(m_ImageAvailableSemaphores[m_CurrentFrame], m_CurrentImageIndex);
     if (!result) {
         recreateSwapChain();
@@ -242,7 +242,7 @@ void Renderer::recordCommandBufferCopyUniformObject(VkDeviceSize size, UniformBu
     copyBuffer(m_CommandBuffers[m_CurrentFrame], buffer.stagingBuffer.buffer, size, buffer.buffer.buffer);
 }
 
-void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, UniformBuffer const& cameraUniformBuffer) {
+void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, const UniformBuffer& cameraUniformBuffer) {
     uint32_t taskCount = std::min(k_MaxTaskCount, static_cast<unsigned int>(renderBatches.size()));
     m_SecondaryCommandBufferArrays[m_CurrentFrame].resize(taskCount);
     unsigned int batchCountPerTask = taskCount == 0 ? 0 : (renderBatches.size() / taskCount + ((renderBatches.size() % taskCount == 0) ? 0 : 1));
@@ -289,7 +289,7 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
         .clearValueCount = 1,
         .pClearValues = &clearValue};
     vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-    for (SecondaryCommandBuffer const& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
+    for (const SecondaryCommandBuffer& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
         vkCmdExecuteCommands(m_CommandBuffers[m_CurrentFrame], 1, &secondaryCommandBuffer.buffer);
     vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
 }

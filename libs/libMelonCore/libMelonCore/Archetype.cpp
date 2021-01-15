@@ -5,8 +5,8 @@
 namespace Melon {
 
 Archetype::Archetype(
-    unsigned int const& id,
-    ArchetypeMask const& mask,
+    const unsigned int& id,
+    const ArchetypeMask& mask,
     std::vector<unsigned int> const& componentIds,
     std::vector<std::size_t> const& componentSizes,
     std::vector<std::size_t> const& componentAligns,
@@ -15,7 +15,7 @@ Archetype::Archetype(
     : m_Id(id), m_Mask(mask), m_ComponentIds(componentIds), m_ComponentSizes(componentSizes), m_ComponentAligns(componentAligns), m_SharedComponentIds(sharedComponentIds), m_ChunkPool(chunkPool) {
     m_ChunkLayout.componentSizes = componentSizes;
     std::size_t totalSize = sizeof(Entity);
-    for (std::size_t const& size : m_ChunkLayout.componentSizes)
+    for (const std::size_t& size : m_ChunkLayout.componentSizes)
         totalSize += size;
     m_ChunkLayout.capacity = sizeof(Chunk) / totalSize;
 
@@ -28,7 +28,7 @@ Archetype::Archetype(
     m_ChunkLayout.componentIndexMap.reserve(componentIds.size());
     m_ChunkLayout.componentOffsets.resize(componentIds.size());
     std::size_t offset{};
-    for (auto const& [align, index] : alignAndIndices) {
+    for (const auto& [align, index] : alignAndIndices) {
         if (index == -1) {
             m_ChunkLayout.entityOffset = offset;
             offset += sizeof(Entity) * m_ChunkLayout.capacity;
@@ -42,7 +42,7 @@ Archetype::Archetype(
     std::sort(m_SharedComponentIds.begin(), m_SharedComponentIds.end());
 }
 
-void Archetype::addEntity(Entity const& entity, EntityLocation& location) {
+void Archetype::addEntity(const Entity& entity, EntityLocation& location) {
     Combination* const combination = createCombination();
     unsigned int entityIndexInCombination;
     bool chunkCountAdded;
@@ -55,7 +55,7 @@ void Archetype::addEntity(Entity const& entity, EntityLocation& location) {
         entityIndexInCombination};
 }
 
-void Archetype::moveEntityAddingComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, unsigned int const& componentId, void const* component, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
+void Archetype::moveEntityAddingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& componentId, const void* component, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
     Combination* const srcCombination = srcArchetype->m_Combinations[srcEntityLocation.combinationIndex].get();
     std::vector<unsigned int> const& sharedComponentIndices = srcCombination->sharedComponentIndices();
     Combination* const dstCombination = createCombination(sharedComponentIndices);
@@ -75,7 +75,7 @@ void Archetype::moveEntityAddingComponent(EntityLocation const& srcEntityLocatio
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
 }
 
-void Archetype::moveEntityRemovingComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
+void Archetype::moveEntityRemovingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
     Combination* const srcCombination = srcArchetype->m_Combinations[srcEntityLocation.combinationIndex].get();
     std::vector<unsigned int> const& sharedComponentIndices = srcCombination->sharedComponentIndices();
     Combination* dstCombination = createCombination(sharedComponentIndices);
@@ -95,7 +95,7 @@ void Archetype::moveEntityRemovingComponent(EntityLocation const& srcEntityLocat
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
 }
 
-void Archetype::moveEntityAddingSharedComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, unsigned int const& sharedComponentId, unsigned int const& sharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
+void Archetype::moveEntityAddingSharedComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& sharedComponentId, const unsigned int& sharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
     Combination* const srcCombination = srcArchetype->m_Combinations[srcEntityLocation.combinationIndex].get();
     std::vector<unsigned int> const& srcSharedComponentIds = srcArchetype->m_SharedComponentIds;
     std::vector<unsigned int> const& srcSharedComponentIndices = srcCombination->sharedComponentIndices();
@@ -126,7 +126,7 @@ void Archetype::moveEntityAddingSharedComponent(EntityLocation const& srcEntityL
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
 }
 
-void Archetype::moveEntityRemovingSharedComponent(EntityLocation const& srcEntityLocation, Archetype* srcArchetype, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
+void Archetype::moveEntityRemovingSharedComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
     Combination* const srcCombination = srcArchetype->m_Combinations[srcEntityLocation.combinationIndex].get();
     std::vector<unsigned int> const& srcSharedComponentIds = srcArchetype->m_SharedComponentIds;
     std::vector<unsigned int> const& srcSharedComponentIndices = srcCombination->sharedComponentIndices();
@@ -159,7 +159,7 @@ void Archetype::moveEntityRemovingSharedComponent(EntityLocation const& srcEntit
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
 }
 
-void Archetype::removeEntity(EntityLocation const& location, std::vector<unsigned int>& sharedComponentIndices, Entity& swappedEntity) {
+void Archetype::removeEntity(const EntityLocation& location, std::vector<unsigned int>& sharedComponentIndices, Entity& swappedEntity) {
     // Need to copy SharedComponent indices because Combination may be destroyed
     sharedComponentIndices = m_Combinations[location.combinationIndex]->sharedComponentIndices();
     bool chunkCountMinused;
@@ -173,11 +173,11 @@ void Archetype::removeEntity(EntityLocation const& location, std::vector<unsigne
     m_EntityCount--;
 }
 
-void Archetype::setComponent(EntityLocation const& location, unsigned int const& componentId, void const* component) {
+void Archetype::setComponent(const EntityLocation& location, const unsigned int& componentId, const void* component) {
     m_Combinations[location.combinationIndex]->setComponent(location.entityIndexInCombination, componentId, component);
 }
 
-void Archetype::setSharedComponent(EntityLocation const& location, unsigned int const& sharedComponentId, unsigned int const& sharedComponentIndex, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
+void Archetype::setSharedComponent(const EntityLocation& location, const unsigned int& sharedComponentId, const unsigned int& sharedComponentIndex, unsigned int& originalSharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity) {
     Combination* const srcCombination = m_Combinations[location.combinationIndex].get();
     std::vector<unsigned int> dstSharedComponentIndices = srcCombination->sharedComponentIndices();
     for (unsigned int i = 0; i < m_SharedComponentIds.size(); i++)
@@ -202,7 +202,7 @@ void Archetype::setSharedComponent(EntityLocation const& location, unsigned int 
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
 }
 
-void Archetype::filterEntities(EntityFilter const& entityFilter, ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const {
+void Archetype::filterEntities(const EntityFilter& entityFilter, ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const {
     for (std::unique_ptr<Combination> const& combination : m_Combinations)
         if (combination != nullptr)
             combination->filterEntities(sharedComponentStore, chunkAccessors);

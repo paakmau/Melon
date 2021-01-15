@@ -53,13 +53,13 @@ void StagingMeshBufferPool::terminate() {
     m_StagingIndexBufferPool.terminate();
 }
 
-StagingMeshBuffer StagingMeshBufferPool::request(VkDeviceSize const& vertexBufferSize, VkDeviceSize const& indexBufferSize) {
+StagingMeshBuffer StagingMeshBufferPool::request(const VkDeviceSize& vertexBufferSize, const VkDeviceSize& indexBufferSize) {
     VariableSizeBuffer vertexBuffer = m_StagingVertexBufferPool.request(vertexBufferSize);
     VariableSizeBuffer indexBuffer = m_StagingIndexBufferPool.request(indexBufferSize);
     return StagingMeshBuffer{vertexBuffer, indexBuffer};
 }
 
-void StagingMeshBufferPool::recycle(StagingMeshBuffer const& buffer) {
+void StagingMeshBufferPool::recycle(const StagingMeshBuffer& buffer) {
     m_StagingVertexBufferPool.recycle(buffer.vertexBuffer);
     m_StagingIndexBufferPool.recycle(buffer.indexBuffer);
 }

@@ -16,16 +16,16 @@ namespace Melon {
 
 class Engine {
   public:
-    void initialize(MelonTask::TaskManager* taskManager, char const* title, unsigned int const& width, unsigned int const& height);
+    void initialize(MelonTask::TaskManager* taskManager, const char* title, const unsigned int& width, const unsigned int& height);
     void terminate();
 
     void beginFrame();
     MeshBuffer createMeshBuffer(std::vector<Vertex> vertices, std::vector<uint16_t> indices);
-    void destroyMeshBuffer(MeshBuffer const& meshBuffer);
+    void destroyMeshBuffer(const MeshBuffer& meshBuffer);
     void beginBatches();
-    void addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer);
+    void addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& meshBuffer);
     void endBatches();
-    void renderFrame(glm::mat4 const& vp);
+    void renderFrame(const glm::mat4& vp);
     void endFrame();
 
     float windowAspectRatio() const { return m_Window.aspectRatio(); }

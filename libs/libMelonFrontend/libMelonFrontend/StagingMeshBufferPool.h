@@ -46,8 +46,8 @@ class StagingMeshBufferPool {
     void initialize(VmaAllocator allocator);
     void terminate();
 
-    StagingMeshBuffer request(VkDeviceSize const& vertexBufferSize, VkDeviceSize const& indexBufferSize);
-    void recycle(StagingMeshBuffer const& buffer);
+    StagingMeshBuffer request(const VkDeviceSize& vertexBufferSize, const VkDeviceSize& indexBufferSize);
+    void recycle(const StagingMeshBuffer& buffer);
 
     void collectGarbage();
 

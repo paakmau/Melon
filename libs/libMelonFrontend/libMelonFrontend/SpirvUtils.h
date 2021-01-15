@@ -111,6 +111,6 @@ static constexpr TBuiltInResource k_DefaultResources{
         .generalVariableIndexing = 1,
         .generalConstantMatrixVectorIndexing = 1}};
 
-bool glslToSpirv(VkShaderStageFlagBits stageFlag, char const* shaderCode, std::vector<unsigned int>& spirv);
+bool glslToSpirv(VkShaderStageFlagBits stageFlag, const char* shaderCode, std::vector<unsigned int>& spirv);
 
 }  // namespace Melon

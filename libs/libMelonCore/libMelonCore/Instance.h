@@ -22,13 +22,13 @@ class Instance {
     void start();
     void quit();
 
-    char const* const& applicationName() const { return m_ApplicationName; }
-    char const*& applicationName() { return m_ApplicationName; }
+    const char* const& applicationName() const { return m_ApplicationName; }
+    const char*& applicationName() { return m_ApplicationName; }
 
   private:
     void mainLoop();
 
-    char const* m_ApplicationName{};
+    const char* m_ApplicationName{};
 
     MelonTask::TaskManager m_TaskManager;
 

@@ -17,7 +17,7 @@ class ObjectPool {
     static constexpr unsigned int k_CountPerBuffer = 128;
 
     ObjectPool();
-    ObjectPool(ObjectPool const&) = delete;
+    ObjectPool(const ObjectPool&) = delete;
 
     template <typename... Args>
     Type* request(Args&&... args);

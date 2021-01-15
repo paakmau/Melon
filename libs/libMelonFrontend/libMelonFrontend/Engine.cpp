@@ -2,7 +2,7 @@
 
 namespace Melon {
 
-void Engine::initialize(MelonTask::TaskManager* taskManager, char const* title, unsigned int const& width, unsigned int const& height) {
+void Engine::initialize(MelonTask::TaskManager* taskManager, const char* title, const unsigned int& width, const unsigned int& height) {
     m_Window.initialize(title, width, height);
 
     m_Renderer = std::make_unique<Renderer>();
@@ -26,15 +26,15 @@ MeshBuffer Engine::createMeshBuffer(std::vector<Vertex> vertices, std::vector<ui
     return m_Renderer->createMeshBuffer(vertices, indices);
 }
 
-void Engine::destroyMeshBuffer(MeshBuffer const& meshBuffer) {
+void Engine::destroyMeshBuffer(const MeshBuffer& meshBuffer) {
     m_Renderer->destroyMeshBuffer(meshBuffer);
 }
 
-void Engine::addBatch(std::vector<glm::mat4> const& models, MeshBuffer const& meshBuffer) { m_Renderer->addBatch(models, meshBuffer); }
+void Engine::addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& meshBuffer) { m_Renderer->addBatch(models, meshBuffer); }
 
 void Engine::endBatches() { m_Renderer->endBatches(); }
 
-void Engine::renderFrame(/* TODO: Implement the Camera */ glm::mat4 const& vp) { m_Renderer->renderFrame(vp); }
+void Engine::renderFrame(/* TODO: Implement the Camera */ const glm::mat4& vp) { m_Renderer->renderFrame(vp); }
 
 void Engine::endFrame() { m_Renderer->endFrame(); }
 
