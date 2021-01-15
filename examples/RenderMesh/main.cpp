@@ -88,7 +88,7 @@ class RotationSystem : public Melon::SystemBase {
 
 int main() {
     Melon::Instance instance;
-    instance.applicationName() = "Rotation";
+    instance.applicationName() = "RenderMesh";
     instance.registerSystem<Melon::RenderSystem>(800, 600);
     instance.registerSystem<RotationSystem>();
     instance.start();
