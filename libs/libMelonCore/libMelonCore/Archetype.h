@@ -146,8 +146,6 @@ inline Combination* Archetype::createCombination(std::vector<unsigned int> const
         m_Combinations[combinationIndex] = std::make_unique<Combination>(combinationIndex, m_ChunkLayout, m_SharedComponentIds, sharedComponentIndices, m_ChunkPool);
     }
     m_CombinationIndexMap.emplace(sharedComponentIndices, combinationIndex);
-    // TODO: A new Combination should not have a Chunk
-    m_ChunkCount++;
     return m_Combinations[combinationIndex].get();
 }
 
@@ -156,8 +154,6 @@ inline void Archetype::destroyCombination(unsigned int const& combinationIndex, 
     m_Combinations[combinationIndex].reset();
     m_CombinationIndexMap.erase(sharedComponentIndices);
     m_FreeCombinationIndices.push_back(combinationIndex);
-    // TODO: A new Combination should not have a Chunk
-    m_ChunkCount--;
 }
 
 }  // namespace Melon

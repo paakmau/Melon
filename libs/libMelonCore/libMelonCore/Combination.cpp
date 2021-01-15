@@ -6,18 +6,27 @@
 
 namespace Melon {
 
-Combination::Combination(unsigned int const& index, ChunkLayout const& chunkLayout, std::vector<unsigned int> const& sharedComponentIds, std::vector<unsigned int> const& sharedComponentIndices, ObjectPool<Chunk>* chunkPool) : m_Index(index), m_ChunkLayout(chunkLayout), m_SharedComponentIds(sharedComponentIds), m_SharedComponentIndices(sharedComponentIndices), m_ChunkPool(chunkPool), m_EntityCountInCurrentChunk(0) {
-    // TODO: We should not request a Chunk here
-    requestChunk();
+Combination::Combination(
+    unsigned int const& index,
+    ChunkLayout const& chunkLayout,
+    std::vector<unsigned int> const& sharedComponentIds,
+    std::vector<unsigned int> const& sharedComponentIndices,
+    ObjectPool<Chunk>* chunkPool)
+    : m_Index(index),
+      m_ChunkLayout(chunkLayout),
+      m_SharedComponentIds(sharedComponentIds),
+      m_SharedComponentIndices(sharedComponentIndices),
+      m_ChunkPool(chunkPool),
+      m_EntityCountInCurrentChunk(chunkLayout.capacity) {
 }
 
 void Combination::addEntity(Entity const& entity, unsigned int& entityIndexInCombination, bool& chunkCountAdded) {
-    Chunk* chunk = m_Chunks.back();
-    unsigned int entityIndexInChunk = m_EntityCountInCurrentChunk++;
-    memcpy(entityAddress(chunk, entityIndexInChunk), &entity, sizeof(Entity));
     chunkCountAdded = m_EntityCountInCurrentChunk == m_ChunkLayout.capacity;
     if (chunkCountAdded)
         requestChunk();
+    Chunk* chunk = m_Chunks.back();
+    unsigned int entityIndexInChunk = m_EntityCountInCurrentChunk++;
+    memcpy(entityAddress(chunk, entityIndexInChunk), &entity, sizeof(Entity));
     entityIndexInCombination = m_EntityCount++;
 }
 
@@ -62,9 +71,6 @@ void Combination::removeEntity(unsigned int const& entityIndexInCombination, Ent
     Chunk* dstChunk = m_Chunks[entityIndexInCombination / m_ChunkLayout.capacity];
     unsigned int const dstEntityIndexInChunk = entityIndexInCombination % m_ChunkLayout.capacity;
 
-    chunkCountMinused = m_EntityCountInCurrentChunk == 0;
-    if (chunkCountMinused) recycleChunk();
-
     Chunk* srcChunk = m_Chunks.back();
     unsigned int const srcEntityIndexInChunk = m_EntityCountInCurrentChunk - 1;
 
@@ -85,6 +91,9 @@ void Combination::removeEntity(unsigned int const& entityIndexInCombination, Ent
 
     m_EntityCountInCurrentChunk--;
     m_EntityCount--;
+
+    chunkCountMinused = m_EntityCountInCurrentChunk == 0;
+    if (chunkCountMinused) recycleChunk();
 
     if (dstChunk != srcChunk || dstEntityIndexInChunk != srcEntityIndexInChunk)
         swappedEntity = *static_cast<Entity*>(dstEntityAddress);
