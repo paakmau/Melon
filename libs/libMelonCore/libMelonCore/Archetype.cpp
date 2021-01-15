@@ -65,8 +65,11 @@ void Archetype::moveEntityAddingComponent(EntityLocation const& srcEntityLocatio
     dstCombination->moveEntityAddingComponent(srcEntityLocation.entityIndexInCombination, srcCombination, componentId, component, entityIndexInDstCombination, dstChunkCountAdded, srcSwappedEntity, srcChunkCountMinused);
     if (dstChunkCountAdded)
         m_ChunkCount++;
-    if (srcChunkCountMinused)
+    if (srcChunkCountMinused) {
         srcArchetype->m_ChunkCount--;
+        if (srcCombination->empty())
+            srcArchetype->destroyCombination(srcCombination);
+    }
     m_EntityCount++;
     srcArchetype->m_EntityCount--;
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
@@ -82,8 +85,11 @@ void Archetype::moveEntityRemovingComponent(EntityLocation const& srcEntityLocat
     dstCombination->moveEntityRemovingComponent(srcEntityLocation.entityIndexInCombination, srcCombination, entityIndexInDstCombination, dstChunkCountAdded, srcSwappedEntity, srcChunkCountMinused);
     if (dstChunkCountAdded)
         m_ChunkCount++;
-    if (srcChunkCountMinused)
+    if (srcChunkCountMinused) {
         srcArchetype->m_ChunkCount--;
+        if (srcCombination->empty())
+            srcArchetype->destroyCombination(srcCombination);
+    }
     m_EntityCount++;
     srcArchetype->m_EntityCount--;
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
@@ -110,8 +116,11 @@ void Archetype::moveEntityAddingSharedComponent(EntityLocation const& srcEntityL
     dstCombination->moveEntityRemovingComponent(srcEntityLocation.entityIndexInCombination, srcCombination, entityIndexInDstCombination, dstChunkCountAdded, srcSwappedEntity, srcChunkCountMinused);
     if (dstChunkCountAdded)
         m_ChunkCount++;
-    if (srcChunkCountMinused)
+    if (srcChunkCountMinused) {
         srcArchetype->m_ChunkCount--;
+        if (srcCombination->empty())
+            srcArchetype->destroyCombination(srcCombination);
+    }
     m_EntityCount++;
     srcArchetype->m_EntityCount--;
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
@@ -140,8 +149,11 @@ void Archetype::moveEntityRemovingSharedComponent(EntityLocation const& srcEntit
     dstCombination->moveEntityRemovingComponent(srcEntityLocation.entityIndexInCombination, srcCombination, entityIndexInDstCombination, dstChunkCountAdded, srcSwappedEntity, srcChunkCountMinused);
     if (dstChunkCountAdded)
         m_ChunkCount++;
-    if (srcChunkCountMinused)
+    if (srcChunkCountMinused) {
         srcArchetype->m_ChunkCount--;
+        if (srcCombination->empty())
+            srcArchetype->destroyCombination(srcCombination);
+    }
     m_EntityCount++;
     srcArchetype->m_EntityCount--;
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
@@ -151,8 +163,13 @@ void Archetype::removeEntity(EntityLocation const& location, std::vector<unsigne
     // Need to copy SharedComponent indices because Combination may be destroyed
     sharedComponentIndices = m_Combinations[location.combinationIndex]->sharedComponentIndices();
     bool chunkCountMinused;
-    m_Combinations[location.combinationIndex]->removeEntity(location.entityIndexInCombination, swappedEntity, chunkCountMinused);
-    if (chunkCountMinused) m_ChunkCount--;
+    Combination* combination = m_Combinations[location.combinationIndex].get();
+    combination->removeEntity(location.entityIndexInCombination, swappedEntity, chunkCountMinused);
+    if (chunkCountMinused) {
+        m_ChunkCount--;
+        if (combination->empty())
+            destroyCombination(combination);
+    }
     m_EntityCount--;
 }
 
@@ -177,8 +194,11 @@ void Archetype::setSharedComponent(EntityLocation const& location, unsigned int 
     dstCombination->moveEntityRemovingComponent(location.entityIndexInCombination, srcCombination, entityIndexInDstCombination, dstChunkCountAdded, srcSwappedEntity, srcChunkCountMinused);
     if (dstChunkCountAdded)
         m_ChunkCount++;
-    if (srcChunkCountMinused)
+    if (srcChunkCountMinused) {
         m_ChunkCount--;
+        if (srcCombination->empty())
+            destroyCombination(srcCombination);
+    }
     dstLocation = EntityLocation{m_Id, dstCombination->index(), entityIndexInDstCombination};
 }
 

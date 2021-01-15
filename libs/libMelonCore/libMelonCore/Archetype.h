@@ -90,7 +90,7 @@ class Archetype {
   private:
     Combination* createCombination();
     Combination* createCombination(std::vector<unsigned int> const& sharedComponentIndices);
-    void destroyCombination(unsigned int const& combinationIndex, std::vector<unsigned int> const& sharedComponentIndices);
+    void destroyCombination(Combination const* combination);
 
     unsigned int const m_Id;
     ArchetypeMask const m_Mask;
@@ -149,11 +149,10 @@ inline Combination* Archetype::createCombination(std::vector<unsigned int> const
     return m_Combinations[combinationIndex].get();
 }
 
-// TODO: Consider when to destroy a Combination
-inline void Archetype::destroyCombination(unsigned int const& combinationIndex, std::vector<unsigned int> const& sharedComponentIndices) {
-    m_Combinations[combinationIndex].reset();
-    m_CombinationIndexMap.erase(sharedComponentIndices);
-    m_FreeCombinationIndices.push_back(combinationIndex);
+inline void Archetype::destroyCombination(Combination const* combination) {
+    m_CombinationIndexMap.erase(combination->sharedComponentIndices());
+    m_FreeCombinationIndices.push_back(combination->index());
+    m_Combinations[combination->index()].reset();
 }
 
 }  // namespace Melon

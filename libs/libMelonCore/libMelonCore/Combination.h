@@ -33,6 +33,7 @@ class Combination {
 
     void filterEntities(ObjectStore<ArchetypeMask::k_MaxSharedComponentIdCount> const& sharedComponentStore, std::vector<ChunkAccessor>& chunkAccessors) const;
 
+    bool empty() const { return m_EntityCount == 0; }
     unsigned int chunkCount() const { return m_Chunks.size(); }
     bool hasComponent(unsigned int const& componentId) const { return m_ChunkLayout.componentIndexMap.contains(componentId); }
 
