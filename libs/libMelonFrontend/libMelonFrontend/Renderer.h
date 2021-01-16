@@ -37,7 +37,7 @@ class Renderer {
     void beginBatches();
     void addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& meshBuffer);
     void endBatches();
-    void renderFrame(const glm::mat4& vp);
+    void renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation);
     void endFrame();
 
   private:

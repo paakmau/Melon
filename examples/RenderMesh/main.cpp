@@ -6,6 +6,7 @@
 #include <libMelonCore/SystemBase.h>
 #include <libMelonCore/Time.h>
 #include <libMelonCore/Translation.h>
+#include <libMelonFrontend/Camera.h>
 #include <libMelonFrontend/RenderMesh.h>
 #include <libMelonFrontend/RenderSystem.h>
 #include <libMelonTask/TaskHandle.h>
@@ -24,9 +25,9 @@ struct RotationSpeed : public Melon::Component {
 };
 
 class RotationSystem : public Melon::SystemBase {
-   protected:
+  protected:
     class RotationTask : public Melon::EntityCommandBufferChunkTask {
-       public:
+      public:
         RotationTask(const unsigned int& rotationComponentId, const unsigned int& rotationSpeedComponentId, const unsigned int& destructionTimeComponentId, const float& deltaTime) : _rotationComponentId(rotationComponentId), _rotationSpeedComponentId(rotationSpeedComponentId), _destructionTimeComponentId(destructionTimeComponentId), _deltaTime(deltaTime) {}
         virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
             const Melon::Entity* entities = chunkAccessor.entityArray();
@@ -49,6 +50,7 @@ class RotationSystem : public Melon::SystemBase {
     };
 
     virtual void onEnter() override {
+        // Create RenderMeshes
         Melon::Archetype* archetype = entityManager()->createArchetypeBuilder().markComponents<Melon::Translation, Melon::Rotation, Melon::Scale, RotationSpeed, DestructionTime>().markSharedComponents<Melon::RenderMesh>().createArchetype();
         Melon::RenderMesh mesh = Melon::RenderMesh{
             .vertices{
@@ -66,6 +68,13 @@ class RotationSystem : public Melon::SystemBase {
             entityManager()->setComponent<DestructionTime>(entity, DestructionTime{.value = 5.0f});
             entityManager()->setSharedComponent<Melon::RenderMesh>(entity, mesh);
         }
+
+        // Create a Camera
+        Melon::Entity cameraEntity = entityManager()->createEntity();
+        entityManager()->addComponent<Melon::Translation>(cameraEntity, Melon::Translation{.value = glm::vec3(2.0f, 2.0f, 2.0f)});
+        entityManager()->addComponent<Melon::Rotation>(cameraEntity, Melon::Rotation{.value = glm::quatLookAt(glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)), glm::vec3(0.0f, 0.0f, 1.0f))});
+        entityManager()->addComponent<Melon::Camera>(cameraEntity, Melon::Camera());
+        entityManager()->addComponent<Melon::PerspectiveProjection>(cameraEntity, Melon::PerspectiveProjection{.fov = 45.0f, .near = 0.1f, .far = 10.0f});
 
         _rotationEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Melon::Rotation, RotationSpeed, DestructionTime>().createEntityFilter();
         _rotationComponentId = entityManager()->componentId<Melon::Rotation>();

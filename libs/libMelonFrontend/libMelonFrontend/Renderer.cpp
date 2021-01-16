@@ -178,14 +178,18 @@ void Renderer::addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& 
 
 void Renderer::endBatches() {}
 
-void Renderer::renderFrame(/* TODO: Implement Camera */ const glm::mat4& vp) {
+void Renderer::renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation) {
     bool result = m_SwapChain.acquireNextImageContext(m_ImageAvailableSemaphores[m_CurrentFrame], m_CurrentImageIndex);
     if (!result) {
         recreateSwapChain();
         return;
     }
 
-    CameraUniformObject uniformObject{vp};
+    // Calculate the view matrix
+    glm::mat4 view = glm::mat4_cast(glm::inverse(cameraRotation));
+    view = glm::translate(view, -cameraTranslation);
+
+    CameraUniformObject uniformObject{projection * view};
     copyBuffer(m_Allocator, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.buffer, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.allocation, &uniformObject, sizeof(CameraUniformObject));
     recordCommandBufferCopyUniformObject(sizeof(CameraUniformObject), m_CameraUniformMemories[m_CurrentFrame]);
 

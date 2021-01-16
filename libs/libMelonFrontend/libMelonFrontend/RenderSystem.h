@@ -27,9 +27,12 @@ class RenderSystem : public SystemBase {
     EntityFilter m_CreatedRenderMeshEntityFilter;
     EntityFilter m_RenderMeshEntityFilter;
     EntityFilter m_DestroyedRenderMeshEntityFilter;
+    EntityFilter m_CameraEntityFilter;
+
     unsigned int m_TranslationComponentId;
     unsigned int m_RotationComponentId;
     unsigned int m_ScaleComponentId;
+    unsigned int m_PerspectiveProjectionComponentId;
     unsigned int m_RenderMeshComponentId;
     unsigned int m_ManualRenderMeshComponentId;
 

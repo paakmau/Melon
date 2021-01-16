@@ -4,6 +4,7 @@
 #include <libMelonCore/Rotation.h>
 #include <libMelonCore/Scale.h>
 #include <libMelonCore/Translation.h>
+#include <libMelonFrontend/Camera.h>
 #include <libMelonFrontend/Engine.h>
 #include <libMelonFrontend/RenderSystem.h>
 #include <libMelonTask/TaskHandle.h>
@@ -85,10 +86,12 @@ void RenderSystem::onEnter() {
     m_CreatedRenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireSharedComponents<RenderMesh>().rejectSharedComponents<ManualRenderMesh>().createEntityFilter();
     m_RenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Translation, Rotation, Scale>().requireSharedComponents<RenderMesh, ManualRenderMesh>().createEntityFilter();
     m_DestroyedRenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireSharedComponents<ManualRenderMesh>().rejectSharedComponents<RenderMesh>().createEntityFilter();
+    m_CameraEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Translation, Rotation, Camera, PerspectiveProjection>().createEntityFilter();
 
     m_TranslationComponentId = entityManager()->componentId<Translation>();
     m_RotationComponentId = entityManager()->componentId<Rotation>();
     m_ScaleComponentId = entityManager()->componentId<Scale>();
+    m_PerspectiveProjectionComponentId = entityManager()->componentId<PerspectiveProjection>();
     m_RenderMeshComponentId = entityManager()->sharedComponentId<RenderMesh>();
     m_ManualRenderMeshComponentId = entityManager()->sharedComponentId<ManualRenderMesh>();
 }
@@ -108,14 +111,26 @@ void RenderSystem::onUpdate() {
 
     // RenderTask
     const unsigned int renderMeshCount = entityManager()->entityCount(m_RenderMeshEntityFilter);
-    glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), m_Engine.windowAspectRatio(), 0.1f, 10.0f);
-    projection[1][1] *= -1;
     std::vector<glm::mat4> models(renderMeshCount);
     std::vector<const ManualRenderMesh*> manualRenderMeshes(renderMeshCount);
     std::shared_ptr<MelonTask::TaskHandle> renderMeshTaskHandle = schedule(std::make_shared<RenderTask>(models, manualRenderMeshes, m_TranslationComponentId, m_RotationComponentId, m_ScaleComponentId, m_ManualRenderMeshComponentId), m_RenderMeshEntityFilter, predecessor());
 
     taskManager()->activateWaitingTasks();
+
+    // Fetch components of a Camera. If not found, use a default Camera
+    std::vector<ChunkAccessor> accessors = entityManager()->filterEntities(m_CameraEntityFilter);
+    glm::vec3 cameraTranslation(0.0f, 0.0f, 0.0f);
+    glm::quat cameraRotation = glm::quatLookAt(glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), m_Engine.windowAspectRatio(), 0.1f, 10.0f);
+    projection[1][1] *= -1;
+    for (auto accessor : accessors)
+        for (unsigned int i = 0; i < accessor.entityCount(); i++) {
+            cameraTranslation = accessor.componentArray<Translation>(m_TranslationComponentId)[i].value;
+            cameraRotation = accessor.componentArray<Rotation>(m_RotationComponentId)[i].value;
+            PerspectiveProjection perspectiveProjection = accessor.componentArray<PerspectiveProjection>(m_PerspectiveProjectionComponentId)[i];
+            projection = glm::perspective(glm::radians(perspectiveProjection.fov), m_Engine.windowAspectRatio(), perspectiveProjection.near, perspectiveProjection.far);
+            projection[1][1] *= -1;
+        }
 
     m_Engine.beginFrame();
 
@@ -161,7 +176,7 @@ void RenderSystem::onUpdate() {
     m_Engine.endBatches();
 
     // Draw frame
-    m_Engine.renderFrame(projection * view);
+    m_Engine.renderFrame(projection, cameraTranslation, cameraRotation);
 
     m_Engine.endFrame();
     if (m_Engine.windowClosed())
