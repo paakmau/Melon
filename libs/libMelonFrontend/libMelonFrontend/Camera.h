@@ -8,9 +8,9 @@ struct Camera : public Component {
 };
 
 struct PerspectiveProjection : public Component {
-    float fov;
-    float near;
-    float far;
+    float fovy;
+    float zNear;
+    float zFar;
 };
 
 }  // namespace Melon

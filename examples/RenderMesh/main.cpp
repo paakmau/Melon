@@ -74,7 +74,7 @@ class RotationSystem : public Melon::SystemBase {
         entityManager()->addComponent<Melon::Translation>(cameraEntity, Melon::Translation{.value = glm::vec3(2.0f, 2.0f, 2.0f)});
         entityManager()->addComponent<Melon::Rotation>(cameraEntity, Melon::Rotation{.value = glm::quatLookAt(glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)), glm::vec3(0.0f, 0.0f, 1.0f))});
         entityManager()->addComponent<Melon::Camera>(cameraEntity, Melon::Camera());
-        entityManager()->addComponent<Melon::PerspectiveProjection>(cameraEntity, Melon::PerspectiveProjection{.fov = 45.0f, .near = 0.1f, .far = 10.0f});
+        entityManager()->addComponent<Melon::PerspectiveProjection>(cameraEntity, Melon::PerspectiveProjection{.fovy = 45.0f, .zNear = 0.1f, .zFar = 10.0f});
 
         _rotationEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Melon::Rotation, RotationSpeed, DestructionTime>().createEntityFilter();
         _rotationComponentId = entityManager()->componentId<Melon::Rotation>();

@@ -128,7 +128,7 @@ void RenderSystem::onUpdate() {
             cameraTranslation = accessor.componentArray<Translation>(m_TranslationComponentId)[i].value;
             cameraRotation = accessor.componentArray<Rotation>(m_RotationComponentId)[i].value;
             PerspectiveProjection perspectiveProjection = accessor.componentArray<PerspectiveProjection>(m_PerspectiveProjectionComponentId)[i];
-            projection = glm::perspective(glm::radians(perspectiveProjection.fov), m_Engine.windowAspectRatio(), perspectiveProjection.near, perspectiveProjection.far);
+            projection = glm::perspective(glm::radians(perspectiveProjection.fovy), m_Engine.windowAspectRatio(), perspectiveProjection.zNear, perspectiveProjection.zFar);
             projection[1][1] *= -1;
         }
 
