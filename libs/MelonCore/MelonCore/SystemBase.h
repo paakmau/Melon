@@ -40,15 +40,10 @@ class SystemBase {
     std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, const EntityFilter& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
 
     Instance* const& instance() const { return m_Instance; }
-    Instance*& instance() { return m_Instance; }
     MelonTask::TaskManager* const& taskManager() const { return m_TaskManager; }
-    MelonTask::TaskManager*& taskManager() { return m_TaskManager; }
     Time* const& time() const { return m_Time; }
-    Time*& time() { return m_Time; }
     ResourceManager* const& resourceManager() const { return m_ResourceManager; }
-    ResourceManager*& resourceManager() { return m_ResourceManager; }
     EntityManager* const& entityManager() const { return m_EntityManager; }
-    EntityManager*& entityManager() { return m_EntityManager; }
 
     std::shared_ptr<MelonTask::TaskHandle> const& predecessor() const { return m_TaskHandle; }
     std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return m_TaskHandle; }
