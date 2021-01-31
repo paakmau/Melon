@@ -12,19 +12,19 @@
 #include <cstdio>
 #include <memory>
 
-struct Spawner : public Melon::Component {
+struct Spawner : public Melon::DataComponent {
     unsigned int initialHealth;
     unsigned int spawnerCount;
 };
 
-struct Health : public Melon::Component {
+struct Health : public Melon::DataComponent {
     unsigned int value;
 };
 
 class SpawnerAndKillSystem : public Melon::SystemBase {
-   protected:
+  protected:
     class SpawnerEntityCommandBufferChunkTask : public Melon::EntityCommandBufferChunkTask {
-       public:
+      public:
         SpawnerEntityCommandBufferChunkTask(const unsigned int& spawnerComponentId) : _spawnerComponentId(spawnerComponentId) {}
         virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
             Spawner* spawners = chunkAccessor.componentArray<Spawner>(_spawnerComponentId);
@@ -42,7 +42,7 @@ class SpawnerAndKillSystem : public Melon::SystemBase {
     };
 
     class KillEntityCommandBufferChunkTask : public Melon::EntityCommandBufferChunkTask {
-       public:
+      public:
         KillEntityCommandBufferChunkTask(const unsigned int& healthComponentId) : _healthComponentId(healthComponentId) {}
         virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
             Health* healths = chunkAccessor.componentArray<Health>(_healthComponentId);
@@ -78,17 +78,17 @@ class SpawnerAndKillSystem : public Melon::SystemBase {
     }
 
     void onUpdate() override {
-        printf("Delta time : %f\n", Melon::Time::instance()->deltaTime());
+        printf("Delta time : %f\n", time()->deltaTime());
         std::shared_ptr<Melon::TaskHandle> spawnerTaskHandle = schedule(std::make_shared<SpawnerEntityCommandBufferChunkTask>(_spawnerComponentId), _spawnerEntityFilter, predecessor());
         std::shared_ptr<Melon::TaskHandle> killTaskHandle = schedule(std::make_shared<KillEntityCommandBufferChunkTask>(_healthComponentId), _monsterEntityFilter, predecessor());
-        predecessor() = Melon::TaskManager::instance()->combine({spawnerTaskHandle, killTaskHandle});
+        predecessor() = taskManager()->combine({spawnerTaskHandle, killTaskHandle});
         if (entityManager()->entityCount(_spawnerEntityFilter) == 0 && entityManager()->entityCount(_monsterEntityFilter) == 0)
-            Melon::Instance::instance()->quit();
+            instance()->quit();
     }
 
     void onExit() override {}
 
-   private:
+  private:
     Melon::EntityFilter _spawnerEntityFilter;
     Melon::EntityFilter _monsterEntityFilter;
     unsigned int _spawnerComponentId;
@@ -97,7 +97,8 @@ class SpawnerAndKillSystem : public Melon::SystemBase {
 };
 
 int main() {
-    Melon::Instance::instance()->registerSystem<SpawnerAndKillSystem>();
-    Melon::Instance::instance()->start();
+    Melon::Instance instance;
+    instance.registerSystem<SpawnerAndKillSystem>();
+    instance.start();
     return 0;
 }
