@@ -9,7 +9,7 @@ Instance::Instance() {
 }
 
 void Instance::start() {
-    m_DefaultWorld->enter(this, &m_Time);
+    m_DefaultWorld->enter(this, &m_Time, &m_ResourceManager);
     mainLoop();
     m_DefaultWorld->exit();
 }

@@ -12,9 +12,9 @@ World::World(MelonTask::TaskManager* taskManager) : m_TaskManager(taskManager) {
     };
 }
 
-void World::enter(Instance* instance, Time* time) {
+void World::enter(Instance* instance, Time* time, ResourceManager* resourceManager) {
     for (std::unique_ptr<SystemBase> const& system : m_Systems)
-        system->enter(instance, m_TaskManager, time, &m_EntityManager);
+        system->enter(instance, m_TaskManager, time, resourceManager, &m_EntityManager);
 }
 
 void World::update() {

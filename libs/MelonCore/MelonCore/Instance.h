@@ -1,6 +1,7 @@
 #pragma once
 
 #include <MelonCore/EntityManager.h>
+#include <MelonCore/ResourceManager.h>
 #include <MelonCore/Time.h>
 #include <MelonCore/World.h>
 #include <MelonTask/TaskManager.h>
@@ -33,6 +34,8 @@ class Instance {
     MelonTask::TaskManager m_TaskManager;
 
     Time m_Time;
+
+    ResourceManager m_ResourceManager;
 
     std::unique_ptr<World> m_DefaultWorld;
 

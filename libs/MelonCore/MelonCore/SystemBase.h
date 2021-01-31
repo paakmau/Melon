@@ -3,6 +3,7 @@
 #include <MelonCore/ChunkAccessor.h>
 #include <MelonCore/EntityFilter.h>
 #include <MelonCore/EntityManager.h>
+#include <MelonCore/ResourceManager.h>
 #include <MelonCore/Time.h>
 #include <MelonTask/TaskHandle.h>
 #include <MelonTask/TaskManager.h>
@@ -44,6 +45,8 @@ class SystemBase {
     MelonTask::TaskManager*& taskManager() { return m_TaskManager; }
     Time* const& time() const { return m_Time; }
     Time*& time() { return m_Time; }
+    ResourceManager* const& resourceManager() const { return m_ResourceManager; }
+    ResourceManager*& resourceManager() { return m_ResourceManager; }
     EntityManager* const& entityManager() const { return m_EntityManager; }
     EntityManager*& entityManager() { return m_EntityManager; }
 
@@ -51,13 +54,14 @@ class SystemBase {
     std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return m_TaskHandle; }
 
   private:
-    void enter(Instance* instance, MelonTask::TaskManager* taskManager, Time* time, EntityManager* entityManager);
+    void enter(Instance* instance, MelonTask::TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager);
     void update();
     void exit();
 
     Instance* m_Instance;
     MelonTask::TaskManager* m_TaskManager;
     Time* m_Time;
+    ResourceManager* m_ResourceManager;
     EntityManager* m_EntityManager;
 
     std::shared_ptr<MelonTask::TaskHandle> m_TaskHandle;

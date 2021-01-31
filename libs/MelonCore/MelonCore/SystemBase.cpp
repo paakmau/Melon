@@ -52,10 +52,11 @@ std::shared_ptr<MelonTask::TaskHandle> SystemBase::schedule(std::shared_ptr<Enti
     return m_TaskManager->combine(taskHandles);
 }
 
-void SystemBase::enter(Instance* instance, MelonTask::TaskManager* taskManager, Time* time, EntityManager* entityManager) {
+void SystemBase::enter(Instance* instance, MelonTask::TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager) {
     m_Instance = instance;
     m_TaskManager = taskManager;
     m_Time = time;
+    m_ResourceManager = resourceManager;
     m_EntityManager = entityManager;
     onEnter();
     m_TaskManager->activateWaitingTasks();

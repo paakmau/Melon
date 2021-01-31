@@ -1,5 +1,6 @@
 #pragma once
 
+#include <MelonCore/ResourceManager.h>
 #include <MelonCore/SystemBase.h>
 #include <MelonCore/Time.h>
 #include <MelonTask/TaskManager.h>
@@ -21,7 +22,7 @@ class World {
     template <typename Type, typename... Args>
     void registerSystem(Args&&... args);
 
-    void enter(Instance* instance, Time* time);
+    void enter(Instance* instance, Time* time, ResourceManager* resourceManager);
     void update();
     void exit();
 

@@ -12,12 +12,12 @@
 #include <cstdio>
 #include <memory>
 
-struct Spawner : public Melon::DataComponent {
+struct Spawner : public Melon::Component {
     unsigned int initialHealth;
     unsigned int spawnerCount;
 };
 
-struct Health : public Melon::DataComponent {
+struct Health : public Melon::Component {
     unsigned int value;
 };
 
