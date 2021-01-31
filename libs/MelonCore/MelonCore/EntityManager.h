@@ -3,7 +3,7 @@
 #include <MelonCore/Archetype.h>
 #include <MelonCore/ChunkAccessor.h>
 #include <MelonCore/Combination.h>
-#include <MelonCore/Component.h>
+#include <MelonCore/DataComponent.h>
 #include <MelonCore/Entity.h>
 #include <MelonCore/EntityFilter.h>
 #include <MelonCore/ObjectPool.h>
@@ -240,15 +240,15 @@ class EntityManager {
 
 template <typename... Types>
 ArchetypeBuilder& ArchetypeBuilder::markComponents() {
-    // TODO: Check if derived from Component, which should be encapsulated in a method
-    static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<Component, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<Component, Types>>..., std::true_type>>);
+    // TODO: Check if derived from DataComponent, which should be encapsulated in a method
+    static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<DataComponent, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<DataComponent, Types>>..., std::true_type>>);
     std::vector<unsigned int> const componentIds{m_EntityManager->componentId<Types>()...};
     std::vector<std::size_t> const componentSizes{sizeof(Types)...};
     std::vector<std::size_t> const componentAligns{alignof(Types)...};
     m_ComponentIds.insert(m_ComponentIds.end(), componentIds.begin(), componentIds.end());
     m_ComponentSizes.insert(m_ComponentSizes.end(), componentSizes.begin(), componentSizes.end());
     m_ComponentAligns.insert(m_ComponentAligns.end(), componentAligns.begin(), componentAligns.end());
-    m_Mask.markComponents(componentIds, {std::is_base_of_v<ManualComponent, Types>...});
+    m_Mask.markComponents(componentIds, {std::is_base_of_v<ManualDataComponent, Types>...});
     return *this;
 }
 
@@ -267,7 +267,7 @@ inline Archetype* ArchetypeBuilder::createArchetype() {
 
 template <typename... Types>
 EntityFilterBuilder& EntityFilterBuilder::requireComponents() {
-    static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<Component, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<Component, Types>>..., std::true_type>>);
+    static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<DataComponent, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<DataComponent, Types>>..., std::true_type>>);
     std::vector<unsigned int> const& componentIds{m_EntityManager->componentId<Types>()...};
     for (const unsigned int& cmptId : componentIds)
         m_EntityFilter.requiredComponentMask.set(cmptId);
@@ -276,7 +276,7 @@ EntityFilterBuilder& EntityFilterBuilder::requireComponents() {
 
 template <typename... Types>
 EntityFilterBuilder& EntityFilterBuilder::rejectComponents() {
-    static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<Component, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<Component, Types>>..., std::true_type>>);
+    static_assert(std::is_same_v<std::tuple<std::true_type, std::bool_constant<std::is_base_of_v<DataComponent, Types>>...>, std::tuple<std::bool_constant<std::is_base_of_v<DataComponent, Types>>..., std::true_type>>);
     std::vector<unsigned int> const& componentIds{m_EntityManager->componentId<Types>()...};
     for (const unsigned int& cmptId : componentIds)
         m_EntityFilter.rejectedComponentMask.set(cmptId);
@@ -326,7 +326,7 @@ inline EntityFilter EntityFilterBuilder::createEntityFilter() {
 
 template <typename Type>
 void EntityCommandBuffer::addComponent(const Entity& entity, const Type& component) {
-    static_assert(std::is_base_of_v<Component, Type>);
+    static_assert(std::is_base_of_v<DataComponent, Type>);
     m_Procedures.emplace_back([this, entity, component]() {
         m_EntityManager->addComponentImmediately(entity, component);
     });
@@ -334,7 +334,7 @@ void EntityCommandBuffer::addComponent(const Entity& entity, const Type& compone
 
 template <typename Type>
 void EntityCommandBuffer::removeComponent(const Entity& entity) {
-    static_assert(std::is_base_of_v<Component, Type>);
+    static_assert(std::is_base_of_v<DataComponent, Type>);
     m_Procedures.emplace_back([this, entity]() {
         m_EntityManager->removeComponentImmediately<Type>(entity);
     });
@@ -342,7 +342,7 @@ void EntityCommandBuffer::removeComponent(const Entity& entity) {
 
 template <typename Type>
 void EntityCommandBuffer::setComponent(const Entity& entity, const Type& component) {
-    static_assert(std::is_base_of_v<Component, Type>);
+    static_assert(std::is_base_of_v<DataComponent, Type>);
     m_Procedures.emplace_back([this, entity, component]() {
         m_EntityManager->setComponentImmediately(entity, component);
     });
@@ -398,19 +398,19 @@ void EntityCommandBuffer::setSingletonComponent(const Type& singletonComponent) 
 
 template <typename Type>
 void EntityManager::addComponent(const Entity& entity, const Type& component) {
-    static_assert(std::is_base_of_v<Component, Type>);
+    static_assert(std::is_base_of_v<DataComponent, Type>);
     m_MainEntityCommandBuffer.addComponent(entity, component);
 }
 
 template <typename Type>
 void EntityManager::removeComponent(const Entity& entity) {
-    static_assert(std::is_base_of_v<Component, Type>);
+    static_assert(std::is_base_of_v<DataComponent, Type>);
     m_MainEntityCommandBuffer.removeComponent<Type>(entity);
 }
 
 template <typename Type>
 void EntityManager::setComponent(const Entity& entity, const Type& component) {
-    static_assert(std::is_base_of_v<Component, Type>);
+    static_assert(std::is_base_of_v<DataComponent, Type>);
     m_MainEntityCommandBuffer.setComponent(entity, component);
 }
 
@@ -452,7 +452,7 @@ void EntityManager::setSingletonComponent(const Type& singletonComponent) {
 
 template <typename Type>
 unsigned int EntityManager::componentId() {
-    static_assert(std::is_base_of_v<Component, Type>);
+    static_assert(std::is_base_of_v<DataComponent, Type>);
     return registerComponent<Type>();
 }
 
@@ -508,7 +508,7 @@ void EntityManager::addComponentImmediately(const Entity& entity, const Type& co
     Archetype* const srcArchetype = m_Archetypes[srcLocation.archetypeId].get();
     const unsigned int componentId = registerComponent<Type>();
     ArchetypeMask mask = srcArchetype->mask();
-    mask.markComponent(componentId, std::is_base_of_v<ManualComponent, Type>);
+    mask.markComponent(componentId, std::is_base_of_v<ManualDataComponent, Type>);
 
     Archetype* dstArchetype;
     if (m_ArchetypeMap.contains(mask))
@@ -541,7 +541,7 @@ void EntityManager::removeComponentImmediately(const Entity& entity) {
         destroyEntityWithoutCheck(entity, srcArchetype, srcLocation);
         return;
     }
-    removeComponentWithoutCheck(entity, registerComponent<Type>(), std::is_base_of_v<ManualComponent, Type>);
+    removeComponentWithoutCheck(entity, registerComponent<Type>(), std::is_base_of_v<ManualDataComponent, Type>);
 }
 
 template <typename Type>

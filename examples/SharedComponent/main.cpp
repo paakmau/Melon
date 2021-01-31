@@ -27,7 +27,7 @@ struct std::hash<Group> {
     }
 };
 
-struct Money : public Melon::Component {
+struct Money : public Melon::DataComponent {
     unsigned int value;
 };
 

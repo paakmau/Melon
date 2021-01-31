@@ -1,12 +1,12 @@
 #pragma once
 
-#include <MelonCore/Component.h>
+#include <MelonCore/DataComponent.h>
 
 #include <glm/gtc/quaternion.hpp>
 
 namespace Melon {
 
-struct Rotation : public Component {
+struct Rotation : public DataComponent {
     glm::quat value;
 };
 

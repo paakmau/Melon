@@ -16,11 +16,11 @@
 #include <glm/vec3.hpp>
 #include <memory>
 
-struct DestructionTime : public Melon::Component {
+struct DestructionTime : public Melon::DataComponent {
     float value;
 };
 
-struct RotationSpeed : public Melon::Component {
+struct RotationSpeed : public Melon::DataComponent {
     float value;
 };
 

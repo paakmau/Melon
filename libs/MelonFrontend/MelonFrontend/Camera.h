@@ -4,10 +4,10 @@
 
 namespace Melon {
 
-struct Camera : public Component {
+struct Camera : public DataComponent {
 };
 
-struct PerspectiveProjection : public Component {
+struct PerspectiveProjection : public DataComponent {
     float fovy;
     float zNear;
     float zFar;

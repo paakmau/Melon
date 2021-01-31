@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <memory>
 
-struct Speed : public Melon::Component {
+struct Speed : public Melon::DataComponent {
     unsigned int value;
 };
 

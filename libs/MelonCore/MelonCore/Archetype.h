@@ -51,9 +51,9 @@ class Archetype {
     Archetype(const Archetype&) = delete;
 
     void addEntity(const Entity& entity, EntityLocation& location);
-    // Move an Entity when adding a Component
+    // Move an Entity when adding a DataComponent
     void moveEntityAddingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& componentId, const void* component, EntityLocation& dstLocation, Entity& srcSwappedEntity);
-    // Move an Entity when removing a Component
+    // Move an Entity when removing a DataComponent
     void moveEntityRemovingComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, EntityLocation& dstLocation, Entity& srcSwappedEntity);
     // Move an Entity when adding a SharedComponent
     void moveEntityAddingSharedComponent(const EntityLocation& srcEntityLocation, Archetype* srcArchetype, const unsigned int& sharedComponentId, const unsigned int& sharedComponentIndex, EntityLocation& dstLocation, Entity& srcSwappedEntity);

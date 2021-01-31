@@ -1,12 +1,12 @@
 #pragma once
 
-#include <MelonCore/Component.h>
+#include <MelonCore/DataComponent.h>
 
 #include <glm/vec3.hpp>
 
 namespace Melon {
 
-struct Scale : public Component {
+struct Scale : public DataComponent {
     glm::vec3 value;
 };
 
