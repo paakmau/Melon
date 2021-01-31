@@ -1,6 +1,6 @@
 #include <MelonTask/TaskManager.h>
 
-namespace MelonTask {
+namespace Melon {
 
 TaskManager::TaskManager() {
     for (std::unique_ptr<TaskWorker>& worker : m_Workers)
@@ -71,4 +71,4 @@ std::shared_ptr<TaskHandle> TaskManager::getNextTask() {
     return task;
 }
 
-}  // namespace MelonTask
+}  // namespace Melon

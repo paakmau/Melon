@@ -28,7 +28,7 @@ class Renderer {
     static constexpr unsigned int k_MaxTaskCount = 4U;
     static constexpr unsigned int k_MaxUniformDescriptorCount = 2048U;
 
-    void initialize(MelonTask::TaskManager* taskManager, Window* window);
+    void initialize(TaskManager* taskManager, Window* window);
     void terminate();
 
     void beginFrame();
@@ -52,7 +52,7 @@ class Renderer {
     void recordCommandBufferCopyUniformObject(VkDeviceSize size, UniformBuffer memory);
     void recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, const UniformBuffer& cameraUniformBuffer);
 
-    MelonTask::TaskManager* m_TaskManager;
+    TaskManager* m_TaskManager;
 
     Window* m_Window;
 

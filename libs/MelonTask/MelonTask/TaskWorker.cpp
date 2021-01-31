@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 
-namespace MelonTask {
+namespace Melon {
 
 TaskWorker::TaskWorker(TaskManager* taskManager) : m_TaskManager(taskManager) {
     m_Thread = std::thread(&TaskWorker::threadEntryPoint, this);
@@ -30,4 +30,4 @@ void TaskWorker::join() {
     m_Thread.join();
 }
 
-}  // namespace MelonTask
+}  // namespace Melon

@@ -36,30 +36,30 @@ class SystemBase {
     virtual void onUpdate() = 0;
     virtual void onExit() = 0;
 
-    std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<ChunkTask> const& chunkTask, const EntityFilter& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
-    std::shared_ptr<MelonTask::TaskHandle> schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, const EntityFilter& entityFilter, std::shared_ptr<MelonTask::TaskHandle> const& predecessor);
+    std::shared_ptr<TaskHandle> schedule(std::shared_ptr<ChunkTask> const& chunkTask, const EntityFilter& entityFilter, std::shared_ptr<TaskHandle> const& predecessor);
+    std::shared_ptr<TaskHandle> schedule(std::shared_ptr<EntityCommandBufferChunkTask> const& entityCommandBufferChunkTask, const EntityFilter& entityFilter, std::shared_ptr<TaskHandle> const& predecessor);
 
     Instance* const& instance() const { return m_Instance; }
-    MelonTask::TaskManager* const& taskManager() const { return m_TaskManager; }
+    TaskManager* const& taskManager() const { return m_TaskManager; }
     Time* const& time() const { return m_Time; }
     ResourceManager* const& resourceManager() const { return m_ResourceManager; }
     EntityManager* const& entityManager() const { return m_EntityManager; }
 
-    std::shared_ptr<MelonTask::TaskHandle> const& predecessor() const { return m_TaskHandle; }
-    std::shared_ptr<MelonTask::TaskHandle>& predecessor() { return m_TaskHandle; }
+    std::shared_ptr<TaskHandle> const& predecessor() const { return m_TaskHandle; }
+    std::shared_ptr<TaskHandle>& predecessor() { return m_TaskHandle; }
 
   private:
-    void enter(Instance* instance, MelonTask::TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager);
+    void enter(Instance* instance, TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager);
     void update();
     void exit();
 
     Instance* m_Instance;
-    MelonTask::TaskManager* m_TaskManager;
+    TaskManager* m_TaskManager;
     Time* m_Time;
     ResourceManager* m_ResourceManager;
     EntityManager* m_EntityManager;
 
-    std::shared_ptr<MelonTask::TaskHandle> m_TaskHandle;
+    std::shared_ptr<TaskHandle> m_TaskHandle;
 
     friend class World;
 };

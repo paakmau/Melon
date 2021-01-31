@@ -2,7 +2,7 @@
 
 namespace Melon {
 
-void Engine::initialize(MelonTask::TaskManager* taskManager, const char* title, const unsigned int& width, const unsigned int& height) {
+void Engine::initialize(TaskManager* taskManager, const char* title, const unsigned int& width, const unsigned int& height) {
     m_Window.initialize(title, width, height);
 
     m_Renderer = std::make_unique<Renderer>();

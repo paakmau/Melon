@@ -101,19 +101,19 @@ void RenderSystem::onUpdate() {
     const unsigned int createdRenderMeshCount = entityManager()->entityCount(m_CreatedRenderMeshEntityFilter);
     std::vector<Entity> createdRenderMeshEntities(createdRenderMeshCount);
     std::vector<unsigned int> createdRenderMeshIndices(createdRenderMeshCount);
-    std::shared_ptr<MelonTask::TaskHandle> createdRenderMeshTaskHandle = schedule(std::make_shared<CreatedRenderMeshTask>(m_RenderMeshComponentId, createdRenderMeshEntities, createdRenderMeshIndices), m_CreatedRenderMeshEntityFilter, predecessor());
+    std::shared_ptr<TaskHandle> createdRenderMeshTaskHandle = schedule(std::make_shared<CreatedRenderMeshTask>(m_RenderMeshComponentId, createdRenderMeshEntities, createdRenderMeshIndices), m_CreatedRenderMeshEntityFilter, predecessor());
 
     // DestroyedRenderMeshTask
     const unsigned int destroyedRenderMeshCount = entityManager()->entityCount(m_DestroyedRenderMeshEntityFilter);
     std::vector<Entity> manualRenderMeshEntities(destroyedRenderMeshCount);
     std::vector<unsigned int> manualRenderMeshIndices(destroyedRenderMeshCount);
-    std::shared_ptr<MelonTask::TaskHandle> destroyedRenderMeshTaskHandle = schedule(std::make_shared<DestroyedRenderMeshTask>(m_ManualRenderMeshComponentId, manualRenderMeshEntities, manualRenderMeshIndices), m_DestroyedRenderMeshEntityFilter, predecessor());
+    std::shared_ptr<TaskHandle> destroyedRenderMeshTaskHandle = schedule(std::make_shared<DestroyedRenderMeshTask>(m_ManualRenderMeshComponentId, manualRenderMeshEntities, manualRenderMeshIndices), m_DestroyedRenderMeshEntityFilter, predecessor());
 
     // RenderTask
     const unsigned int renderMeshCount = entityManager()->entityCount(m_RenderMeshEntityFilter);
     std::vector<glm::mat4> models(renderMeshCount);
     std::vector<const ManualRenderMesh*> manualRenderMeshes(renderMeshCount);
-    std::shared_ptr<MelonTask::TaskHandle> renderMeshTaskHandle = schedule(std::make_shared<RenderTask>(models, manualRenderMeshes, m_TranslationComponentId, m_RotationComponentId, m_ScaleComponentId, m_ManualRenderMeshComponentId), m_RenderMeshEntityFilter, predecessor());
+    std::shared_ptr<TaskHandle> renderMeshTaskHandle = schedule(std::make_shared<RenderTask>(models, manualRenderMeshes, m_TranslationComponentId, m_RotationComponentId, m_ScaleComponentId, m_ManualRenderMeshComponentId), m_RenderMeshEntityFilter, predecessor());
 
     taskManager()->activateWaitingTasks();
 

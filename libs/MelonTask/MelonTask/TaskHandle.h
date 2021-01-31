@@ -7,7 +7,7 @@
 #include <mutex>
 #include <vector>
 
-namespace MelonTask {
+namespace Melon {
 
 class TaskManager;
 
@@ -39,4 +39,4 @@ class TaskHandle : public std::enable_shared_from_this<TaskHandle> {
     friend class TaskWorker;
 };
 
-}  // namespace MelonTask
+}  // namespace Melon

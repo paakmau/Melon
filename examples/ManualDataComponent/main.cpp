@@ -101,8 +101,8 @@ class MonsterDamageCounterSystem : public Melon::SystemBase {
 
     void onUpdate() override {
         printf("Delta time : %f\n", time()->deltaTime());
-        std::shared_ptr<MelonTask::TaskHandle> damageTaskHandle = schedule(std::make_shared<DamageEntityCommandBufferChunkTask>(_monsterHealthComponentId, _persistentDamageComponentId, _manualDamageCounterComponentId), _monsterEntityFilter, predecessor());
-        std::shared_ptr<MelonTask::TaskHandle> counterTaskHandle = schedule(std::make_shared<CollectCounterCommandBufferChunkTask>(_manualDamageCounterComponentId, _damageTakenCounts), _collectCounterEntityFilter, predecessor());
+        std::shared_ptr<Melon::TaskHandle> damageTaskHandle = schedule(std::make_shared<DamageEntityCommandBufferChunkTask>(_monsterHealthComponentId, _persistentDamageComponentId, _manualDamageCounterComponentId), _monsterEntityFilter, predecessor());
+        std::shared_ptr<Melon::TaskHandle> counterTaskHandle = schedule(std::make_shared<CollectCounterCommandBufferChunkTask>(_manualDamageCounterComponentId, _damageTakenCounts), _collectCounterEntityFilter, predecessor());
         predecessor() = taskManager()->combine({damageTaskHandle, counterTaskHandle});
         if (entityManager()->entityCount(_monsterEntityFilter) == 0 && entityManager()->entityCount(_collectCounterEntityFilter) == 0) {
             printf("Damage taken counts: ");

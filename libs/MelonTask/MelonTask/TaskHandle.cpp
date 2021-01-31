@@ -1,7 +1,7 @@
 #include <MelonTask/TaskHandle.h>
 #include <MelonTask/TaskManager.h>
 
-namespace MelonTask {
+namespace Melon {
 
 void TaskHandle::complete() {
     m_FinishSharedFuture.get();
@@ -47,4 +47,4 @@ void TaskHandle::notifyPredecessorFinished() {
         m_TaskManager->queueTask(shared_from_this());
 }
 
-}  // namespace MelonTask
+}  // namespace Melon

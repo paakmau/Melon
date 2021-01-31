@@ -15,7 +15,7 @@
 
 namespace Melon {
 
-void Renderer::initialize(MelonTask::TaskManager* taskManager, Window* window) {
+void Renderer::initialize(TaskManager* taskManager, Window* window) {
     m_TaskManager = taskManager;
     m_Window = window;
 
@@ -251,7 +251,7 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
     m_SecondaryCommandBufferArrays[m_CurrentFrame].resize(taskCount);
     unsigned int batchCountPerTask = taskCount == 0 ? 0 : (renderBatches.size() / taskCount + ((renderBatches.size() % taskCount == 0) ? 0 : 1));
 
-    std::vector<std::shared_ptr<MelonTask::TaskHandle>> subrendererHandles(taskCount);
+    std::vector<std::shared_ptr<TaskHandle>> subrendererHandles(taskCount);
     for (uint32_t i = 0; i < taskCount; i++) {
         VkDevice device = m_Device;
         VkFramebuffer framebuffer = m_Framebuffers[m_CurrentImageIndex];
@@ -279,7 +279,7 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
             });
     }
     m_TaskManager->activateWaitingTasks();
-    for (std::shared_ptr<MelonTask::TaskHandle> taskHandle : subrendererHandles)
+    for (std::shared_ptr<TaskHandle> taskHandle : subrendererHandles)
         taskHandle->complete();
 
     VkClearValue clearValue = {0.0f, 0.0f, 0.0f, 1.0f};

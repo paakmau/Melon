@@ -17,7 +17,7 @@ class EntityManager;
 
 class World {
   public:
-    World(MelonTask::TaskManager* taskManager);
+    World(TaskManager* taskManager);
 
     template <typename Type, typename... Args>
     void registerSystem(Args&&... args);
@@ -27,7 +27,7 @@ class World {
     void exit();
 
   private:
-    MelonTask::TaskManager* const m_TaskManager;
+    TaskManager* const m_TaskManager;
     EntityManager m_EntityManager;
     std::vector<std::unique_ptr<SystemBase>> m_Systems;
     std::function<void()> m_EntityCommandBufferExecutor;

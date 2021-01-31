@@ -79,9 +79,9 @@ class SpawnerAndKillSystem : public Melon::SystemBase {
 
     void onUpdate() override {
         printf("Delta time : %f\n", Melon::Time::instance()->deltaTime());
-        std::shared_ptr<MelonTask::TaskHandle> spawnerTaskHandle = schedule(std::make_shared<SpawnerEntityCommandBufferChunkTask>(_spawnerComponentId), _spawnerEntityFilter, predecessor());
-        std::shared_ptr<MelonTask::TaskHandle> killTaskHandle = schedule(std::make_shared<KillEntityCommandBufferChunkTask>(_healthComponentId), _monsterEntityFilter, predecessor());
-        predecessor() = MelonTask::TaskManager::instance()->combine({spawnerTaskHandle, killTaskHandle});
+        std::shared_ptr<Melon::TaskHandle> spawnerTaskHandle = schedule(std::make_shared<SpawnerEntityCommandBufferChunkTask>(_spawnerComponentId), _spawnerEntityFilter, predecessor());
+        std::shared_ptr<Melon::TaskHandle> killTaskHandle = schedule(std::make_shared<KillEntityCommandBufferChunkTask>(_healthComponentId), _monsterEntityFilter, predecessor());
+        predecessor() = Melon::TaskManager::instance()->combine({spawnerTaskHandle, killTaskHandle});
         if (entityManager()->entityCount(_spawnerEntityFilter) == 0 && entityManager()->entityCount(_monsterEntityFilter) == 0)
             Melon::Instance::instance()->quit();
     }

@@ -31,7 +31,7 @@ class Instance {
 
     const char* m_ApplicationName{};
 
-    MelonTask::TaskManager m_TaskManager;
+    TaskManager m_TaskManager;
 
     Time m_Time;
 

@@ -2,7 +2,7 @@
 
 #include <thread>
 
-namespace MelonTask {
+namespace Melon {
 
 class TaskManager;
 
@@ -19,4 +19,4 @@ class TaskWorker {
     bool m_Stopped{};
 };
 
-}  // namespace MelonTask
+}  // namespace Melon

@@ -16,7 +16,7 @@ namespace Melon {
 
 class Engine {
   public:
-    void initialize(MelonTask::TaskManager* taskManager, const char* title, const unsigned int& width, const unsigned int& height);
+    void initialize(TaskManager* taskManager, const char* title, const unsigned int& width, const unsigned int& height);
     void terminate();
 
     void beginFrame();
