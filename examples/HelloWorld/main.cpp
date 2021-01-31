@@ -1,8 +1,8 @@
-#include <libMelonCore/Instance.h>
-#include <libMelonCore/SystemBase.h>
-#include <libMelonCore/Time.h>
-#include <libMelonTask/TaskHandle.h>
-#include <libMelonTask/TaskManager.h>
+#include <MelonCore/Instance.h>
+#include <MelonCore/SystemBase.h>
+#include <MelonCore/Time.h>
+#include <MelonTask/TaskHandle.h>
+#include <MelonTask/TaskManager.h>
 
 #include <cstdio>
 #include <memory>

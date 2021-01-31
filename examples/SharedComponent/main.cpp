@@ -1,9 +1,9 @@
-#include <libMelonCore/Archetype.h>
-#include <libMelonCore/Entity.h>
-#include <libMelonCore/Instance.h>
-#include <libMelonCore/SystemBase.h>
-#include <libMelonCore/Time.h>
-#include <libMelonCore/Translation.h>
+#include <MelonCore/Archetype.h>
+#include <MelonCore/Entity.h>
+#include <MelonCore/Instance.h>
+#include <MelonCore/SystemBase.h>
+#include <MelonCore/Time.h>
+#include <MelonCore/Translation.h>
 
 #include <array>
 #include <cstddef>
