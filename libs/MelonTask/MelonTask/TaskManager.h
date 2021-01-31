@@ -16,10 +16,10 @@ class TaskWorker;
 
 class TaskManager {
   public:
+    static constexpr unsigned int k_WorkerCount = 8;
+
     TaskManager();
     ~TaskManager();
-
-    static constexpr unsigned int k_WorkerCount = 8;
 
     std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure);
     std::shared_ptr<TaskHandle> schedule(std::function<void()> const& procedure, std::vector<std::shared_ptr<TaskHandle>> const& predecessors);
