@@ -2,8 +2,8 @@
 
 namespace Melon {
 
-void ResourceManager::addResource(const std::string& path, std::unique_ptr<Resource>&& resource) {
-    m_ResourceMap.try_emplace(path, std::move(resource));
+void ResourceManager::addResource(std::unique_ptr<Resource>&& resource) {
+    m_ResourceMap.try_emplace(resource->path(), std::move(resource));
 }
 
 void ResourceManager::removeResource(const std::string& path) {

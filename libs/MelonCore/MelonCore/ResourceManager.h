@@ -9,7 +9,7 @@ namespace Melon {
 
 class ResourceManager {
   public:
-    void addResource(const std::string& path, std::unique_ptr<Resource>&& resource);
+    void addResource(std::unique_ptr<Resource>&& resource);
     void removeResource(const std::string& path);
     Resource* resource(const std::string& path);
 
