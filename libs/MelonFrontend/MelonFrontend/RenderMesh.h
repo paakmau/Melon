@@ -2,21 +2,22 @@
 
 #include <MelonCore/SharedComponent.h>
 #include <MelonFrontend/MeshBuffer.h>
+#include <MelonFrontend/MeshResource.h>
 
-#include <cstddef>
 #include <functional>
-#include <glm/vec3.hpp>
 #include <vector>
 
 namespace Melon {
 
 struct RenderMesh : public SharedComponent {
     bool operator==(const RenderMesh& other) const {
-        return vertices == other.vertices && indices == other.indices;
+        return vertices() == other.vertices() && indices() == other.indices();
     }
 
-    std::vector<Vertex> vertices;
-    std::vector<uint16_t> indices;
+    const std::vector<Vertex>& vertices() const { return meshResource->vertices(); }
+    const std::vector<uint16_t>& indices() const { return meshResource->indices(); }
+
+    MeshResource* meshResource;
 };
 
 struct ManualRenderMesh : public ManualSharedComponent {
@@ -35,9 +36,9 @@ template <>
 struct std::hash<Melon::RenderMesh> {
     std::size_t operator()(const Melon::RenderMesh& renderMesh) {
         std::size_t hash{};
-        for (const Melon::Vertex& vertex : renderMesh.vertices)
+        for (const Melon::Vertex& vertex : renderMesh.vertices())
             hash ^= std::hash<Melon::Vertex>()(vertex);
-        for (const unsigned int& index : renderMesh.indices)
+        for (const unsigned int& index : renderMesh.indices())
             hash ^= std::hash<unsigned int>()(index);
         return hash;
     }

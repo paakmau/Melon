@@ -143,7 +143,7 @@ void RenderSystem::onUpdate() {
         else {
             m_RenderMeshReferenceCountMap[createdRenderMeshIndex] = 1;
             const RenderMesh* createdRenderMesh = entityManager()->sharedComponent<RenderMesh>(createdRenderMeshIndex);
-            m_MeshBufferMap.emplace(createdRenderMeshIndex, m_Engine.createMeshBuffer(createdRenderMesh->vertices, createdRenderMesh->indices));
+            m_MeshBufferMap.emplace(createdRenderMeshIndex, m_Engine.createMeshBuffer(createdRenderMesh->vertices(), createdRenderMesh->indices()));
         }
         const MeshBuffer& meshBuffer = m_MeshBufferMap[createdRenderMeshIndex];
         entityManager()->addSharedComponent<ManualRenderMesh>(createdRenderMeshEntities[i], ManualRenderMesh{.renderMeshIndex = createdRenderMeshIndex, .meshBuffer = meshBuffer});

@@ -8,5 +8,5 @@ add_library(${TARGET_NAME} ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(
   ${TARGET_NAME}
-  PRIVATE glfw
+  PRIVATE glfw assimp
   PUBLIC MelonCore Vulkan::Headers volk SPIRV vkmemalloc)
