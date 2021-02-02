@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstddef>
+#include <glm/gtx/hash.hpp>
 #include <glm/vec3.hpp>
 
 namespace Melon {
@@ -32,3 +33,10 @@ struct Vertex {
 };
 
 }  // namespace Melon
+
+template <>
+struct std::hash<Melon::Vertex> {
+    std::size_t operator()(const Melon::Vertex& vertex) {
+        return std::hash<glm::vec3>()(vertex.position) ^ std::hash<glm::vec3>()(vertex.normal);
+    }
+};
