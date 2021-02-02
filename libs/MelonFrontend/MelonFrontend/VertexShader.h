@@ -4,7 +4,7 @@
 constexpr const char* k_VertexShader =
     "#version 450\n"
     "\n"
-    "    layout(set = 0, binding = 0) uniform CameraUniformObject {\n"
+    "layout(set = 0, binding = 0) uniform CameraUniformObject {\n"
     "    mat4 vp;\n"
     "}\n"
     "cameraUniformObject;\n"
