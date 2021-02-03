@@ -4,6 +4,7 @@
 #include <MelonFrontend/VulkanPlatform.h>
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 namespace Melon {
 
@@ -13,6 +14,10 @@ struct CameraUniformObject {
 
 struct EntityUniformObject {
     glm::mat4 model;
+};
+
+struct LightUniformObject {
+    glm::vec3 direction;
 };
 
 struct UniformBuffer {

@@ -37,7 +37,7 @@ void FixedSizeBufferPool::recycle(const Buffer& buffer) {
         m_FreeBuffers[m_FreeBufferCount++] = buffer;
 }
 
-void UniformBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDescriptorSetLayout layout, VkDescriptorPool descriptorPool) { m_Device = device, m_Allocator = allocator, m_Layout = layout, m_DescriptorPool = descriptorPool; }
+void UniformBufferPool::initialize(VkDevice device, VmaAllocator allocator, VkDescriptorPool descriptorPool) { m_Device = device, m_Allocator = allocator, m_DescriptorPool = descriptorPool; }
 
 void UniformBufferPool::terminate() {
     for (FixedSizeBufferPool pool : m_StagingBufferPools)
@@ -55,13 +55,13 @@ void UniformBufferPool::registerUniformObjectSize(VkDeviceSize size) {
     m_SizeIndexMap.emplace(size, m_BufferPools.size() - 1);
 }
 
-UniformBuffer UniformBufferPool::request(VkDeviceSize size) {
+UniformBuffer UniformBufferPool::request(VkDescriptorSetLayout layout, VkDeviceSize size) {
     const unsigned int& index = m_SizeIndexMap[size];
     Buffer stagingBuffer = m_StagingBufferPools[index].request();
     Buffer buffer = m_BufferPools[index].request();
 
     VkDescriptorSet descriptorSet;
-    allocateDescriptorSet(m_Device, m_Layout, m_DescriptorPool, descriptorSet);
+    allocateDescriptorSet(m_Device, layout, m_DescriptorPool, descriptorSet);
     updateUniformDescriptorSet<1>(m_Device, descriptorSet, {buffer.buffer}, {size});
 
     return UniformBuffer{size, Buffer{stagingBuffer.buffer, stagingBuffer.allocation}, Buffer{buffer.buffer, buffer.allocation}, descriptorSet};

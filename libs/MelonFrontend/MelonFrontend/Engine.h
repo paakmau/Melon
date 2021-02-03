@@ -8,7 +8,9 @@
 #include <MelonTask/TaskManager.h>
 
 #include <cstddef>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 #include <vector>
 
@@ -25,7 +27,7 @@ class Engine {
     void beginBatches();
     void addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& meshBuffer);
     void endBatches();
-    void renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation);
+    void renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation, const glm::vec3& lightDirection);
     void endFrame();
 
     float windowAspectRatio() const { return m_Window.aspectRatio(); }

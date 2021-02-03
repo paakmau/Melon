@@ -36,13 +36,13 @@ class FixedSizeBufferPool {
 
 class UniformBufferPool {
   public:
-    void initialize(VkDevice device, VmaAllocator allocator, VkDescriptorSetLayout layout, VkDescriptorPool descriptorPool);
+    void initialize(VkDevice device, VmaAllocator allocator, VkDescriptorPool descriptorPool);
     // UniformBufferPool can't terminate util all buffers are recycled
     void terminate();
 
     void registerUniformObjectSize(VkDeviceSize size);
 
-    UniformBuffer request(VkDeviceSize size);
+    UniformBuffer request(VkDescriptorSetLayout layout, VkDeviceSize size);
     void recycle(UniformBuffer memory);
 
   private:
@@ -51,7 +51,6 @@ class UniformBufferPool {
     std::vector<FixedSizeBufferPool> m_StagingBufferPools;
     std::vector<FixedSizeBufferPool> m_BufferPools;
     std::unordered_map<VkDeviceSize, unsigned int> m_SizeIndexMap;
-    VkDescriptorSetLayout m_Layout;
     VkDescriptorPool m_DescriptorPool;
 };
 

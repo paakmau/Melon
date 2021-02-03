@@ -2,6 +2,7 @@
 #include <MelonFrontend/SpirvUtils.h>
 #include <MelonFrontend/Subrenderer.h>
 #include <MelonFrontend/UniformBuffer.h>
+#include <MelonFrontend/Vertex.h>
 #include <MelonFrontend/VertexShader.h>
 #include <MelonFrontend/VulkanUtils.h>
 
@@ -10,7 +11,7 @@
 
 namespace Melon {
 
-void Subrenderer::initialize(VkDevice device, VkExtent2D swapChainExtent, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorSetLayout entityDescriptorSetLayout, VkRenderPass renderPass, const unsigned int& swapChainImageCount) {
+void Subrenderer::initialize(VkDevice device, VkExtent2D swapChainExtent, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorSetLayout entityDescriptorSetLayout, VkDescriptorSetLayout lightDescriptorSetLayout, VkRenderPass renderPass, const unsigned int& swapChainImageCount) {
     m_Device = device;
     m_SwapChainExtent = swapChainExtent;
 
@@ -21,7 +22,7 @@ void Subrenderer::initialize(VkDevice device, VkExtent2D swapChainExtent, VkDesc
     result = glslToSpirv(VK_SHADER_STAGE_FRAGMENT_BIT, k_FragmentShader, fragmentShaderSpirv);
     assert(result);
 
-    createPipelineLayout<2>(m_Device, {cameraDescriptorSetLayout, entityDescriptorSetLayout}, m_PipelineLayout);
+    createPipelineLayout<3>(m_Device, {cameraDescriptorSetLayout, entityDescriptorSetLayout, lightDescriptorSetLayout}, m_PipelineLayout);
     createGraphicsPipeline(m_Device, vertexShaderSpirv, fragmentShaderSpirv, sizeof(Vertex), Vertex::formats(), Vertex::offsets(), m_SwapChainExtent, m_PipelineLayout, renderPass, m_Pipeline);
 }
 
@@ -30,9 +31,10 @@ void Subrenderer::terminate() {
     vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
 }
 
-void Subrenderer::draw(VkCommandBuffer commandBuffer, const unsigned int& swapChainImageIndex, VkDescriptorSet cameraDescriptorSet, const RenderBatch& renderBatch) {
+void Subrenderer::draw(VkCommandBuffer commandBuffer, const unsigned int& swapChainImageIndex, VkDescriptorSet cameraDescriptorSet, VkDescriptorSet lightDescriptorSet, const RenderBatch& renderBatch) {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &cameraDescriptorSet, 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 2, 1, &lightDescriptorSet, 0, nullptr);
     VkDeviceSize offset = 0;
     for (const UniformBuffer& entityDescriptorSet : renderBatch.entityUniformMemories) {
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 1, 1, &entityDescriptorSet.descriptorSet, 0, nullptr);

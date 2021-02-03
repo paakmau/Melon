@@ -39,19 +39,23 @@ void Renderer::initialize(TaskManager* taskManager, Window* window) {
 
     createDescriptorSetLayout<1>(m_Device, {1}, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {VK_SHADER_STAGE_VERTEX_BIT}, m_CameraDescriptorSetLayout);
     createDescriptorSetLayout<1>(m_Device, {1}, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {VK_SHADER_STAGE_VERTEX_BIT}, m_EntityDescriptorSetLayout);
+    createDescriptorSetLayout<1>(m_Device, {1}, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {VK_SHADER_STAGE_FRAGMENT_BIT}, m_LightDescriptorSetLayout);
     m_Subrenderer = std::make_unique<Subrenderer>();
-    m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
+    m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_LightDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
 
     createAllocator(m_VulkanInstance, m_PhysicalDevice, m_Device, m_Allocator);
     createDescriptorPool<1>(m_Device, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {k_MaxUniformDescriptorCount}, {k_MaxUniformDescriptorCount}, m_UniformDescriptorPool);
-    m_UniformMemoryPool.initialize(m_Device, m_Allocator, m_CameraDescriptorSetLayout, m_UniformDescriptorPool);
+    m_UniformMemoryPool.initialize(m_Device, m_Allocator, m_UniformDescriptorPool);
     m_UniformMemoryPool.registerUniformObjectSize(sizeof(CameraUniformObject));
     m_UniformMemoryPool.registerUniformObjectSize(sizeof(EntityUniformObject));
+    m_UniformMemoryPool.registerUniformObjectSize(sizeof(LightUniformObject));
     m_StagingMeshBufferPool.initialize(m_Allocator);
 
     for (unsigned int i = 0; i < m_CameraUniformMemories.size(); i++)
-        m_CameraUniformMemories[i] = m_UniformMemoryPool.request(sizeof(CameraUniformObject));
-}
+        m_CameraUniformMemories[i] = m_UniformMemoryPool.request(m_CameraDescriptorSetLayout, sizeof(CameraUniformObject));
+    for (unsigned int i = 0; i < m_LightUniformMemories.size(); i++)
+        m_LightUniformMemories[i] = m_UniformMemoryPool.request(m_LightDescriptorSetLayout, sizeof(LightUniformObject));
+}  // namespace Melon
 
 void Renderer::terminate() {
     vkDeviceWaitIdle(m_Device);
@@ -79,6 +83,7 @@ void Renderer::terminate() {
     vmaDestroyAllocator(m_Allocator);
 
     m_Subrenderer->terminate();
+    vkDestroyDescriptorSetLayout(m_Device, m_LightDescriptorSetLayout, nullptr);
     vkDestroyDescriptorSetLayout(m_Device, m_EntityDescriptorSetLayout, nullptr);
     vkDestroyDescriptorSetLayout(m_Device, m_CameraDescriptorSetLayout, nullptr);
 
@@ -168,7 +173,7 @@ void Renderer::beginBatches() {
 void Renderer::addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& meshBuffer) {
     std::vector<UniformBuffer> memories;
     for (const glm::mat4& model : models) {
-        const UniformBuffer& buffer = memories.emplace_back(m_UniformMemoryPool.request(sizeof(EntityUniformObject)));
+        const UniformBuffer& buffer = memories.emplace_back(m_UniformMemoryPool.request(m_EntityDescriptorSetLayout, sizeof(EntityUniformObject)));
         EntityUniformObject uniformObject{model};
         copyBuffer(m_Allocator, buffer.stagingBuffer.buffer, buffer.stagingBuffer.allocation, &uniformObject, sizeof(EntityUniformObject));
         recordCommandBufferCopyUniformObject(sizeof(EntityUniformObject), buffer);
@@ -178,7 +183,7 @@ void Renderer::addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& 
 
 void Renderer::endBatches() {}
 
-void Renderer::renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation) {
+void Renderer::renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation, const glm::vec3& lightDirection) {
     bool result = m_SwapChain.acquireNextImageContext(m_ImageAvailableSemaphores[m_CurrentFrame], m_CurrentImageIndex);
     if (!result) {
         recreateSwapChain();
@@ -189,11 +194,15 @@ void Renderer::renderFrame(const glm::mat4& projection, const glm::vec3& cameraT
     glm::mat4 view = glm::mat4_cast(glm::inverse(cameraRotation));
     view = glm::translate(view, -cameraTranslation);
 
-    CameraUniformObject uniformObject{projection * view};
-    copyBuffer(m_Allocator, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.buffer, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.allocation, &uniformObject, sizeof(CameraUniformObject));
+    CameraUniformObject cameraUniformObject{projection * view};
+    copyBuffer(m_Allocator, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.buffer, m_CameraUniformMemories[m_CurrentFrame].stagingBuffer.allocation, &cameraUniformObject, sizeof(CameraUniformObject));
     recordCommandBufferCopyUniformObject(sizeof(CameraUniformObject), m_CameraUniformMemories[m_CurrentFrame]);
 
-    recordCommandBufferDraw(m_RenderBatchArrays[m_CurrentFrame], m_CameraUniformMemories[m_CurrentFrame]);
+    LightUniformObject lightUniformObject{lightDirection};
+    copyBuffer(m_Allocator, m_LightUniformMemories[m_CurrentFrame].stagingBuffer.buffer, m_LightUniformMemories[m_CurrentFrame].stagingBuffer.allocation, &lightUniformObject, sizeof(LightUniformObject));
+    recordCommandBufferCopyUniformObject(sizeof(LightUniformObject), m_LightUniformMemories[m_CurrentFrame]);
+
+    recordCommandBufferDraw(m_RenderBatchArrays[m_CurrentFrame], m_CameraUniformMemories[m_CurrentFrame], m_LightUniformMemories[m_CurrentFrame]);
 
     vkEndCommandBuffer(m_CommandBuffers[m_CurrentFrame]);
 
@@ -234,7 +243,7 @@ void Renderer::recreateSwapChain() {
     m_Framebuffers.resize(m_SwapChain.imageCount());
     for (unsigned int i = 0; i < m_Framebuffers.size(); i++)
         createFramebuffer(m_Device, m_SwapChain.imageViews()[i], m_RenderPassClear, m_SwapChain.imageExtent(), m_Framebuffers[i]);
-    m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
+    m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_LightDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
 }
 
 void Renderer::recordCommandBufferCopyMeshData(std::vector<Vertex> const& vertices, std::vector<uint16_t> const& indices, StagingMeshBuffer stagingMeshBuffer, MeshBuffer meshBuffer) {
@@ -246,7 +255,7 @@ void Renderer::recordCommandBufferCopyUniformObject(VkDeviceSize size, UniformBu
     copyBuffer(m_CommandBuffers[m_CurrentFrame], buffer.stagingBuffer.buffer, size, buffer.buffer.buffer);
 }
 
-void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, const UniformBuffer& cameraUniformBuffer) {
+void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBatches, const UniformBuffer& cameraUniformBuffer, const UniformBuffer& lightUniformBuffer) {
     uint32_t taskCount = std::min(k_MaxTaskCount, static_cast<unsigned int>(renderBatches.size()));
     m_SecondaryCommandBufferArrays[m_CurrentFrame].resize(taskCount);
     unsigned int batchCountPerTask = taskCount == 0 ? 0 : (renderBatches.size() / taskCount + ((renderBatches.size() % taskCount == 0) ? 0 : 1));
@@ -261,7 +270,7 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
         Subrenderer* subrenderer = m_Subrenderer.get();
         unsigned int swapChainImageIndex = m_CurrentImageIndex;
         subrendererHandles[i] = m_TaskManager->schedule(
-            [device, framebuffer, renderPass, secondaryCommandBuffer, subrenderer, swapChainImageIndex, i, &cameraUniformBuffer, &renderBatches, batchCountPerTask]() {
+            [device, framebuffer, renderPass, secondaryCommandBuffer, subrenderer, swapChainImageIndex, i, &cameraUniformBuffer, &lightUniformBuffer, &renderBatches, batchCountPerTask]() {
                 allocateCommandBuffer(device, secondaryCommandBuffer->pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1, secondaryCommandBuffer->buffer);
                 VkCommandBufferInheritanceInfo inheritanceInfo{
                     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
@@ -274,7 +283,7 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
                     .pInheritanceInfo = &inheritanceInfo};
                 vkBeginCommandBuffer(secondaryCommandBuffer->buffer, &beginInfo);
                 for (unsigned int j = 0; j < batchCountPerTask && batchCountPerTask * i + j < renderBatches.size(); j++)
-                    subrenderer->draw(secondaryCommandBuffer->buffer, swapChainImageIndex, cameraUniformBuffer.descriptorSet, renderBatches[batchCountPerTask * i + j]);
+                    subrenderer->draw(secondaryCommandBuffer->buffer, swapChainImageIndex, cameraUniformBuffer.descriptorSet, lightUniformBuffer.descriptorSet, renderBatches[batchCountPerTask * i + j]);
                 vkEndCommandBuffer(secondaryCommandBuffer->buffer);
             });
     }

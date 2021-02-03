@@ -12,6 +12,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 
 namespace Melon {
@@ -87,6 +88,7 @@ void RenderSystem::onEnter() {
     m_RenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Translation, Rotation, Scale>().requireSharedComponents<RenderMesh, ManualRenderMesh>().createEntityFilter();
     m_DestroyedRenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireSharedComponents<ManualRenderMesh>().rejectSharedComponents<RenderMesh>().createEntityFilter();
     m_CameraEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Translation, Rotation, Camera, PerspectiveProjection>().createEntityFilter();
+    m_LightEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Light>().createEntityFilter();
 
     m_TranslationComponentId = entityManager()->componentId<Translation>();
     m_RotationComponentId = entityManager()->componentId<Rotation>();
@@ -94,6 +96,7 @@ void RenderSystem::onEnter() {
     m_PerspectiveProjectionComponentId = entityManager()->componentId<PerspectiveProjection>();
     m_RenderMeshComponentId = entityManager()->sharedComponentId<RenderMesh>();
     m_ManualRenderMeshComponentId = entityManager()->sharedComponentId<ManualRenderMesh>();
+    m_LightComponentId = entityManager()->componentId<Light>();
 }
 
 void RenderSystem::onUpdate() {
@@ -131,6 +134,13 @@ void RenderSystem::onUpdate() {
             projection = glm::perspective(glm::radians(perspectiveProjection.fovy), m_Engine.windowAspectRatio(), perspectiveProjection.zNear, perspectiveProjection.zFar);
             projection[1][1] *= -1;
         }
+
+    // Fetch a Light
+    accessors = entityManager()->filterEntities(m_LightEntityFilter);
+    glm::vec3 lightDirection(0.0f, 0.0f, 0.0f);
+    for (auto accessor : accessors)
+        for (unsigned int i = 0; i < accessor.entityCount(); i++)
+            lightDirection = accessor.componentArray<Light>(m_LightComponentId)[i].direction;
 
     m_Engine.beginFrame();
 
@@ -176,7 +186,7 @@ void RenderSystem::onUpdate() {
     m_Engine.endBatches();
 
     // Draw frame
-    m_Engine.renderFrame(projection, cameraTranslation, cameraRotation);
+    m_Engine.renderFrame(projection, cameraTranslation, cameraRotation, lightDirection);
 
     m_Engine.endFrame();
     if (m_Engine.windowClosed())

@@ -34,7 +34,7 @@ void Engine::addBatch(std::vector<glm::mat4> const& models, const MeshBuffer& me
 
 void Engine::endBatches() { m_Renderer->endBatches(); }
 
-void Engine::renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation) { m_Renderer->renderFrame(projection, cameraTranslation, cameraRotation); }
+void Engine::renderFrame(const glm::mat4& projection, const glm::vec3& cameraTranslation, const glm::quat& cameraRotation, const glm::vec3& lightDirection) { m_Renderer->renderFrame(projection, cameraTranslation, cameraRotation, lightDirection); }
 
 void Engine::endFrame() { m_Renderer->endFrame(); }
 

@@ -10,10 +10,10 @@ namespace Melon {
 
 class Subrenderer {
   public:
-    void initialize(VkDevice device, VkExtent2D swapChainExtent, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorSetLayout entityDescriptorSetLayout, VkRenderPass renderPass, const unsigned int& swapChainImageCount);
+    void initialize(VkDevice device, VkExtent2D swapChainExtent, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorSetLayout entityDescriptorSetLayout, VkDescriptorSetLayout lightDescriptorSetLayout, VkRenderPass renderPass, const unsigned int& swapChainImageCount);
     void terminate();
 
-    void draw(VkCommandBuffer commandBuffer, const unsigned int& swapChainImageIndex, VkDescriptorSet cameraDescriptorSet, const RenderBatch& renderBatch);
+    void draw(VkCommandBuffer commandBuffer, const unsigned int& swapChainImageIndex, VkDescriptorSet cameraDescriptorSet, VkDescriptorSet lightDescriptorSet, const RenderBatch& renderBatch);
 
   protected:
     VkDevice m_Device;

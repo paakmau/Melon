@@ -30,7 +30,7 @@ inline void createInstance(std::vector<const char*> const& requiredVulkanInstanc
     // TODO: Define the application name and engine name
 
     // TODO: Enable validation layers for debug, i.e. VK_LAYER_KHRONOS_validation
-    std::vector<const char*> layerNames{};
+    std::vector<const char*> layerNames{"VK_LAYER_KHRONOS_validation"};
 
     // Application info
     VkApplicationInfo applicationInfo{
