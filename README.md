@@ -72,3 +72,5 @@ Melon is licensed under the BSD 3-Clause License.
 [Vulkan-Headers](https://github.com/KhronosGroup/Vulkan-Headers)
 
 [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
+
+[Assimp](https://github.com/assimp/assimp)
