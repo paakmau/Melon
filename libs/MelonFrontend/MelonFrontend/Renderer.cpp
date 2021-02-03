@@ -78,6 +78,10 @@ void Renderer::terminate() {
         for (const RenderBatch& renderBatch : renderBatches)
             for (const UniformBuffer& buffer : renderBatch.entityUniformMemories)
                 m_UniformMemoryPool.recycle(buffer);
+    for (const auto& lightUniformMemory : m_LightUniformMemories)
+        m_UniformMemoryPool.recycle(lightUniformMemory);
+    for (const auto& cameraUniformMemory : m_CameraUniformMemories)
+        m_UniformMemoryPool.recycle(cameraUniformMemory);
     m_UniformMemoryPool.terminate();
     vkDestroyDescriptorPool(m_Device, m_UniformDescriptorPool, nullptr);
     vmaDestroyAllocator(m_Allocator);
