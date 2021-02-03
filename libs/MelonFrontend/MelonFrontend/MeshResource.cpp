@@ -41,7 +41,7 @@ std::unique_ptr<MeshResource> MeshResource::create(const std::string& path) {
         }
         for (unsigned int j = 0; j < mesh->mNumFaces; j++)
             for (unsigned int k = 0; k < 3; k++)
-                indices[firstIndexIndex + j * 3 + k] = mesh->mFaces[j].mIndices[k];
+                indices[firstIndexIndex + j * 3 + k] = firstVertexIndex + mesh->mFaces[j].mIndices[k];
 
         firstVertexIndex += mesh->mNumVertices;
         firstIndexIndex += mesh->mNumFaces * 3;
