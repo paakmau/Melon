@@ -29,25 +29,25 @@ class RotationSystem : public Melon::SystemBase {
   protected:
     class RotationTask : public Melon::EntityCommandBufferChunkTask {
       public:
-        RotationTask(const unsigned int& rotationComponentId, const unsigned int& rotationSpeedComponentId, const unsigned int& destructionTimeComponentId, const float& deltaTime) : _rotationComponentId(rotationComponentId), _rotationSpeedComponentId(rotationSpeedComponentId), _destructionTimeComponentId(destructionTimeComponentId), _deltaTime(deltaTime) {}
+        RotationTask(const unsigned int& rotationComponentId, const unsigned int& rotationSpeedComponentId, const unsigned int& destructionTimeComponentId, const float& deltaTime) : m_RotationComponentId(rotationComponentId), m_RotationSpeedComponentId(rotationSpeedComponentId), m_DestructionTimeComponentId(destructionTimeComponentId), m_DeltaTime(deltaTime) {}
         virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
             const Melon::Entity* entities = chunkAccessor.entityArray();
-            Melon::Rotation* rotations = chunkAccessor.componentArray<Melon::Rotation>(_rotationComponentId);
-            RotationSpeed* rotationSpeeds = chunkAccessor.componentArray<RotationSpeed>(_rotationSpeedComponentId);
-            DestructionTime* destructionTimes = chunkAccessor.componentArray<DestructionTime>(_destructionTimeComponentId);
+            Melon::Rotation* rotations = chunkAccessor.componentArray<Melon::Rotation>(m_RotationComponentId);
+            RotationSpeed* rotationSpeeds = chunkAccessor.componentArray<RotationSpeed>(m_RotationSpeedComponentId);
+            DestructionTime* destructionTimes = chunkAccessor.componentArray<DestructionTime>(m_DestructionTimeComponentId);
             for (int i = 0; i < chunkAccessor.entityCount(); i++) {
-                rotations[i].value = glm::rotate(rotations[i].value, glm::radians(_deltaTime * rotationSpeeds[i].value), glm::vec3(0.0f, 0.0f, 1.0f));
-                destructionTimes[i].value -= _deltaTime;
+                rotations[i].value = glm::rotate(rotations[i].value, glm::radians(m_DeltaTime * rotationSpeeds[i].value), glm::vec3(0.0f, 0.0f, 1.0f));
+                destructionTimes[i].value -= m_DeltaTime;
                 if (destructionTimes[i].value <= 0.0f)
                     entityCommandBuffer->destroyEntity(entities[i]);
             }
         }
 
-        const unsigned int& _rotationComponentId;
-        const unsigned int& _rotationSpeedComponentId;
-        const unsigned int& _destructionTimeComponentId;
+        const unsigned int& m_RotationComponentId;
+        const unsigned int& m_RotationSpeedComponentId;
+        const unsigned int& m_DestructionTimeComponentId;
 
-        float _deltaTime;
+        float m_DeltaTime;
     };
 
     virtual void onEnter() override {
@@ -76,30 +76,30 @@ class RotationSystem : public Melon::SystemBase {
         Melon::Entity lightEntity = entityManager()->createEntity();
         entityManager()->addComponent<Melon::Light>(lightEntity, Melon::Light{.direction = glm::normalize(glm::vec3(-3.0f, -4.0f, -5.0f))});
 
-        _rotationEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Melon::Rotation, RotationSpeed, DestructionTime>().createEntityFilter();
-        _rotationComponentId = entityManager()->componentId<Melon::Rotation>();
-        _rotationSpeedComponentId = entityManager()->componentId<RotationSpeed>();
-        _destructionTimeComponentId = entityManager()->componentId<DestructionTime>();
+        m_RotationEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Melon::Rotation, RotationSpeed, DestructionTime>().createEntityFilter();
+        m_RotationComponentId = entityManager()->componentId<Melon::Rotation>();
+        m_RotationSpeedComponentId = entityManager()->componentId<RotationSpeed>();
+        m_DestructionTimeComponentId = entityManager()->componentId<DestructionTime>();
     }
 
     virtual void onUpdate() override {
-        std::shared_ptr<RotationTask> rotationChunkTask = std::make_shared<RotationTask>(_rotationComponentId, _rotationSpeedComponentId, _destructionTimeComponentId, time()->deltaTime());
-        predecessor() = schedule(rotationChunkTask, _rotationEntityFilter, predecessor());
+        std::shared_ptr<RotationTask> rotationChunkTask = std::make_shared<RotationTask>(m_RotationComponentId, m_RotationSpeedComponentId, m_DestructionTimeComponentId, time()->deltaTime());
+        predecessor() = schedule(rotationChunkTask, m_RotationEntityFilter, predecessor());
     }
 
     virtual void onExit() override {}
 
-    Melon::EntityFilter _rotationEntityFilter;
-    unsigned int _rotationComponentId;
-    unsigned int _rotationSpeedComponentId;
-    unsigned int _destructionTimeComponentId;
+    Melon::EntityFilter m_RotationEntityFilter;
+    unsigned int m_RotationComponentId;
+    unsigned int m_RotationSpeedComponentId;
+    unsigned int m_DestructionTimeComponentId;
 };
 
 int main() {
-    Melon::Instance instance;
-    instance.applicationName() = "RenderMesh";
-    instance.registerSystem<Melon::RenderSystem>(800, 600);
-    instance.registerSystem<RotationSystem>();
-    instance.start();
+    Melon::Instance()
+        .setApplicationName("RenderMesh")
+        .registerSystem<Melon::RenderSystem>(800, 600)
+        .registerSystem<RotationSystem>()
+        .start();
     return 0;
 }

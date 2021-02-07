@@ -36,9 +36,9 @@ class ReceiverSystem : public Melon::SystemBase {
 };
 
 int main() {
-    Melon::Instance instance;
-    instance.registerSystem<SenderSystem>();
-    instance.registerSystem<ReceiverSystem>();
-    instance.start();
+    Melon::Instance()
+        .registerSystem<SenderSystem>()
+        .registerSystem<ReceiverSystem>()
+        .start();
     return 0;
 }

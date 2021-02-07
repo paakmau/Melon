@@ -9,31 +9,31 @@
 
 class HelloWorldSystem : public Melon::SystemBase {
   public:
-    HelloWorldSystem(const unsigned int& a, const unsigned int& b) : _a(a), _b(b), _sum(a + b) {}
+    HelloWorldSystem(const unsigned int& a, const unsigned int& b) : m_A(a), m_B(b), m_Sum(a + b) {}
 
   protected:
     void onEnter() override {}
 
     void onUpdate() override {
-        std::printf("Delta time : %f, %u + %u = %u\n", time()->deltaTime(), _a, _b, _sum);
-        std::shared_ptr<Melon::TaskHandle> a = taskManager()->schedule([this]() { _a++; }, {predecessor()});
-        std::shared_ptr<Melon::TaskHandle> b = taskManager()->schedule([this]() { _b++; }, {predecessor()});
-        predecessor() = taskManager()->schedule([this]() { _sum = _a + _b; }, {a, b});
-        if (_sum >= 100)
+        std::printf("Delta time : %f, %u + %u = %u\n", time()->deltaTime(), m_A, m_B, m_Sum);
+        std::shared_ptr<Melon::TaskHandle> a = taskManager()->schedule([this]() { m_A++; }, {predecessor()});
+        std::shared_ptr<Melon::TaskHandle> b = taskManager()->schedule([this]() { m_B++; }, {predecessor()});
+        predecessor() = taskManager()->schedule([this]() { m_Sum = m_A + m_B; }, {a, b});
+        if (m_Sum >= 100)
             instance()->quit();
     }
 
     void onExit() override {}
 
   private:
-    unsigned int _a;
-    unsigned int _b;
-    unsigned int _sum;
+    unsigned int m_A;
+    unsigned int m_B;
+    unsigned int m_Sum;
 };
 
 int main() {
-    Melon::Instance instance;
-    instance.registerSystem<HelloWorldSystem>(1U, 2U);
-    instance.start();
+    Melon::Instance()
+        .registerSystem<HelloWorldSystem>(1U, 2U)
+        .start();
     return 0;
 }

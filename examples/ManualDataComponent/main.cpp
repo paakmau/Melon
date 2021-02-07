@@ -30,12 +30,12 @@ class MonsterDamageCounterSystem : public Melon::SystemBase {
   protected:
     class DamageEntityCommandBufferChunkTask : public Melon::EntityCommandBufferChunkTask {
       public:
-        DamageEntityCommandBufferChunkTask(const unsigned int& monsterHealthComponentId, const unsigned int& persistentDamageComponentId, const unsigned int& manualDamageCounterComponentId) : _monsterHealthComponentId(monsterHealthComponentId), _persistentDamageComponentId(persistentDamageComponentId), _manualDamageCounterComponentId(manualDamageCounterComponentId) {}
+        DamageEntityCommandBufferChunkTask(const unsigned int& monsterHealthComponentId, const unsigned int& persistentDamageComponentId, const unsigned int& manualDamageCounterComponentId) : m_MonsterHealthComponentId(monsterHealthComponentId), m_PersistentDamageComponentId(persistentDamageComponentId), m_ManualDamageCounterComponentId(manualDamageCounterComponentId) {}
         virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
             const Melon::Entity* entities = chunkAccessor.entityArray();
-            MonsterHealth* monsterHealths = chunkAccessor.componentArray<MonsterHealth>(_monsterHealthComponentId);
-            PersistentDamage* persistentDamages = chunkAccessor.componentArray<PersistentDamage>(_persistentDamageComponentId);
-            ManualDamageCounter* manualDamageCounters = chunkAccessor.componentArray<ManualDamageCounter>(_manualDamageCounterComponentId);
+            MonsterHealth* monsterHealths = chunkAccessor.componentArray<MonsterHealth>(m_MonsterHealthComponentId);
+            PersistentDamage* persistentDamages = chunkAccessor.componentArray<PersistentDamage>(m_PersistentDamageComponentId);
+            ManualDamageCounter* manualDamageCounters = chunkAccessor.componentArray<ManualDamageCounter>(m_ManualDamageCounterComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
                 if (monsterHealths[i].value <= persistentDamages[i].value)
                     entityCommandBuffer->destroyEntity(entities[i]);
@@ -45,26 +45,26 @@ class MonsterDamageCounterSystem : public Melon::SystemBase {
             }
         }
 
-        const unsigned int& _monsterHealthComponentId;
-        const unsigned int& _persistentDamageComponentId;
-        const unsigned int& _manualDamageCounterComponentId;
+        const unsigned int& m_MonsterHealthComponentId;
+        const unsigned int& m_PersistentDamageComponentId;
+        const unsigned int& m_ManualDamageCounterComponentId;
     };
 
     class CollectCounterCommandBufferChunkTask : public Melon::EntityCommandBufferChunkTask {
       public:
-        CollectCounterCommandBufferChunkTask(const unsigned int& manualDamageCounterComponentId, std::vector<unsigned int>& damageTakenCounts) : _manualDamageCounterComponentId(manualDamageCounterComponentId), _damageTakenCounts(damageTakenCounts) {}
+        CollectCounterCommandBufferChunkTask(const unsigned int& manualDamageCounterComponentId, std::vector<unsigned int>& damageTakenCounts) : m_ManualDamageCounterComponentId(manualDamageCounterComponentId), m_DamageTakenCounts(damageTakenCounts) {}
         virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex, Melon::EntityCommandBuffer* entityCommandBuffer) override {
             const Melon::Entity* entities = chunkAccessor.entityArray();
-            ManualDamageCounter* manualDamageCounters = chunkAccessor.componentArray<ManualDamageCounter>(_manualDamageCounterComponentId);
+            ManualDamageCounter* manualDamageCounters = chunkAccessor.componentArray<ManualDamageCounter>(m_ManualDamageCounterComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
-                _damageTakenCounts[manualDamageCounters[i].index] = manualDamageCounters[i].damageTakenCount;
+                m_DamageTakenCounts[manualDamageCounters[i].index] = manualDamageCounters[i].damageTakenCount;
                 entityCommandBuffer->removeComponent<ManualDamageCounter>(entities[i]);
             }
         }
 
-        const unsigned int& _manualDamageCounterComponentId;
+        const unsigned int& m_ManualDamageCounterComponentId;
 
-        std::vector<unsigned int>& _damageTakenCounts;
+        std::vector<unsigned int>& m_DamageTakenCounts;
     };
 
     void onEnter() override {
@@ -90,23 +90,23 @@ class MonsterDamageCounterSystem : public Melon::SystemBase {
         entityManager()->setComponent(entities[3], PersistentDamage{.value = 2});
         entityManager()->setComponent(entities[3], ManualDamageCounter{.index = 3});
 
-        _monsterEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<MonsterHealth, PersistentDamage, ManualDamageCounter>().createEntityFilter();
-        _collectCounterEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<ManualDamageCounter>().rejectComponents<MonsterHealth>().createEntityFilter();
-        _monsterHealthComponentId = entityManager()->componentId<MonsterHealth>();
-        _persistentDamageComponentId = entityManager()->componentId<PersistentDamage>();
-        _manualDamageCounterComponentId = entityManager()->componentId<ManualDamageCounter>();
+        m_MonsterEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<MonsterHealth, PersistentDamage, ManualDamageCounter>().createEntityFilter();
+        m_CollectCounterEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<ManualDamageCounter>().rejectComponents<MonsterHealth>().createEntityFilter();
+        m_MonsterHealthComponentId = entityManager()->componentId<MonsterHealth>();
+        m_PersistentDamageComponentId = entityManager()->componentId<PersistentDamage>();
+        m_ManualDamageCounterComponentId = entityManager()->componentId<ManualDamageCounter>();
 
-        _damageTakenCounts.resize(4);
+        m_DamageTakenCounts.resize(4);
     }
 
     void onUpdate() override {
         printf("Delta time : %f\n", time()->deltaTime());
-        std::shared_ptr<Melon::TaskHandle> damageTaskHandle = schedule(std::make_shared<DamageEntityCommandBufferChunkTask>(_monsterHealthComponentId, _persistentDamageComponentId, _manualDamageCounterComponentId), _monsterEntityFilter, predecessor());
-        std::shared_ptr<Melon::TaskHandle> counterTaskHandle = schedule(std::make_shared<CollectCounterCommandBufferChunkTask>(_manualDamageCounterComponentId, _damageTakenCounts), _collectCounterEntityFilter, predecessor());
+        std::shared_ptr<Melon::TaskHandle> damageTaskHandle = schedule(std::make_shared<DamageEntityCommandBufferChunkTask>(m_MonsterHealthComponentId, m_PersistentDamageComponentId, m_ManualDamageCounterComponentId), m_MonsterEntityFilter, predecessor());
+        std::shared_ptr<Melon::TaskHandle> counterTaskHandle = schedule(std::make_shared<CollectCounterCommandBufferChunkTask>(m_ManualDamageCounterComponentId, m_DamageTakenCounts), m_CollectCounterEntityFilter, predecessor());
         predecessor() = taskManager()->combine({damageTaskHandle, counterTaskHandle});
-        if (entityManager()->entityCount(_monsterEntityFilter) == 0 && entityManager()->entityCount(_collectCounterEntityFilter) == 0) {
+        if (entityManager()->entityCount(m_MonsterEntityFilter) == 0 && entityManager()->entityCount(m_CollectCounterEntityFilter) == 0) {
             printf("Damage taken counts: ");
-            for (const unsigned int& damageTakenCount : _damageTakenCounts)
+            for (const unsigned int& damageTakenCount : m_DamageTakenCounts)
                 printf("%d ", damageTakenCount);
             puts("");
             instance()->quit();
@@ -116,18 +116,18 @@ class MonsterDamageCounterSystem : public Melon::SystemBase {
     void onExit() override {}
 
   private:
-    Melon::EntityFilter _monsterEntityFilter;
-    Melon::EntityFilter _collectCounterEntityFilter;
-    unsigned int _monsterHealthComponentId;
-    unsigned int _persistentDamageComponentId;
-    unsigned int _manualDamageCounterComponentId;
+    Melon::EntityFilter m_MonsterEntityFilter;
+    Melon::EntityFilter m_CollectCounterEntityFilter;
+    unsigned int m_MonsterHealthComponentId;
+    unsigned int m_PersistentDamageComponentId;
+    unsigned int m_ManualDamageCounterComponentId;
 
-    std::vector<unsigned int> _damageTakenCounts;
+    std::vector<unsigned int> m_DamageTakenCounts;
 };
 
 int main() {
-    Melon::Instance instance;
-    instance.registerSystem<MonsterDamageCounterSystem>();
-    instance.start();
+    Melon::Instance()
+        .registerSystem<MonsterDamageCounterSystem>()
+        .start();
     return 0;
 }

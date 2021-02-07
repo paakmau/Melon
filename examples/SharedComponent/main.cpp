@@ -35,18 +35,18 @@ class GroupSystem : public Melon::SystemBase {
   protected:
     class GroupChunkTask : public Melon::ChunkTask {
       public:
-        GroupChunkTask(const unsigned int& moneyComponentId, const unsigned int& groupSharedComponentId) : _moneyComponentId(moneyComponentId), _groupSharedComponentId(groupSharedComponentId) {}
+        GroupChunkTask(const unsigned int& moneyComponentId, const unsigned int& groupSharedComponentId) : m_MoneyComponentId(moneyComponentId), m_GroupSharedComponentId(groupSharedComponentId) {}
         virtual void execute(const Melon::ChunkAccessor& chunkAccessor, const unsigned int& chunkIndex, const unsigned int& firstEntityIndex) override {
-            Money* moneys = chunkAccessor.componentArray<Money>(_moneyComponentId);
-            const Group* group = chunkAccessor.sharedComponent<Group>(_groupSharedComponentId);
+            Money* moneys = chunkAccessor.componentArray<Money>(m_MoneyComponentId);
+            const Group* group = chunkAccessor.sharedComponent<Group>(m_GroupSharedComponentId);
             for (unsigned int i = 0; i < chunkAccessor.entityCount(); i++) {
                 Money& money = moneys[i];
                 money.value += group->salary;
             }
         }
 
-        const unsigned int& _moneyComponentId;
-        const unsigned int& _groupSharedComponentId;
+        const unsigned int& m_MoneyComponentId;
+        const unsigned int& m_GroupSharedComponentId;
     };
 
     void onEnter() override {
@@ -65,30 +65,30 @@ class GroupSystem : public Melon::SystemBase {
         for (unsigned int i = 2; i < entities.size(); i += 3)
             entityManager()->setSharedComponent(entities[i], Group{.id = 2, .salary = 1000});
 
-        _entityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Money>().requireSharedComponents<Group>().createEntityFilter();
-        _moneyComponentId = entityManager()->componentId<Money>();
-        _groupSharedComponentId = entityManager()->sharedComponentId<Group>();
+        m_EntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Money>().requireSharedComponents<Group>().createEntityFilter();
+        m_MoneyComponentId = entityManager()->componentId<Money>();
+        m_GroupSharedComponentId = entityManager()->sharedComponentId<Group>();
     }
 
     void onUpdate() override {
         printf("Delta time : %f\n", time()->deltaTime());
-        predecessor() = schedule(std::make_shared<GroupChunkTask>(_moneyComponentId, _groupSharedComponentId), _entityFilter, predecessor());
-        if (_counter++ > 1000)
+        predecessor() = schedule(std::make_shared<GroupChunkTask>(m_MoneyComponentId, m_GroupSharedComponentId), m_EntityFilter, predecessor());
+        if (m_Counter++ > 1000)
             instance()->quit();
     }
 
     void onExit() override {}
 
   private:
-    Melon::EntityFilter _entityFilter;
-    unsigned int _moneyComponentId;
-    unsigned int _groupSharedComponentId;
-    unsigned int _counter{};
+    Melon::EntityFilter m_EntityFilter;
+    unsigned int m_MoneyComponentId;
+    unsigned int m_GroupSharedComponentId;
+    unsigned int m_Counter{};
 };
 
 int main() {
-    Melon::Instance instance;
-    instance.registerSystem<GroupSystem>();
-    instance.start();
+    Melon::Instance()
+        .registerSystem<GroupSystem>()
+        .start();
     return 0;
 }
