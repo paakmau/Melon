@@ -99,11 +99,11 @@ void RenderSystem::onEnter() {
     m_ManualRenderMeshComponentId = entityManager()->sharedComponentId<ManualRenderMesh>();
     m_LightComponentId = entityManager()->componentId<Light>();
 
-    m_KeyDownEventId = eventManager()->registerEvent<KeyDownEvent>();
-    m_KeyUpEventId = eventManager()->registerEvent<KeyUpEvent>();
-    m_MouseButtonDownEventId = eventManager()->registerEvent<MouseButtonDownEvent>();
-    m_MouseButtonUpEventId = eventManager()->registerEvent<MouseButtonUpEvent>();
-    m_MouseScrollEventId = eventManager()->registerEvent<MouseScrollEvent>();
+    m_KeyDownEventId = eventManager()->eventId<KeyDownEvent>();
+    m_KeyUpEventId = eventManager()->eventId<KeyUpEvent>();
+    m_MouseButtonDownEventId = eventManager()->eventId<MouseButtonDownEvent>();
+    m_MouseButtonUpEventId = eventManager()->eventId<MouseButtonUpEvent>();
+    m_MouseScrollEventId = eventManager()->eventId<MouseScrollEvent>();
 }
 
 void RenderSystem::onUpdate() {

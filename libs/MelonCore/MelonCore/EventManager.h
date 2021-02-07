@@ -40,20 +40,20 @@ class EventBuffer : public EventBufferBase {
 class EventManager {
   public:
     template <typename Type>
-    unsigned int registerEvent() { return registerEvent<Type>(typeid(Type)); }
+    unsigned int eventId() { return eventId<Type>(typeid(Type)); }
     template <typename Type>
-    unsigned int registerEvent(const std::type_index& typeIndex) {
+    unsigned int eventId(const std::type_index& typeIndex) {
         auto res = m_EventBufferIdMap.try_emplace(typeIndex, m_EventBufferIdMap.size());
         if (res.second)
             m_EventBuffers.emplace_back(std::make_unique<EventBuffer<Type>>());
         return res.first->second;
     }
     template <typename Type>
-    void send(const Type& event) { send<Type>(registerEvent<Type>(), event); }
+    void send(const Type& event) { send<Type>(eventId<Type>(), event); }
     template <typename Type>
     void send(const unsigned int& eventId, const Type& event) { static_cast<EventBuffer<Type>*>(m_EventBuffers[eventId].get())->push(event); }
     template <typename Type>
-    void send(const std::vector<Type>& events) { send<Type>(registerEvent<Type>(), events); }
+    void send(const std::vector<Type>& events) { send<Type>(eventId<Type>(), events); }
     template <typename Type>
     void send(const unsigned int& eventId, const std::vector<Type>& events) {
         auto* eventBuffer = static_cast<EventBuffer<Type>*>(m_EventBuffers[eventId].get());
@@ -61,11 +61,11 @@ class EventManager {
             eventBuffer->push(event);
     }
     template <typename Type>
-    typename std::vector<Type>::const_iterator begin() { return begin<Type>(registerEvent<Type>()); }
+    typename std::vector<Type>::const_iterator begin() { return begin<Type>(eventId<Type>()); }
     template <typename Type>
     typename std::vector<Type>::const_iterator begin(const unsigned int& eventId) { return static_cast<EventBuffer<Type>*>(m_EventBuffers[eventId].get())->begin(); }
     template <typename Type>
-    typename std::vector<Type>::const_iterator end() { return end<Type>(registerEvent<Type>()); }
+    typename std::vector<Type>::const_iterator end() { return end<Type>(eventId<Type>()); }
     template <typename Type>
     typename std::vector<Type>::const_iterator end(const unsigned int& eventId) { return static_cast<EventBuffer<Type>*>(m_EventBuffers[eventId].get())->end(); }
 
