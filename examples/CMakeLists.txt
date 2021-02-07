@@ -1,3 +1,11 @@
-foreach(EXAMPLE_DIR HelloWorld ChunkTask EntityCommandBuffer SharedComponent ManualDataComponent RenderMesh)
+foreach(
+  EXAMPLE_DIR
+  ChunkTask
+  EntityCommandBuffer
+  Event
+  HelloWorld
+  ManualDataComponent
+  RenderMesh
+  SharedComponent)
   add_subdirectory(${EXAMPLE_DIR})
 endforeach()

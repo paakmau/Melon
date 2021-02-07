@@ -3,6 +3,7 @@
 #include <MelonCore/ChunkAccessor.h>
 #include <MelonCore/EntityFilter.h>
 #include <MelonCore/EntityManager.h>
+#include <MelonCore/EventManager.h>
 #include <MelonCore/ResourceManager.h>
 #include <MelonCore/Time.h>
 #include <MelonTask/TaskHandle.h>
@@ -28,8 +29,8 @@ class SystemBase {
   public:
     static constexpr unsigned int k_MinChunkCountPerTask = 16;
 
-    SystemBase();
-    virtual ~SystemBase();
+    SystemBase() {}
+    virtual ~SystemBase() {}
 
   protected:
     virtual void onEnter() = 0;
@@ -44,12 +45,13 @@ class SystemBase {
     Time* const& time() const { return m_Time; }
     ResourceManager* const& resourceManager() const { return m_ResourceManager; }
     EntityManager* const& entityManager() const { return m_EntityManager; }
+    EventManager* const& eventManager() const { return m_EventManager; }
 
-    std::shared_ptr<TaskHandle> const& predecessor() const { return m_TaskHandle; }
+    const std::shared_ptr<TaskHandle>& predecessor() const { return m_TaskHandle; }
     std::shared_ptr<TaskHandle>& predecessor() { return m_TaskHandle; }
 
   private:
-    void enter(Instance* instance, TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager);
+    void enter(Instance* instance, TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager, EventManager* eventManager);
     void update();
     void exit();
 
@@ -58,6 +60,7 @@ class SystemBase {
     Time* m_Time;
     ResourceManager* m_ResourceManager;
     EntityManager* m_EntityManager;
+    EventManager* m_EventManager;
 
     std::shared_ptr<TaskHandle> m_TaskHandle;
 

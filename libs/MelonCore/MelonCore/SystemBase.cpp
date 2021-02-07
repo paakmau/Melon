@@ -3,10 +3,6 @@
 
 namespace Melon {
 
-SystemBase::SystemBase() {}
-
-SystemBase::~SystemBase() {}
-
 std::shared_ptr<TaskHandle> SystemBase::schedule(std::shared_ptr<ChunkTask> const& chunkTask, const EntityFilter& entityFilter, std::shared_ptr<TaskHandle> const& predecessor) {
     std::shared_ptr<std::vector<ChunkAccessor>> accessors = std::make_shared<std::vector<ChunkAccessor>>(m_EntityManager->filterEntities(entityFilter));
     if (accessors->size() == 0) return predecessor;
@@ -52,12 +48,13 @@ std::shared_ptr<TaskHandle> SystemBase::schedule(std::shared_ptr<EntityCommandBu
     return m_TaskManager->combine(taskHandles);
 }
 
-void SystemBase::enter(Instance* instance, TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager) {
+void SystemBase::enter(Instance* instance, TaskManager* taskManager, Time* time, ResourceManager* resourceManager, EntityManager* entityManager, EventManager* eventManager) {
     m_Instance = instance;
     m_TaskManager = taskManager;
     m_Time = time;
     m_ResourceManager = resourceManager;
     m_EntityManager = entityManager;
+    m_EventManager = eventManager;
     onEnter();
     m_TaskManager->activateWaitingTasks();
 }

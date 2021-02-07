@@ -4,6 +4,7 @@
 #include <MelonCore/SystemBase.h>
 #include <MelonCore/Time.h>
 #include <MelonTask/TaskManager.h>
+#include <MelonCore/EventManager.h>
 
 #include <functional>
 #include <memory>
@@ -29,6 +30,7 @@ class World {
   private:
     TaskManager* const m_TaskManager;
     EntityManager m_EntityManager;
+    EventManager m_EventManager;
     std::vector<std::unique_ptr<SystemBase>> m_Systems;
     std::function<void()> m_EntityCommandBufferExecutor;
 };

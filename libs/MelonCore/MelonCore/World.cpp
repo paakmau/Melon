@@ -14,7 +14,7 @@ World::World(TaskManager* taskManager) : m_TaskManager(taskManager) {
 
 void World::enter(Instance* instance, Time* time, ResourceManager* resourceManager) {
     for (std::unique_ptr<SystemBase> const& system : m_Systems)
-        system->enter(instance, m_TaskManager, time, resourceManager, &m_EntityManager);
+        system->enter(instance, m_TaskManager, time, resourceManager, &m_EntityManager, &m_EventManager);
 }
 
 void World::update() {
@@ -29,6 +29,7 @@ void World::update() {
     // Update systems
     for (std::unique_ptr<SystemBase> const& system : m_Systems)
         system->update();
+    m_EventManager.update();
 }
 
 void World::exit() {

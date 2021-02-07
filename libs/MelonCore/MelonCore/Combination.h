@@ -39,7 +39,7 @@ class Combination {
 
     const unsigned int& index() const { return m_Index; }
 
-    std::vector<unsigned int> const& sharedComponentIndices() const { return m_SharedComponentIndices; }
+    const std::vector<unsigned int>& sharedComponentIndices() const { return m_SharedComponentIndices; }
     const unsigned int& entityCount() const { return m_EntityCount; }
 
   private:
