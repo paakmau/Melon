@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-struct Hello : public Melon::Event {
+struct HelloEvent : public Melon::Event {
     std::string message;
 };
 
@@ -15,7 +15,7 @@ class SenderSystem : public Melon::SystemBase {
   protected:
     void onEnter() final {}
     void onUpdate() final {
-        eventManager()->send<Hello>(Hello{.message = "Hello!"});
+        eventManager()->send<HelloEvent>(HelloEvent{.message = "Hello!"});
         if (m_Counter++ > 1000)
             instance()->quit();
     }
@@ -29,7 +29,7 @@ class ReceiverSystem : public Melon::SystemBase {
   protected:
     void onEnter() final {}
     void onUpdate() final {
-        for (auto it = eventManager()->begin<Hello>(); it != eventManager()->end<Hello>(); it++)
+        for (auto it = eventManager()->begin<HelloEvent>(); it != eventManager()->end<HelloEvent>(); it++)
             printf("Receive: %s\n", it->message.c_str());
     }
     void onExit() final {}
