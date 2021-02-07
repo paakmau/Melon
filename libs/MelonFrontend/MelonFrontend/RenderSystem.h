@@ -3,6 +3,7 @@
 #include <MelonCore/ArchetypeMask.h>
 #include <MelonCore/SystemBase.h>
 #include <MelonFrontend/Engine.h>
+#include <MelonFrontend/InputEvents.h>
 #include <MelonFrontend/MeshBuffer.h>
 #include <MelonFrontend/RenderMesh.h>
 
@@ -37,6 +38,12 @@ class RenderSystem : public SystemBase {
     unsigned int m_RenderMeshComponentId;
     unsigned int m_ManualRenderMeshComponentId;
     unsigned int m_LightComponentId;
+
+    unsigned int m_KeyDownEventId;
+    unsigned int m_KeyUpEventId;
+    unsigned int m_MouseButtonDownEventId;
+    unsigned int m_MouseButtonUpEventId;
+    unsigned int m_MouseScrollEventId;
 
     unsigned int m_CurrentWidth;
     unsigned int m_CurrentHeight;

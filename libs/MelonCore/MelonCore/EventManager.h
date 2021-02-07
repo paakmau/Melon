@@ -13,7 +13,7 @@ namespace Melon {
 
 class EventBufferBase {
   public:
-    virtual ~EventBufferBase() {};
+    virtual ~EventBufferBase(){};
     virtual void flush() = 0;
 };
 
@@ -52,6 +52,14 @@ class EventManager {
     void send(const Type& event) { send<Type>(registerEvent<Type>(), event); }
     template <typename Type>
     void send(const unsigned int& eventId, const Type& event) { static_cast<EventBuffer<Type>*>(m_EventBuffers[eventId].get())->push(event); }
+    template <typename Type>
+    void send(const std::vector<Type>& events) { send<Type>(registerEvent<Type>(), events); }
+    template <typename Type>
+    void send(const unsigned int& eventId, const std::vector<Type>& events) {
+        auto* eventBuffer = static_cast<EventBuffer<Type>*>(m_EventBuffers[eventId].get());
+        for (const auto& event : events)
+            eventBuffer->push(event);
+    }
     template <typename Type>
     typename std::vector<Type>::const_iterator begin() { return begin<Type>(registerEvent<Type>()); }
     template <typename Type>

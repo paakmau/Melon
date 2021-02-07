@@ -1,5 +1,6 @@
 #include <MelonCore/Combination.h>
 #include <MelonCore/EntityManager.h>
+#include <MelonCore/EventManager.h>
 #include <MelonCore/Instance.h>
 #include <MelonCore/Rotation.h>
 #include <MelonCore/Scale.h>
@@ -97,6 +98,12 @@ void RenderSystem::onEnter() {
     m_RenderMeshComponentId = entityManager()->sharedComponentId<RenderMesh>();
     m_ManualRenderMeshComponentId = entityManager()->sharedComponentId<ManualRenderMesh>();
     m_LightComponentId = entityManager()->componentId<Light>();
+
+    m_KeyDownEventId = eventManager()->registerEvent<KeyDownEvent>();
+    m_KeyUpEventId = eventManager()->registerEvent<KeyUpEvent>();
+    m_MouseButtonDownEventId = eventManager()->registerEvent<MouseButtonDownEvent>();
+    m_MouseButtonUpEventId = eventManager()->registerEvent<MouseButtonUpEvent>();
+    m_MouseScrollEventId = eventManager()->registerEvent<MouseScrollEvent>();
 }
 
 void RenderSystem::onUpdate() {
@@ -191,6 +198,13 @@ void RenderSystem::onUpdate() {
     m_Engine.endFrame();
     if (m_Engine.windowClosed())
         instance()->quit();
+
+    // Deal with input
+    eventManager()->send<KeyDownEvent>(m_KeyDownEventId, m_Engine.keyDownEvents());
+    eventManager()->send<KeyUpEvent>(m_KeyUpEventId, m_Engine.keyUpEvents());
+    eventManager()->send<MouseButtonDownEvent>(m_MouseButtonDownEventId, m_Engine.mouseButtonDownEvents());
+    eventManager()->send<MouseButtonUpEvent>(m_MouseButtonUpEventId, m_Engine.mouseButtonUpEvents());
+    eventManager()->send<MouseScrollEvent>(m_MouseScrollEventId, m_Engine.mouseScrollEvents());
 }
 
 void RenderSystem::onExit() {

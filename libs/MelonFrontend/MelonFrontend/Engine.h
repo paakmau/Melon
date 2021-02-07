@@ -33,6 +33,12 @@ class Engine {
     float windowAspectRatio() const { return m_Window.aspectRatio(); }
     bool windowClosed() const { return m_Window.closed(); }
 
+    const std::vector<KeyDownEvent>& keyDownEvents() { return m_Window.keyDownEvents(); }
+    const std::vector<KeyUpEvent>& keyUpEvents() { return m_Window.keyUpEvents(); }
+    const std::vector<MouseButtonDownEvent>& mouseButtonDownEvents() { return m_Window.mouseButtonDownEvents(); }
+    const std::vector<MouseButtonUpEvent>& mouseButtonUpEvents() { return m_Window.mouseButtonUpEvents(); }
+    const std::vector<MouseScrollEvent>& mouseScrollEvents() { return m_Window.mouseScrollEvents(); }
+
   private:
     void notifyWindowResized();
     void notifyWindowClosed();

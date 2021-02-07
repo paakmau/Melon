@@ -14,6 +14,10 @@ void Window::initialize(const char* title, const unsigned int& width, const unsi
     // Callbacks
     glfwSetFramebufferSizeCallback(m_Window, framebufferResizeCallback);
     glfwSetWindowCloseCallback(m_Window, windowCloseCallback);
+    glfwSetKeyCallback(m_Window, keyCallback);
+    glfwSetCursorPosCallback(m_Window, cursorPosCallback);
+    glfwSetMouseButtonCallback(m_Window, mouseButtonCallback);
+    glfwSetScrollCallback(m_Window, scrollCallback);
 }
 
 void Window::terminate() {
@@ -22,6 +26,11 @@ void Window::terminate() {
 }
 
 void Window::pollEvents() {
+    m_KeyDownEvents.clear();
+    m_KeyUpEvents.clear();
+    m_MouseButtonDownEvents.clear();
+    m_MouseButtonUpEvents.clear();
+    m_MouseScrollEvents.clear();
     glfwPollEvents();
 }
 
@@ -49,6 +58,39 @@ void Window::framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int he
 void Window::windowCloseCallback(GLFWwindow* glfwWindow) {
     Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
     window->notifyClosed();
+}
+
+void Window::keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods) {
+    Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+    switch (action) {
+        case GLFW_PRESS:
+            window->m_KeyDownEvents.emplace_back(KeyDownEvent{.key = key});
+            break;
+        case GLFW_RELEASE:
+            window->m_KeyUpEvents.emplace_back(KeyUpEvent{.key = key});
+            break;
+    }
+}
+
+void Window::cursorPosCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
+    // TODO: Deal with cursor position Event
+}
+
+void Window::mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
+    Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+    switch (action) {
+        case GLFW_PRESS:
+            window->m_MouseButtonDownEvents.emplace_back(MouseButtonDownEvent{.button = button});
+            break;
+        case GLFW_RELEASE:
+            window->m_MouseButtonUpEvents.emplace_back(MouseButtonUpEvent{.button = button});
+            break;
+    }
+}
+
+void Window::scrollCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
+    Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+    window->m_MouseScrollEvents.emplace_back(MouseScrollEvent{.xOffset = static_cast<float>(xOffset), .yOffset = static_cast<float>(yOffset)});
 }
 
 void Window::notifyResized() { m_Resized = true; }

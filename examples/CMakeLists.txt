@@ -4,6 +4,7 @@ foreach(
   EntityCommandBuffer
   Event
   HelloWorld
+  Input
   ManualDataComponent
   RenderMesh
   SharedComponent)
