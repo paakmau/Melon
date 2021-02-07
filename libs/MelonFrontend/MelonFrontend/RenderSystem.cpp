@@ -82,7 +82,7 @@ RenderSystem::RenderSystem(const unsigned int& width, const unsigned int& height
 RenderSystem::~RenderSystem() {}
 
 void RenderSystem::onEnter() {
-    m_Engine.initialize(taskManager(), instance()->applicationName(), m_CurrentWidth, m_CurrentHeight);
+    m_Engine.initialize(taskManager(), instance()->applicationName().c_str(), m_CurrentWidth, m_CurrentHeight);
 
     m_CreatedRenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireSharedComponents<RenderMesh>().rejectSharedComponents<ManualRenderMesh>().createEntityFilter();
     m_RenderMeshEntityFilter = entityManager()->createEntityFilterBuilder().requireComponents<Translation, Rotation, Scale>().requireSharedComponents<RenderMesh, ManualRenderMesh>().createEntityFilter();

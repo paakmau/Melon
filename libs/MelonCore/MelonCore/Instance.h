@@ -7,6 +7,7 @@
 #include <MelonTask/TaskManager.h>
 
 #include <memory>
+#include <string>
 
 namespace Melon {
 
@@ -17,19 +18,24 @@ class Instance {
   public:
     Instance();
 
+    Instance& setApplicationName(const std::string& applicationName) {
+        m_ApplicationName = applicationName;
+        return *this;
+    }
+
     template <typename Type, typename... Args>
-    void registerSystem(Args&&... args);
+    Instance& registerSystem(Args&&... args);
 
     void start();
     void quit();
 
-    const char* const& applicationName() const { return m_ApplicationName; }
-    const char*& applicationName() { return m_ApplicationName; }
+    const std::string& applicationName() const { return m_ApplicationName; }
+    std::string& applicationName() { return m_ApplicationName; }
 
   private:
     void mainLoop();
 
-    const char* m_ApplicationName{};
+    std::string m_ApplicationName{};
 
     TaskManager m_TaskManager;
 
@@ -43,8 +49,9 @@ class Instance {
 };
 
 template <typename Type, typename... Args>
-void Instance::registerSystem(Args&&... args) {
+Instance& Instance::registerSystem(Args&&... args) {
     m_DefaultWorld->registerSystem<Type>(std::forward<Args>(args)...);
+    return *this;
 }
 
 }  // namespace Melon
