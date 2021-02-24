@@ -619,11 +619,11 @@ inline void createGraphicsPipeline(VkDevice device, std::vector<uint32_t> const&
         .depthWriteEnable = VK_TRUE,
         .depthCompareOp = VK_COMPARE_OP_LESS,
         .depthBoundsTestEnable = VK_FALSE,
-        .minDepthBounds = 0.0f,
-        .maxDepthBounds = 1.0f,
         .stencilTestEnable = VK_FALSE,
         .front = {},
-        .back = {}};
+        .back = {},
+        .minDepthBounds = 0.0f,
+        .maxDepthBounds = 1.0f};
 
     VkPipelineColorBlendAttachmentState colorBlendAttachmentState = {
         .blendEnable = VK_FALSE,
