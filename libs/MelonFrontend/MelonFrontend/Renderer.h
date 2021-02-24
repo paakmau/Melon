@@ -12,6 +12,7 @@
 #include <MelonFrontend/Vertex.h>
 #include <MelonFrontend/VulkanPlatform.h>
 #include <MelonFrontend/Window.h>
+#include <MelonFrontend/Texture.h>
 #include <MelonTask/TaskManager.h>
 
 #include <array>
@@ -77,6 +78,7 @@ class Renderer {
 
     VkRenderPass m_RenderPassClear;
     std::vector<VkFramebuffer> m_Framebuffers;
+    Texture m_DepthMap;
 
     unsigned int m_CurrentFrame{};
     std::array<VkSemaphore, k_MaxInFlightFrameCount> m_ImageAvailableSemaphores;

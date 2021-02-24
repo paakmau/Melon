@@ -23,16 +23,21 @@ void Renderer::initialize(TaskManager* taskManager, Window* window) {
     glfwCreateWindowSurface(m_VulkanInstance, window->window(), nullptr, &m_Surface);
     selectPhysicalDevice(m_VulkanInstance, m_Surface, m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PhysicalDeviceFeatures);
     createLogicalDevice(m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PhysicalDeviceFeatures, m_Device, m_GraphicsQueue, m_PresentQueue);
+    createAllocator(m_VulkanInstance, m_PhysicalDevice, m_Device, m_Allocator);
 
     m_SwapChain.initialize(window->extent(), m_Surface, m_PhysicalDevice, m_Device, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex, m_PresentQueue);
 
     createCommandPool(m_Device, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, m_GraphicsQueueFamilyIndex, m_CommandPool);
     for (unsigned int i = 0; i < k_MaxTaskCount; i++)
         createCommandPool(m_Device, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, m_GraphicsQueueFamilyIndex, m_CommandPools[i]);
-    createRenderPass(m_Device, m_SwapChain.imageFormat(), m_RenderPassClear);
+    createRenderPass(m_PhysicalDevice, m_Device, m_SwapChain.imageFormat(), m_RenderPassClear);
+    selectDepthFormat(m_PhysicalDevice, m_DepthMap.format);
+    m_DepthMap.extent = m_SwapChain.imageExtent();
+    createDepthMap(m_Device, m_Allocator, m_GraphicsQueue, m_CommandPool, m_DepthMap.extent, m_DepthMap.format, m_DepthMap.image, m_DepthMap.allocation, m_DepthMap.imageView);
     m_Framebuffers.resize(m_SwapChain.imageCount());
     for (unsigned int i = 0; i < m_Framebuffers.size(); i++)
-        createFramebuffer(m_Device, m_SwapChain.imageViews()[i], m_RenderPassClear, m_SwapChain.imageExtent(), m_Framebuffers[i]);
+        createFramebuffer(m_Device, m_SwapChain.imageViews()[i], m_DepthMap.imageView, m_RenderPassClear, m_SwapChain.imageExtent(), m_Framebuffers[i]);
+
     createSemaphores(m_Device, k_MaxInFlightFrameCount, m_ImageAvailableSemaphores);
     createSemaphores(m_Device, k_MaxInFlightFrameCount, m_RenderFinishedSemaphores);
     createFences(m_Device, VK_FENCE_CREATE_SIGNALED_BIT, k_MaxInFlightFrameCount, m_InFlightFences);
@@ -43,7 +48,6 @@ void Renderer::initialize(TaskManager* taskManager, Window* window) {
     m_Subrenderer = std::make_unique<Subrenderer>();
     m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_LightDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
 
-    createAllocator(m_VulkanInstance, m_PhysicalDevice, m_Device, m_Allocator);
     createDescriptorPool<1>(m_Device, {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}, {k_MaxUniformDescriptorCount}, {k_MaxUniformDescriptorCount}, m_UniformDescriptorPool);
     m_UniformMemoryPool.initialize(m_Device, m_Allocator, m_UniformDescriptorPool);
     m_UniformMemoryPool.registerUniformObjectSize(sizeof(CameraUniformObject));
@@ -84,7 +88,6 @@ void Renderer::terminate() {
         m_UniformMemoryPool.recycle(cameraUniformMemory);
     m_UniformMemoryPool.terminate();
     vkDestroyDescriptorPool(m_Device, m_UniformDescriptorPool, nullptr);
-    vmaDestroyAllocator(m_Allocator);
 
     m_Subrenderer->terminate();
     vkDestroyDescriptorSetLayout(m_Device, m_LightDescriptorSetLayout, nullptr);
@@ -99,6 +102,8 @@ void Renderer::terminate() {
 
     for (VkFramebuffer framebuffer : m_Framebuffers)
         vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+    vkDestroyImageView(m_Device, m_DepthMap.imageView, nullptr);
+    vmaDestroyImage(m_Allocator, m_DepthMap.image, m_DepthMap.allocation);
     vkDestroyRenderPass(m_Device, m_RenderPassClear, nullptr);
     for (unsigned int i = 0; i < k_MaxTaskCount; i++)
         vkDestroyCommandPool(m_Device, m_CommandPools[i], nullptr);
@@ -106,6 +111,7 @@ void Renderer::terminate() {
 
     m_SwapChain.terminate();
 
+    vmaDestroyAllocator(m_Allocator);
     vkDestroyDevice(m_Device, nullptr);
     vkDestroySurfaceKHR(m_VulkanInstance, m_Surface, nullptr);
     vkDestroyInstance(m_VulkanInstance, nullptr);
@@ -243,10 +249,10 @@ void Renderer::recreateSwapChain() {
         vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
     vkDestroyRenderPass(m_Device, m_RenderPassClear, nullptr);
     m_SwapChain.recreateSwapchain(m_Window->extent());
-    createRenderPass(m_Device, m_SwapChain.imageFormat(), m_RenderPassClear);
+    createRenderPass(m_PhysicalDevice, m_Device, m_SwapChain.imageFormat(), m_RenderPassClear);
     m_Framebuffers.resize(m_SwapChain.imageCount());
     for (unsigned int i = 0; i < m_Framebuffers.size(); i++)
-        createFramebuffer(m_Device, m_SwapChain.imageViews()[i], m_RenderPassClear, m_SwapChain.imageExtent(), m_Framebuffers[i]);
+        createFramebuffer(m_Device, m_SwapChain.imageViews()[i], m_DepthMap.imageView, m_RenderPassClear, m_SwapChain.imageExtent(), m_Framebuffers[i]);
     m_Subrenderer->initialize(m_Device, m_SwapChain.imageExtent(), m_CameraDescriptorSetLayout, m_EntityDescriptorSetLayout, m_LightDescriptorSetLayout, m_RenderPassClear, m_SwapChain.imageCount());
 }
 
@@ -295,7 +301,9 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
     for (std::shared_ptr<TaskHandle> taskHandle : subrendererHandles)
         taskHandle->complete();
 
-    VkClearValue clearValue = {0.0f, 0.0f, 0.0f, 1.0f};
+    std::array<VkClearValue, 2> clearValues = {
+        VkClearValue{.color = {0.0f, 0.0f, 0.0f, 1.0f}},
+        VkClearValue{.depthStencil = {1.0f, 0}}};
     VkRenderPassBeginInfo renderPassInfo{
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
         .renderPass = m_RenderPassClear,
@@ -303,8 +311,8 @@ void Renderer::recordCommandBufferDraw(std::vector<RenderBatch> const& renderBat
         .renderArea = VkRect2D{
             .offset = {0, 0},
             .extent = m_SwapChain.imageExtent()},
-        .clearValueCount = 1,
-        .pClearValues = &clearValue};
+        .clearValueCount = static_cast<uint32_t>(clearValues.size()),
+        .pClearValues = clearValues.data()};
     vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
     for (const SecondaryCommandBuffer& secondaryCommandBuffer : m_SecondaryCommandBufferArrays[m_CurrentFrame])
         vkCmdExecuteCommands(m_CommandBuffers[m_CurrentFrame], 1, &secondaryCommandBuffer.buffer);
